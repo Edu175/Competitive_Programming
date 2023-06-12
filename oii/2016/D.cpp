@@ -12,7 +12,7 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
 
-
+//s
 int n,sq,nq; // array size, sqrt(array size), #queries
 struct qu{int l,r,id;};
 qu qs[MAXN];

@@ -1,0 +1,7 @@
+http://34.132.215.219/nivel2/
+Usuario / Password: N2U26 / KbAwam8Z9a
+
+212345678987654321 1777771 106955741089659571
+
+/usr/bin/g++ -DEVAL -std=gnu++11 -O2 -pipe -static -s -o a vial.cpp vialEvaluador.cpp
+

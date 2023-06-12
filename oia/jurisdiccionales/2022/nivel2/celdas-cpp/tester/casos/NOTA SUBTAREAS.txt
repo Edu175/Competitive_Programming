@@ -1,0 +1,9 @@
+Acá dejo aclarado, para cada subtarea, cuáles otras subtareas hay que incluirle:
+
+Subtarea 1: -
+Subtarea 2: S1
+Subtarea 3: -
+Subtarea 4: -
+Subtarea 5: -
+Subtarea 6: S1
+Subtarea 7: Sin restricciones

@@ -11,7 +11,7 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-const ll MAXN=1e5,MAXQ=2e5+5,MAXM=2e5+5,MAXV=1e6+5;
+const ll MAXN=1e6,MAXQ=1e6,MAXM=1e6,MAXV=1e6+5;
 
 struct STree{
 	ll n; vector<ll>t;
@@ -36,7 +36,7 @@ vector<ii> qs[MAXN];
 ll ans[MAXQ];
 ll p[MAXN],w[MAXM];
 STree sum,qan;
-ll c[MAXN];
+ll c[MAXM];
 void ADD(ll x){ //CH add node x
 	ll v=w[p[x]];
 	if(++c[p[x]]==1)sum.upd(v,v),qan.upd(v,1);

@@ -11,8 +11,7 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-//v2
-//const ll it=100;
+
 ll rnd(){ // < 2³⁰
 	return ((1ll*rand())<<15)+rand();
 }
@@ -24,42 +23,20 @@ int main(){FIN;
 		ll a[n],xp[n+1]; xp[0]=0;
 		fore(i,0,n)cin>>a[i];
 		fore(i,1,n+1)xp[i]=xp[i-1]^a[i-1]; // l-->l-1 , r-->r
-		map<ll,ll>oc;
-		vector<ll>res;
-		fore(i,0,n+1){
-			if(!oc.count(xp[i]))oc[xp[i]]=i;
-			else if(oc[xp[i]]<i-1){
-				res={oc[xp[i]],i-1,i-1,i};
-			}
-		}
 		map<ll,ii>mp;
-		set<ii>st;
-		//imp(xp);
-		while(!SZ(res)){
+		vector<ll>res;
+		while(1){
 			ll l=rnd()%(n+1),r=rnd()%(n+1);
-			if(l==r)continue;
-			if(l>r)swap(l,r);
-			if(st.count({l,r}))continue;
-			st.insert({l,r});
 			ll v=xp[l]^xp[r];
-			/*cout<<l<<" "<<r<<" = "<<v<<"\n";
-			cout<<"st:: ";
-			for(auto i:st)cout<<i.fst<<","<<i.snd<<" ";
-			cout<<"\n";
-			for(auto i:mp[v])cout<<i.fst<<","<<i.snd<<" ";
-			cout<<"\n";*/
-			if(mp.count(v)){
-				vector<ll>resi={mp[v].fst,mp[v].snd,l,r};
-				sort(ALL(resi));
-				//cout<<i.fst<<","<<i.snd<<": "; imp(resi);
-				if(resi[0]<resi[1]&&resi[2]<resi[3]){
-					res=resi;
-					break;
-				}
+			vector<ll>resi={mp[v].fst,mp[v].snd,l,r};
+			sort(ALL(resi));
+			if(resi[0]<resi[1]&&resi[2]<resi[3]){
+				res=resi;
+				break;
 			}
+			if(SZ(res))break;
 			mp[v]={l,r};
 		}
-		//imp(res);	
 		if(!SZ(res))cout<<"-1\n";
 		else {
 			ll l0=res[0],r0=res[1],l1=res[2],r1=res[3]; // index 0, [l,r)

@@ -7,19 +7,30 @@
 #define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
-#define imp(v) for(auto edu:v)cout<<edu<<" "; cout<<"\n"
+#define imp(v) for(auto messi:v)cout<<messi<<" "; cout<<"\n"
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
+const ll MAXN=2e5+5;
 
-ll n;
+ll n,k;
+ll a[MAXN];
+
+bool messirve(ll x){
+	ll ki=0;
+	fore(i,n/2,n)if(x-a[i]>0)ki+=x-a[i];
+	return ki<=k;
+}
 int main(){FIN;
-	ll n; cin>>n;
-	vector<ll>a(n);
+	cin>>n>>k;
 	fore(i,0,n)cin>>a[i];
-	ll sum=0;
-	fore(i,0,n)sum+=a[i]*a[i+1];
-	cout<<a[(n-1)*5000000]<<"\n";
-	cout<<sum<<"\n";
+	sort(a,a+n);
+	ll l=0,r=1e10;
+	while(l<=r){
+		ll m=(l+r)/2;
+		if(messirve(m))l=m+1;
+		else r=m-1;
+	}
+	cout<<r<<"\n";
 	return 0;
 }

@@ -11,15 +11,37 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
+const ll MAXN=2e5+5;
 
-ll n;
+vector<ll>g[MAXN];
+ll h[MAXN];
+void dfs(ll x, ll f){
+	for(auto y:g[x])if(y!=f){
+		dfs(y,x);
+		h[x]+=h[y];
+	}
+	if(x!=0&&SZ(g[x])==1)h[x]=1;
+}
+
 int main(){FIN;
-	ll n; cin>>n;
-	vector<ll>a(n);
-	fore(i,0,n)cin>>a[i];
-	ll sum=0;
-	fore(i,0,n)sum+=a[i]*a[i+1];
-	cout<<a[(n-1)*5000000]<<"\n";
-	cout<<sum<<"\n";
+	ll t; cin>>t;
+	while(t--){
+		ll n; cin>>n;
+		fore(i,0,n){
+			g[i].clear();
+			h[i]=0;
+		}
+		fore(i,0,n-1){
+			ll u,v; cin>>u>>v; u--,v--;
+			g[u].pb(v);
+			g[v].pb(u);
+		}
+		dfs(0,-1);
+		ll q; cin>>q;
+		while(q--){
+			ll x,y; cin>>x>>y; x--,y--;
+			cout<<h[x]*h[y]<<"\n";
+		}
+	}
 	return 0;
 }

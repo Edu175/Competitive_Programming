@@ -11,28 +11,25 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-const ll MAXN=1e5+5,INF=4e18;
-
-ll p[3];
-ll a[MAXN],n;
-ll dp[MAXN][4],vis[MAXN][4];
-
-ll f(ll i, ll d){
-	ll &res=dp[i][d];
-	if(vis[i][d])return res;
-	vis[i][d]=1;
-	if(i==n){
-		if(d==3)return res=0;
-		return res=-INF;
-	}
-	res=f(i+1,d);
-	if(d<3)res=max(res,p[d]*a[i]+f(i,d+1));
-	return res;
-}
 
 int main(){FIN;
-	cin>>n>>p[0]>>p[1]>>p[2];
-	fore(i,0,n)cin>>a[i];
-	cout<<f(0,0)<<"\n";
+	ll t; cin>>t;
+	while(t--){
+		ll n; cin>>n;
+		if(n<3){
+			if(n==1)cout<<"Yes\n1\n";
+			else cout<<"No\n";
+			continue;
+		}
+		ll k=n-3;
+		if(k>=28){
+			cout<<"No\n";
+			continue;
+		}
+		vector<ll>a={6*(1ll<<k),3*(1ll<<k),2*(1ll<<k)};
+		fore(i,1,k+1)a.pb(1ll<<i);
+		cout<<"Yes\n";
+		imp(a);
+	}
 	return 0;
 }

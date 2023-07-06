@@ -45,7 +45,7 @@ int main(){FIN;
 	ll l=0,r=n;
 	while(l<r){
 		ll m=(l+r)/2;
-		cout<<"["<<l<<","<<r<<") "<<m<<"\n";
+		//cout<<"["<<l<<","<<r<<") "<<m<<"\n";
 		if(p>=m)l=m+1,a[m]=1;
 		else r=m,a[m]=2;
 	}
@@ -56,9 +56,9 @@ int main(){FIN;
 		if(a[i]==1)c++;
 		if(a[i]==2)d++;
 	}
-	imp(a);
-	cout<<c<<" "<<d<<" "<<e<<"\n";
-	ll res=fc[e]*nPr(x,c)%MOD*nPr(n-x,d)%MOD;
+	//imp(a);
+	//cout<<c<<" "<<d<<" "<<e<<"\n";
+	ll res=fc[e]*nPr(x-1,c)%MOD*nPr(n-x,d)%MOD;
 	cout<<res<<"\n";
 	return 0;
 }

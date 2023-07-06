@@ -11,28 +11,18 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-const ll MAXN=1e5+5,INF=4e18;
-
-ll p[3];
-ll a[MAXN],n;
-ll dp[MAXN][4],vis[MAXN][4];
-
-ll f(ll i, ll d){
-	ll &res=dp[i][d];
-	if(vis[i][d])return res;
-	vis[i][d]=1;
-	if(i==n){
-		if(d==3)return res=0;
-		return res=-INF;
-	}
-	res=f(i+1,d);
-	if(d<3)res=max(res,p[d]*a[i]+f(i,d+1));
-	return res;
-}
 
 int main(){FIN;
-	cin>>n>>p[0]>>p[1]>>p[2];
+	ll n=8;
+	ll a[n];
 	fore(i,0,n)cin>>a[i];
-	cout<<f(0,0)<<"\n";
+	ll flag=1;
+	fore(i,0,n){
+		if(i&&a[i-1]>a[i])flag=0;
+		if(a[i]<100||a[i]>675)flag=0;
+		if(a[i]%25)flag=0;
+	}
+	if(flag)cout<<"Yes\n";
+	else cout<<"No\n";
 	return 0;
 }

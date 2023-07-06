@@ -11,28 +11,23 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-const ll MAXN=1e5+5,INF=4e18;
-
-ll p[3];
-ll a[MAXN],n;
-ll dp[MAXN][4],vis[MAXN][4];
-
-ll f(ll i, ll d){
-	ll &res=dp[i][d];
-	if(vis[i][d])return res;
-	vis[i][d]=1;
-	if(i==n){
-		if(d==3)return res=0;
-		return res=-INF;
-	}
-	res=f(i+1,d);
-	if(d<3)res=max(res,p[d]*a[i]+f(i,d+1));
-	return res;
-}
 
 int main(){FIN;
-	cin>>n>>p[0]>>p[1]>>p[2];
+	ll n,m; cin>>n>>m;
+	string a[n];
 	fore(i,0,n)cin>>a[i];
-	cout<<f(0,0)<<"\n";
+	string k[m];
+	ll p[m];
+	fore(i,0,m)cin>>k[i];
+	ll sp; cin>>sp;
+	fore(i,0,m)cin>>p[i];
+	map<string,ll>mp;
+	fore(i,0,m)mp[k[i]]=p[i];
+	ll sum=0;
+	fore(i,0,n){
+		if(mp.count(a[i]))sum+=mp[a[i]];
+		else sum+=sp;
+	}
+	cout<<sum<<"\n";
 	return 0;
 }

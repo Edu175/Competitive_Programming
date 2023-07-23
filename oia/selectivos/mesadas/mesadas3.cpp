@@ -16,21 +16,14 @@ int main(){FIN;
 	ifstream cin;   cin.open("mesadas.in", ios::in);
 	ofstream cout; cout.open("mesadas.out", ios::out);
 	ll n; cin>>n;
-	vector<ii>a;
+	ii a[n];
 	fore(i,0,n){
-		ll x,y; cin>>x>>y;
-		if(x>y)swap(x,y);
-		//y*=-1;
-		a.pb({x,y});
+		cin>>a[i].fst>>a[i].snd;
+		if(a[i].fst<a[i].snd)swap(a[i].fst,a[i].snd);
 	}
+	//maxima anticadena
 	sort(ALL(a)); reverse(ALL(a));
-	vector<ll>b;
-	fore(i,0,n){
-		ll x=a[i].snd;
-		ll w=lower_bound(ALL(b),x)-b.begin();
-		if(w>=SZ(b))b.pb(x);
-		else b[w]=x;
-	}
-	cout<<SZ(b)<<"\n";
+	
+	
 	return 0;
 }

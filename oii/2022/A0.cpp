@@ -3,8 +3,8 @@
 #define fst first
 #define snd second
 #define fore(i,a,b) for(ll i=a,oii=b;i<oii;i++)
-#define SZ(x) ((int)x.size)
-#define ALL(x) x.begin(),x.end
+#define SZ(x) ((int)x.size())
+#define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
 #define imp(v) for(auto messi:v)cout<<messi<<" ";cout<<"\n"
@@ -25,10 +25,9 @@ void dfs(ll x){
 }
 ll sz;
 vector<ll> h[MAXN];
-//vector<ll>del;
 void dfs2(ll x){
 	sz+=w[x];
-	vis[x]=1; //del.pb(x);
+	vis[x]=1;
 	for(auto y:h[x])if(!vis[y])dfs2(y);
 }
 int main(){FIN;
@@ -47,44 +46,36 @@ int main(){FIN;
 		dfs(x);
 		k++;
 	}
-	//vector<ll>col[n];
-	//fore(i,0,k)col[c[i]].pb(i);
-	map<ii,vector<ii>>can; //color, edge
-	//set<ii>multi;
+	vector<pair<ii,ll>>can;
 	fore(i,0,m){ //contains self loops (prob) and multi edges
 		ll u=id[ed[i].fst],v=id[ed[i].snd];
+		ed[i]={u,v};
 		//if(u>v)swap(u,v);
-		//if(multi.count({u,v}))continue;
-		//multi.insert({u,v});
 		ii p={c[u],c[v]};
 		if(p.fst>p.snd)swap(p.fst,p.snd);
-		can[p].pb({u,v});
+		can.pb({p,i});
 	}
+	sort(ALL(can));
 	ll res=1;
 	mset(vis,0);
-	ll nodes[2*n+5];
-	for(auto i:can){
-		ll idx=0;
-		//for(auto j:col[i.fst.fst])nodes.pb(j);
-		//for(auto j:col[i.fst.snd])nodes.pb(j);
-		for(auto ar:i.snd){
-			//if(nodes.count(ar.fst)&&nodes.count(ar.snd))continue;
-			//nodes.pb(ar.fst),nodes.pb(ar.snd);
-			nodes[idx++]=ar.fst; nodes[idx++]=ar.snd;
-			h[ar.fst].pb(ar.snd);
-			h[ar.snd].pb(ar.fst);
-		}
-		fore(i,0,idx){
-			ll x=nodes[i];
-			if(vis[x])continue;
-			sz=0;
-			dfs2(x);
-			res=max(res,sz);
-		}
-		fore(i,0,idx){
-			ll x=nodes[i];
-			if(vis[x])h[x].clear();
-			vis[x]=0;
+	vector<ll>nodes;
+	fore(i,0,SZ(can)){
+		ll ix=can[i].snd,u=ed[ix].fst,v=ed[ix].snd;
+		nodes.pb(u),nodes.pb(v);
+		h[u].pb(v);
+		h[v].pb(u);
+		if(i==SZ(can)-1||can[i].fst!=can[i+1].fst){ //answer on colors i]
+			for(auto x:nodes){
+				if(vis[x])continue;
+				sz=0;
+				dfs2(x);
+				res=max(res,sz);
+			}
+			for(auto x:nodes){
+				h[x].clear();
+				vis[x]=0;
+			}
+			nodes.clear();
 		}
 	}
 	cout<<res<<"\n";

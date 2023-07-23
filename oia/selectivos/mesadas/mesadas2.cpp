@@ -20,16 +20,17 @@ int main(){FIN;
 	fore(i,0,n){
 		ll x,y; cin>>x>>y;
 		if(x>y)swap(x,y);
+		y*=-1;
 		a.pb({x,y});
 	}
 	sort(ALL(a));
-	set<ll>st;
+	vector<ll>b;
 	fore(i,0,n){
 		ll x=a[i].snd;
-		auto lwb=st.lower_bound(x);
-		if(lwb!=st.end())st.erase(lwb);
-		st.insert(x);
+		ll w=lower_bound(ALL(b),x)-b.begin();
+		if(w>=SZ(b))b.pb(x);
+		else b[w]=x;
 	}
-	cout<<SZ(st)<<"\n";
+	cout<<SZ(b)<<"\n";
 	return 0;
 }

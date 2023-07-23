@@ -11,18 +11,41 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-const ll MOD=998244353;
+const ll MOD=998244353, MAXF=1e6+5,MAXN=1e6+5;
 
-int main(){FIN;
-	ll n,k; cin>>n>>k;
-	ll res=1;
-	fore(i,1,n)res=res*i%MOD;
-	cout<<res<<"\n";
-	return 0;
+ll fpow(ll b, ll e){
+	ll ret=1;
+	while(e){
+		if(e&1)ret=(ret*b)%MOD;
+		b=b*b%MOD,e>>=1;
+	}
+	return ret;
 }
 
-/*
+ll fc[MAXF],fci[MAXF];
+void factorials(){
+	fc[0]=1;
+	fore(i,1,MAXF)fc[i]=fc[i-1]*i%MOD;
+	fci[MAXF-1]=fpow(fc[MAXF-1],MOD-2);
+	for(ll i=MAXF-2;i>=0;i--)fci[i]=fci[i+1]*(i+1)%MOD;
+}
+ll nCr(ll n, ll k){
+	if(n<0||k>n||k<0)return 0;
+	return fc[n]*fci[n-k]%MOD*fci[k]%MOD;
+}
 
-g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG
+ll dp[MAXN];
 
-*/
+int main(){FIN;
+	factorials();
+	ll n,k; cin>>n>>k;
+	dp[0]=1;
+	ll sum=0;
+	fore(m,1,n+1){
+		ll &res=dp[m];
+		if(m-k>=0)sum=(sum+dp[m-k]*fci[m-k])%MOD;
+		res=fc[m-1]*sum%MOD;
+	}
+	cout<<dp[n]<<"\n";
+	return 0;
+}

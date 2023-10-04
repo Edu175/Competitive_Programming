@@ -21,7 +21,7 @@ int main(){FIN;
 		p[a[i][j]]={i,j};
 	}
 	//ll dp[2][n][n];
-	ll mx[2][n]={};
+	vector<vector<ll>>mx(2,vector<ll>(n));
 	ll res=0;
 	for(ll x=n*n-1;x>=0;x--){
 		ll i=p[x].fst,j=p[x].snd;

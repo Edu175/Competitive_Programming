@@ -26,13 +26,15 @@ vector<vector<ll>>sums={
 };
 
 ll solve(vector<ll>c){
-	vector<ll>p;
-	fore(i,0,SZ(sums))p.pb(i);
+	vector<ll>P;
+	fore(i,2,SZ(sums))P.pb(i);
 	//imp(c);
 	ll res=0;
 	do{
 		//ll db=0;
 		//if(p==vector<ll>({0,1,4,5,6,3,2,7,8,9}))db=1;
+		vector<ll>p={0,1};
+		for(auto i:P)p.pb(i);
 		vector<ll>ci=c;
 		ll resi=0;
 		fore(i,0,SZ(sums)){
@@ -49,7 +51,7 @@ ll solve(vector<ll>c){
 		//if(resi==6){imp(p); cout<<resi<<"\n";return res;}
 		res=max(resi,res);
 	}
-	while(next_permutation(ALL(p)));
+	while(next_permutation(ALL(P)));
 	return res;
 }
 

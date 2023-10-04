@@ -16,7 +16,7 @@ const ll MAXN=1e5+5;
 ll a[MAXN],b[MAXN];
 
 ll n;
-ll can(__int128 x){
+ll can(ll x){
 	ll s=0;
 	fore(i,0,n){
 		s+=b[i];

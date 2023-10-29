@@ -65,7 +65,14 @@ struct STree{
     STree(){}
     void push(ll k, ll s, ll e){
         st[k]=calc(s,e,st[k],lazy[k],t);
+<<<<<<< HEAD
         //cout<<"push "<<k<<","<<s<<" "<<e<<endl;
+=======
+<<<<<<< HEAD
+=======
+        //cout<<"push "<<k<<","<<s<<" "<<e<<endl;
+>>>>>>> varios
+>>>>>>> fecbcadd7b6a52170a327f9d98f27f3ce044c342
         if(s+1!=e){
             lazy[2*k]+=lazy[k];
             lazy[2*k+1]+=lazy[k];
@@ -95,7 +102,14 @@ struct STree{
     //find
     ll find(ll k, ll s, ll e, ll x){
     	push(k,s,e);
+<<<<<<< HEAD
     	//cout<<"find "<<k<<" "<<s<<","<<e<<" "<<x<<endl;
+=======
+<<<<<<< HEAD
+=======
+    	//cout<<"find "<<k<<" "<<s<<","<<e<<" "<<x<<endl;
+>>>>>>> varios
+>>>>>>> fecbcadd7b6a52170a327f9d98f27f3ce044c342
     	if(s+1==e)return ipos[s];
     	push(2*k,s,e); push(2*k+1,s,e);
     	ll m=(s+e)/2;

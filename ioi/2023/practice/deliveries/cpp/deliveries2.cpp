@@ -94,21 +94,49 @@ struct STree{
     ll find(ll k, ll s, ll e, ll x){
     	push(k,s,e);
     	if(s+1==e)return ipos[s];
+<<<<<<< HEAD
     	ll m=(s+e)/2;
     	push(2*k,s,m); push(2*k+1,m,e);
+=======
+<<<<<<< HEAD
+    	push(2*k,s,e); push(2*k+1,s,e);
+    	ll m=(s+e)/2;
+=======
+    	ll m=(s+e)/2;
+    	push(2*k,s,m); push(2*k+1,m,e);
+>>>>>>> varios
+>>>>>>> fecbcadd7b6a52170a327f9d98f27f3ce044c342
     	if(st[2*k+1]>x){return find(2*k+1,m,e,x);}
     	return find(2*k,s,m,x);
     }
     void upd(ll a, ll b, ll v){upd(1,0,n,a,b,v);}
+<<<<<<< HEAD
     ll query(ll a, ll b){return query(1,0,n,a,b);}
+=======
+<<<<<<< HEAD
+    ii query(ll a, ll b){return query(1,0,n,a,b);}
+=======
+    ll query(ll a, ll b){return query(1,0,n,a,b);}
+>>>>>>> varios
+>>>>>>> fecbcadd7b6a52170a327f9d98f27f3ce044c342
     ll find(ll x){assert(t==1); return find(1,0,n,x);}
 };
 
 ll n,t[MAXN],tot=0; //MCH
 STree cnt,bs;
 
+<<<<<<< HEAD
 ll query(ll x, STree& st){
     ll res=0;
+=======
+<<<<<<< HEAD
+ii query(ll x, STree& st){
+    ii res=0;
+=======
+ll query(ll x, STree& st){
+    ll res=0;
+>>>>>>> varios
+>>>>>>> fecbcadd7b6a52170a327f9d98f27f3ce044c342
     while(x!=-1){
         res=oper(st.query(pos[head[x]],pos[x]+1),res,st.t);
         x=fa[head[x]];
@@ -117,6 +145,13 @@ ll query(ll x, STree& st){
 }
 void upd(ll x, ll v){
 	while(x!=-1){
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+		//cout<<x<<" "<<v<<": "<<pos[head[x]]<<","<<pos[x]+1<<": ["<<head[x]<<","<<x<<"] += "<<v<<"\n";
+=======
+>>>>>>> varios
+>>>>>>> fecbcadd7b6a52170a327f9d98f27f3ce044c342
         cnt.upd(pos[head[x]],pos[x]+1,v);
         bs.upd(pos[head[x]],pos[x]+1,v);
         x=fa[head[x]];
@@ -134,6 +169,15 @@ void init(int N, std::vector<int> U, std::vector<int> V, std::vector<int> W, std
 	hld_init();
 	cnt=STree(n,0),bs=STree(n,1);
 	upd(0,1); tot++;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+	/*fore(i,0,n){
+		cout<<"head "<<i<<": "<<head[i]<<"\n";
+	}*/
+=======
+>>>>>>> varios
+>>>>>>> fecbcadd7b6a52170a327f9d98f27f3ce044c342
 	fore(i,0,n){
 		upd(i,t[i]);
 		tot+=t[i];
@@ -146,8 +190,32 @@ long long max_time(int x, int v) {
 	t[x]+=v;
 	tot+=v;
 	upd(x,v);
+<<<<<<< HEAD
 	ll res=cnt.query(0,n);
 	ll p=bs.find(tot/2);
 	res=res-2*query(p,cnt)+tot*sw[p];
+=======
+<<<<<<< HEAD
+	/*fore(i,0,n)cout<<t[i]<<" ";
+	cout<<"\n";
+	cout<<"cnt\n";
+	fore(i,0,n)cout<<i<<" ("<<ipos[i]<<"): "<<cnt.query(i,i+1)<<"\n";*/
+	ll res=cnt.query(0,n);
+	ll p=bs.find(tot/2);
+	/*fore(i,0,4*n+5){
+		cout<<i<<": "<<bs.st[i]<<" "<<bs.lazy[i]<<"\n";
+	}
+	cout<<"bs\n";
+	fore(i,0,n)cout<<i<<" ("<<ipos[i]<<"): "<<bs.query(i,i+1)<<"\n";
+	cout<<tot/2<<" "<<p<<"\n";*/
+	res=res-2*query(p,cnt)+tot*sw[p];
+	//cout<<res<<"-2*"<<query(p,cnt)<<"+"<<tot<<"*"<<sw[p]<<" = "<<res<<"\n";
+	//cout<<"\n";
+=======
+	ll res=cnt.query(0,n);
+	ll p=bs.find(tot/2);
+	res=res-2*query(p,cnt)+tot*sw[p];
+>>>>>>> varios
+>>>>>>> fecbcadd7b6a52170a327f9d98f27f3ce044c342
 	return res*2;
 }

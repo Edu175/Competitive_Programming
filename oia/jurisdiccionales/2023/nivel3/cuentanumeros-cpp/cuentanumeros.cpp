@@ -32,7 +32,7 @@ void inicializar() {
     // AQUI SE DEBE IMPLEMENTAR LA SOLUCION
 }
 
-void nuevoNumero(int x) {
+void agregar(int x) {
     st.upd(x,1);
 }
 

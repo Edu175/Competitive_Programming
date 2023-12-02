@@ -1,0 +1,25 @@
+#include <string>
+#include <vector>
+
+using namespace std;
+
+long long bombones(int K, vector<int> &x) {
+    // AQUI SE DEBE IMPLEMENTAR LA SOLUCION
+    
+    long long cajas;
+ 
+	
+	for (int i = 0; i < 1; i++){
+		for (int z = 0; z < K; z++){
+			if(x[z] != 0){
+				x[z] = x[z] - 1;
+				cajas = cajas + 1;
+			}
+			else{
+				break;
+			}
+		}
+	}
+	
+	return cajas;
+}

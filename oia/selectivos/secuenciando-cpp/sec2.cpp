@@ -74,8 +74,7 @@ string secuenciar(int N, string s){
 		//cout<<q<<" "<<i<<"\n";
 		oc.pb({q,i});
 	}
-	sort(ALL(oc));
-	reverse(ALL(oc));
+	random_shuffle(ALL(oc));
 	for(auto i:oc){
 		//cout<<i.fst<<","<<i.snd<<"\n";
 		c=i.snd;

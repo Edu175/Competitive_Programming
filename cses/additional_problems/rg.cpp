@@ -12,7 +12,9 @@ using namespace std;
 typedef long long ll;
 
 int main(){FIN;
-	ll N; srand((ll)&N); cin>>N;
-	cout<<rand()%N+1<<"\n";
+	ll N,V; srand((ll)&N); cin>>N>>V;
+	ll n=rand()%N+1;
+	cout<<n<<" "<<rand()%V+1<<"\n";
+	fore(i,0,n)cout<<rand()%V+1<<" ";;cout<<"\n";
 	return 0;
 }

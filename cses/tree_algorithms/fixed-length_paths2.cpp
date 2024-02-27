@@ -11,8 +11,12 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
+#pragma GCC optimize("Ofast") // may lead to precision errors
+
+#pragma GCC optimize("O3,unroll-loops")
+#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 const ll MAXN=2e5+5;
- 
+
 int ft[MAXN+1];
 void upd(int i0, int v){ // add v to i0th element (0-based)
 	for(int i=i0+1;i<=MAXN;i+=i&-i)ft[i]+=v;
@@ -90,5 +94,4 @@ int main(){FIN;
 	cout<<res<<"\n";
 	return 0;
 }
-//"¿Sabes qué es más genial que la magia? Matemáticas". - Spider-Man: No Way Home
 //"You know what's cooler than magic? Math". - Spider-Man: No Way Home

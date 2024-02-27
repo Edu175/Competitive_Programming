@@ -17,17 +17,20 @@ struct node{
 	node(ll v):pre(1),suf(1),l(v),r(v),all(1),res(1){}
 	node(){}
 };
+//void prnt(node a){cout<<"["<<a.pre<<","<<a.suf<<"|"<<a.l<<","<<a.r<<"|"<<a.all<<"="<<a.res<<"] ";}
 node oper(node a, node b){
 	if(a.l==-1)return b;
 	if(b.l==-1)return a;
 	node c;
 	c.res=max(a.res,b.res);
-	if(a.r==b.l)c.res=max(c.res,a.suf+b.pre);
+	ll ig=a.r==b.l;
+	if(ig)c.res=max(c.res,a.suf+b.pre);
 	c.l=a.l; c.r=b.r;
-	if(b.all)c.pre=b.pre+
-	c.r=b.r; c.
-	if(a.t==b.t&&a.t!=2)c.res=a.res+b.res,c.t=a.t;
-	else c.res=max(a.res,b.res),c.t=2;
+	c.pre=a.pre; c.suf=b.suf;
+	if(a.all&&ig)c.pre+=b.pre;
+	if(b.all&&ig)c.suf+=a.suf;
+	c.all=ig&&a.all&&b.all;
+	//cout<<"oper "; prnt(a); prnt(b); cout<<"= "; prnt(c); cout<<"\n";
 	return c;
 	
 }
@@ -59,7 +62,7 @@ int main(){FIN;
 		ll p; cin>>p; p--;
 		a[p]^=1;
 		st.upd(p,a[p]);
-		imp(a);
+		//imp(a);
 		cout<<st.query(0,n).res<<" ";
 	}
 	cout<<"\n";

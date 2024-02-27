@@ -11,7 +11,7 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-const ll MAXF=3e6+5,MOD=1e9+7,MAXN=1005;
+const ll MAXF=3e6+5,MOD=1e9+7,MAXN=3005;
 ll fpow(ll b, ll e){
 	if(e<0)return 0;
 	ll ret=1;
@@ -47,13 +47,13 @@ ll f(ll i){
 	ll &res=dp[i];
 	if(res!=-1)return res;
 	res=cam(i,n+1);
-	fore(j,1,n+1)if(i!=j&&a[i].fst<=a[j].fst&&a[i].snd<=a[j].snd)
+	fore(j,1,n+1)if(i!=j)
 		res=sub(res,mul(cam(i,j),f(j)));
 	return res;
 }
 int main(){FIN;
 	factorials();
-	ll m,n; cin>>m>>n;
+	ll m; cin>>m>>n;
 	fore(i,1,n+1)cin>>a[i].fst>>a[i].snd,a[i].fst--,a[i].snd--;
 	a[n+1]={m-1,m-1};
 	a[0]={0,0};

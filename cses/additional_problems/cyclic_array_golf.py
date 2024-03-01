@@ -1,8 +1,6 @@
-I=input
 R=range
-n,k=map(int,I().split())
-a=I().split()*2
-
+n,k,*a = map(int, open(0).read().split())
+a*=2
 m=2*n
 s=p=0
 F=[[0]*m]
@@ -11,7 +9,7 @@ for i in R(m):
 		s+=int(a[p])
 		p+=1
 	F[0][i]=p-1
-	s-=int(a[i])
+	s-=a[i]
 for k in R(18):
 	f=F[k]
 	F+=[[f[f[i]] for i in R(m)]]

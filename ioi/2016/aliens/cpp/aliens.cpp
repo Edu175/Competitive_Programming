@@ -13,41 +13,42 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
 
-
-// BRUTE FORCE (dnc) TO DEBUG
-
+#define bint __int128
 
 const ll INF=2e12;
 ll sq(ll n){return n*n;}
 vector<ii>a;
 ll sup(ll i){
+	//cerr<<"sup "<<i<<": "<<(!i?0:sq(max(a[i-1].snd-a[i].fst,(ll)0)))<<"\n";
 	return (!i?0:sq(max(a[i-1].snd-a[i].fst,(ll)0)));
 }
 const ll MAXN=1e5+5;
 ll dp[MAXN],cnt[MAXN];
 //(min, increasing insert coefficents, non increasing queries, online) 
 //for maximum just change the sign of lines
-ll idiv(ll a, ll b){ //int division
-	/*if((a<0)^(b<0))return (a+b-1)/b; //ceil
-	return a/b; //floor*/
-	return a/b+(a%b?!((a>0)^(b>0)):0); // ==ceil(a/b)
+bint idiv(bint a, bint b){ //int division
+	if((a<0)^(b<0))return (a+b-1)/b; //ceil
+	return a/b; //floor
 }
 struct ln{
-	ll a,b,i;
-	ll eq(ll x){return a*x+b;}
-	pair<ll,ll> operator%(ln l){
-		ll x=idiv(b-l.b,l.a-a);
+	bint a,b,i;
+	bint eq(bint x){return a*x+b;}
+	pair<bint,bint> operator%(ln l){
+		bint x=idiv(b-l.b,l.a-a);
 		return {x,eq(x)};
 	}
 };
 deque<ln>cht;
-ii query(ll x){
+ii query(bint x){
 	ln l=cht.back(); cht.pop_back();
 	while(SZ(cht)&&l.eq(x)>=cht.back().eq(x))l=cht.back(),cht.pop_back();
 	cht.pb(l);
-	return {cht.back().eq(x),cht.back().i};
+	//cout<<"query "<<(ll)cht.back().eq(x)<<" --> "<<(ll)cht.back().eq(x)/MAXN<<" or "<<ll(cht.back().eq(x)-cnt[cht.back().i])/MAXN<<"\n";
+	ll idx=cht.back().i;
+	return {(cht.back().eq(x)-cnt[idx])/MAXN,idx};
 }
 void insert(ln l){
+	l.a*=MAXN,l.b=l.b*MAXN+cnt[l.i];
 	if(!SZ(cht)){
 		cht.pb(l);
 		return;
@@ -64,11 +65,13 @@ void f(ll n, ll d){
 		insert(ln({-2*a[i].snd,sq(a[i].snd)+dp[i+1],i+1}));
 		ll &res=dp[i];
 		ii rq=query(a[i].fst);
+		//cout<<rq.fst<<"\n";
 		res=rq.fst+sq(a[i].fst)-sup(i)+d;
 		cnt[i]=cnt[rq.snd]+1;
 		//cout<<i<<": ("<<rq.snd<<") "<<dp[i]<<" "<<cnt[i]<<"\n";
 	}
 	//cout<<cnt[0]<<"\n\n";
+	//cerr<<d<<" "<<cnt[0]<<"\n";
 }
 long long take_photos(int n, int m, int k, std::vector<int> R, std::vector<int> C) {
 	vector<ii>a_;
@@ -83,11 +86,13 @@ long long take_photos(int n, int m, int k, std::vector<int> R, std::vector<int> 
 	ll r=0;
 	for(auto [s,e]:a){
 		e=-e;
-		if(e>r)a_.pb({2*s,2*e}),r=e;
+		if(e>r)a_.pb({s,e}),r=e;
 	}
 	a=a_;
 	n=SZ(a);
-	//for(auto i:a)cout<<i.fst<<","<<i.snd<<" ";;cout<<"\n";
+	f(n,0);
+	//cerr<<"dp_0 "<<dp[0]<<"\n";
+	//for(auto i:a)cerr<<i.fst<<","<<i.snd<<" ";;cout<<"\n";
 	ll l=0; r=1e13;
 	while(l<=r){
 		ll m=(l+r)/2;
@@ -97,7 +102,10 @@ long long take_photos(int n, int m, int k, std::vector<int> R, std::vector<int> 
 	}
 	//cout<<n<<" "<<k<<"\n";
 	//cout<<l<<"\n";
+	f(n,l+1);
 	f(n,l);
+	//cerr<<k<<"\n";
+	ll res=dp[0]-l*k;
 	//cout<<cnt[0]<<"\n";
-	return (dp[0]-l*cnt[0])/4;
+	return res;
 }

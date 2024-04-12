@@ -9,9 +9,10 @@
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
 #define imp(v) for(auto messi:v)cout<<messi<<" "; cout<<"\n"
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll,ll> ii;
-
+#pragma GCC optimize("O3,unroll-loops")
+#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 #include <ext/rope>
 using namespace __gnu_cxx;
 rope<char> s;
@@ -34,7 +35,8 @@ int main(){FIN;
 		s.erase(l,r-l);
 		s.insert(n-(r-l),ns);
 	}
-	fore(i,0,n)cout<<s[i];;cout<<"\n";
+	cout<<s<<"\n";
+	//fore(i,0,n)cout<<s[i];;cout<<"\n";
 	return 0;
 }
 

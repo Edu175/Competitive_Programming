@@ -31,7 +31,7 @@ ll idiv(ll a, ll b){ //int division
 struct ln{
 	ll a,b,i;
 	ll eq(ll x){return a*x+b;}
-	pair<ll,ll> operator%(ln l){
+	pair<ll,ll> operator^(ln l){
 		ll x=idiv(b-l.b,l.a-a);
 		return {x,eq(x)};
 	}
@@ -54,7 +54,7 @@ void insert(ln l){
 		return;
 	}
 	ln m=cht.front(); cht.pop_front();
-	while(SZ(cht)&&((l%m).fst>(m%cht.front()).fst||l%m==m%cht.front()))
+	while(SZ(cht)&&((l^m).fst>(m^cht.front()).fst||l^m==m^cht.front()))
 		m=cht.front(),cht.pop_front();
 	cht.push_front(m), cht.push_front(l);
 }

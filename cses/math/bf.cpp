@@ -10,12 +10,23 @@
 #define imp(v) for(auto edu:v)cout<<edu<<" "; cout<<"\n"
 using namespace std;
 typedef long long ll;
-const ll MOD=1e9+7;
 
 int main(){FIN;
 	ll n; cin>>n;
-	ll res=0;
-	fore(i,1,n+1)res=(res+n/i*i)%MOD;
-	cout<<res<<"\n";
+	vector<ll>num(n+1);
+	fore(i,1,n+1){
+		vector<ll>vis(n+5);
+		fore(j,1,i)if(j!=i-j)vis[num[j]^num[i-j]]=1;
+		fore(j,0,SZ(vis))if(!vis[j]){num[i]=j;break;}
+	}
+	ll mx=0;
+	fore(i,1,n+1)cout<<i<<": "<<num[i]<<"\n",mx=max(mx,num[i]);
+	cout<<mx<<"\n";
+	fore(i,1,n+1)if(!num[i])cout<<i<<",";;cout<<"\n";
+	/*ll t; cin>>t;
+	while(t--){
+		ll n; cin>>n;
+		
+	}*/
 	return 0;
 }

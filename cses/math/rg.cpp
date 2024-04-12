@@ -8,12 +8,17 @@
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
 #define imp(v) for(auto edu:v)cout<<edu<<" "; cout<<"\n"
-#define pres cout<<res<<"\n"
 using namespace std;
 typedef unsigned long long ll;
 
 int main(){FIN;
-	ll N; srand((ll)&N); cin>>N;
-	cout<<rand()%N+1<<"\n";
+	ll N,V; srand((ll)&N); cin>>N>>V;
+	ll n=100;//rand()%N+1;
+	cout<<n<<"\n";
+	fore(i,0,n){
+		if(i)cout<<" ";
+		cout<<rand()%10+91;
+	}
+	cout<<"\n";
 	return 0;
 }

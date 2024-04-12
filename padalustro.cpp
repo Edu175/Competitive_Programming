@@ -40,7 +40,7 @@ gedit A.cpp && gedit B.cpp && gedit C.cpp && gedit D.cpp && gedit E.cpp && gedit
 // COMPILAR
 g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG <file> -o a
 //fast
-g++ -O2 -std=c++17 -Wall -Wextra -g
+g++ -O2 -std=c++17 -Wall -Wextra
 //debug
 g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG
 //all warnings
@@ -89,36 +89,17 @@ s.substr(l,n);// substring [l,l+n) // if no n: suffix [l,SZ(s))
 stoll(s); //string to ll
 getline(cin,s);cin.ignore();
 //a=arreglo, n=tamaño de a, s=string, v=vector, st=set
-lower_bound(a,a+n,x)//es un puntero, -a posición, *read only
-lower_bound(ALL(v),x)//-v.begin()
-st.lower_bound(x)
 find(ALL(v),x)//O(n)
 find(a,a+n,x)//O(n)
-v.clear();
-st.erase("x");
 v.erase(v.begin()+i)//O(n)
 count(ALL(v),x)//O(n)
 s.erase(remove(ALL(s),'a'),s.end());
-q.push(x)
-q.front()
-q.back();
-q.pop();
-sk.push(x)
-sk.pop()
-sk.top(); //sk.top()==pq.top()==q.front()
-dq.pb(x)
-dq.pop_back()
-dq.push_front(x)
-dq.pop_front()
 
-assert(condition);
 cout<<fixed<<setprecision(15)<<x<<"\n"; //imprimir con 15 digitos de presición 
 // priority_queue with custom comparator cmp
 priority_queue<ll,vector<ll>,function<bool(ll,ll)>>pq(cmp);
 
 //MATH
-gcd(x,y)//hace euclides por dentro
-
 //binary gcd (already implemented in std::gcd but not in __gcd)
 inline ll remtz(ll a){
 	return a>>__builtin_ctz(a);
@@ -150,27 +131,6 @@ struct pt{
 	bool left(pt p, pt q){return (p-*this)%(q-*this)>0;}
 };
 pt.x,pt.y;
-
-//BUSQUEDA BINARIA:
-ll l=x,r=y;
-while(l <= r) {
-  m = (l+r)/2;
-  if (can (m)) l=m+1;
-  else r=m-1;
-}
-//Versión doubles
-double l=x,r=y;
-ll it;// it=techo log2((r-l)*presicion)
-while(it--) {
-  m = (l+r)/2;
-  if (can (m)) l=m;
-  else r=m;
-}
-
-do{
-	
-}
-while(next_permutation(ALL(a)));
 
 //CODE JAM
 	ll te=t;
@@ -229,8 +189,12 @@ int fpow(int a, ll b){
 	while(b){if(b&1)r=mul(r,a); b>>=1; a=mul(a,a);}
 	return r;
 }
-//bolitas en cajitas
-ll ceb(ll c, ll b){return nCr(c+b-1,c-1);}
+ll ceb(ll n, ll k){ //n cajitas, k bolitas
+	return nCr(n+k-1,k);
+}
+ll cat(ll n){
+	return (nCr(2*n,n)-nCr(2*n,n+1)+MOD)%MOD;
+}
 
 //Divisores
 vector<ll> divs[MAXN];
@@ -358,31 +322,8 @@ void floyd(){//O(n^3)
 	//setear g[i][i]=0 y INF a aristas no existentes
 	//se pisan los valores en la matriz de adyacencia
 	fore(k,0,n)fore(i,0,n)if(g[i][k]!=INF)fore(j,0,n)if(g[k][j]!=INF)
-		g[i][j]=min(g[i][j],g[i][k]+g[k][j]),//or if(d==f||newPath<d)for flag value
-		g[j][i]=g[i][j];//not directed
+		g[i][j]=min(g[i][j],g[i][k]+g[k][j]);//or if(d==f||newPath<d)for flag value
 }
-
-//TOPOSORT
-vector<ll> g[MAXN];
-ll vis[MAXN];
-bool esDAG=1;
-vector<ll>ord;
-void dfs(ll x){
-	vis[x]=1;
-	for(auto i:g[x]){
-		if(vis[i]!=2){
-			if(vis[i]==1){
-				esDAG=0;
-				vis[i]=2;
-				break;
-			}
-			else dfs(i);
-		}
-	}
-	vis[x]=2;
-	ord.pb(x);
-}
-reverse(ALL(ord));
 
 //LCA
 vector<ll>g[MAXN]; ll n;
@@ -418,6 +359,24 @@ ll father(ll v, ll x){ // v-ésimo padre de x
 		if(x<0)break;
 	}
 	return x;
+}
+// O(1) query with O(n sqrt(n)) preprocessing
+const ll B=316;
+ll F[B+5][MAXN];
+ll Fb[MAXN/B+5][MAXN];
+
+ll father(ll k, ll x){
+	x=Fb[k/B][x];
+	k%=B;
+	x=F[k][x];
+	return x;
+}
+fore(x,0,n)F[0][x]=x,Fb[0][x]=x;
+fore(k,1,B+1)fore(x,0,n){
+	F[k][x]=F[k-1][F[1][x]];
+}
+fore(i,1,n/B+1)fore(x,0,n){
+	Fb[i][x]=Fb[i-1][F[B][x]];
 }
 
 // queries de caminos
@@ -753,7 +712,7 @@ struct STree{ //persistent
 		return ks;
 	}
 	ll upd(ll k, ll s, ll e, ll p, ll v){
-		ll ks=new_node(st[k],L[k],R[k]);
+		ll ks=new_node(st[k],L[k],R[k]); // *
 		if(s+1==e){st[ks]=v;return ks;}
 		ll m=(s+e)/2,ps;
 		if(p<m)ps=upd(L[ks],s,m,p,v),L[ks]=ps;
@@ -772,6 +731,11 @@ struct STree{ //persistent
 	ll query(ll k, ll a, ll b){return query(k,0,n,a,b);}
 };
 
+//*	if using as STree lazy creation change to
+//	ks=(k?k: ... );
+//	to avoid mle 
+
+
 //FENWICK TREE
 int ft[MAXN+1]; // for more dimensions, make ft multi-dimensional
 void upd(int i0, int v){ // add v to i0th element (0-based)
@@ -786,6 +750,16 @@ int get(int i0){ // get sum of range [0,i0)
 }
 int get_sum(int i0, int i1){ // get sum of range [i0,i1) (0-based)
 	return get(i1)-get(i0);
+}
+
+
+ii find(ll x){ // upperbound on prefix sums], (pos,remainder)
+	ll p=0;    // change 19 to floor(log2(MAXN))
+	for(ll k=19;k>=0;k--)if(ft[p+(1ll<<k)]<=x){
+		p+=1ll<<k;
+		x-=ft[p];
+	}
+	return {p,x};
 }
 
 struct FTree{
@@ -897,9 +871,6 @@ struct Hash{
 //for concatenation
 
 //RANDOM
-srand((ll)&n);//not assigned variable n
-rand()%m;
-random_shuffle(ALL(v));
 
 ll rnd(){ // [0,2³⁰) in cf
 	return ((1ll*rand())<<15)+rand();
@@ -922,6 +893,11 @@ fore(i,0,n-1){
 		p--;
 	}
 }
+
+// shuffle labels
+vector<ii>ed;
+fore(i,1,n)ed.pb({rand()%i,i});
+
 //uniform distribution, mersenne twister
 random_device rd;
 mt19937 rng(rd());
@@ -1410,7 +1386,7 @@ Matrix be(Matrix b, ll e){	//b tiene que ser cuadrada
 }
 
 //reduce in z_2
-bool on(ll x, ll j){return (x&(1ll<<j))>0;}
+bool on(ll x, ll j){return (x>>j)&1;}
 void reduce(vector<ll> &x){ // z_2
 	ll n=SZ(x),m=20;
 	ll i=0,j=0;
@@ -1440,7 +1416,7 @@ struct matrix{
 	}
 };
 //add identity row with fixed height
-bool on(ll x, ll j){return (x&(1ll<<j))>0;}
+bool on(ll x, ll j){return (x>>j)&1;}
 struct matrix{ // z_2
 	vector<ll>x;
 	ll m,d;

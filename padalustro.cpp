@@ -169,17 +169,6 @@ ll fpow(ll b, ll e){
 	return ret;
 }
 
-ll fc[MAXF],fci[MAXF];
-void factorials(){
-	fc[0]=1;
-	fore(i,1,MAXF)fc[i]=fc[i-1]*i%MOD;
-	fci[MAXF-1]=fpow(fc[MAXF-1],MOD-2);
-	for(ll i=MAXF-2;i>=0;i--)fci[i]=fci[i+1]*(i+1)%MOD;
-}
-ll nCr(ll n, ll k){ //must call factorials before
-	if(n<0||k<0||k>n)return 0;
-	return fc[n]*fci[k]%MOD*fci[n-k]%MOD;
-}
 //MODULAR OPERATIONS
 int add(int a, int b){a+=b;if(a>=MOD)a-=MOD;return a;}
 int sub(int a, int b){a-=b;if(a<0)a+=MOD;return a;}
@@ -189,6 +178,19 @@ int fpow(int a, ll b){
 	while(b){if(b&1)r=mul(r,a); b>>=1; a=mul(a,a);}
 	return r;
 }
+ll fc[MAXF],fci[MAXF];
+void factos(){
+	fc[0]=1;
+	fore(i,1,MAXF)fc[i]=mul(fc[i-1],i);
+	fci[MAXF-1]=fpow(fc[MAXF-1],MOD-2);
+	for(ll i=MAXF-2;i>=0;i--)fci[i]=mul(fci[i+1],(i+1));
+}
+ll nCr(ll n, ll k){ //must call factorials before
+	if(n<0||k<0||k>n)return 0;
+	return mul(mul(fc[n],fci[k]),fci[n-k]);
+}
+
+
 ll ceb(ll n, ll k){ //n cajitas, k bolitas
 	return nCr(n+k-1,k);
 }
@@ -1434,7 +1436,25 @@ struct matrix{ // z_2
 		if(w!=-1)d++,x[w]=v;
 	}
 };
-
+// CONVEX HULL
+vector<pt>chull(vector<pt>a){
+	if(SZ(a)<3)return a;
+	vector<pt>r;
+	sort(ALL(a));
+	fore(i,0,SZ(a)){
+		while(SZ(r)>=2&&r.back().left(r[SZ(r)-2],a[i]))
+			r.pop_back();
+		r.pb(a[i]);
+	}
+	r.pop_back(); ll k=SZ(r);
+	for(ll i=SZ(a)-1;i>=0;i--){
+		while(SZ(r)>=k+2&&r.back().left(r[SZ(r)-2],a[i]))
+			r.pop_back();
+		r.pb(a[i]);
+	}
+	r.pop_back();
+	return r;
+}
 //CONVEX HULL TRICK
 //(min, increasing insert coefficents, non increasing queries, online) 
 //for maximum just change the sign of lines

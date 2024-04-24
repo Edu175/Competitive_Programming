@@ -39,6 +39,7 @@ ll bf(ll n, ll k){
 		fore(i,1,x)dp[x]=add(dp[x],mul(dp[i],nCr(x,i)));
 		dp[x]=sub(fpow(x,n),dp[x]);
 	}
+	imp(dp);
 	return dp[k];
 }
 int main(){FIN;

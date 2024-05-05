@@ -13,6 +13,7 @@ typedef long long ll;
 int main(){
 	ll n; cin>>n;
 	set<vector<ll>>gr;
+	ll cnt=0;
 	fore(mk,0,1ll<<(n*(n-1)/2)){
 		//cout<<mk<<"\n";
 		ll a[n][n],c=0; mset(a,0);
@@ -45,10 +46,12 @@ int main(){
 			gr.insert(g);
 			imp(res);
 			cout<<"\n";
+			cnt++;
 		}
 	}
 	for(auto i:gr){
 		imp(i);
 	}
+	cout<<"total of "<<cnt<<"\n";
 	return 0;
 }

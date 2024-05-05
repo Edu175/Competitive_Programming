@@ -1,0 +1,102 @@
+Test 1:
+OK valid
+10 points
+
+
+Test 2:
+OK not possible
+OK not possible
+OK valid
+10 points
+
+
+Test 3:
+OK valid
+OK not possible
+OK not possible
+10 points
+
+
+Test 4:
+OK valid
+OK not possible
+OK not possible
+OK valid
+OK valid
+10 points
+
+
+Test 5:
+OK valid
+OK not possible
+OK not possible
+OK valid
+OK valid
+OK not possible
+OK not possible
+OK valid
+OK valid
+OK not possible
+10 points
+
+
+Test 6:
+OK valid
+OK valid
+OK not possible
+OK not possible
+OK valid
+OK valid
+OK not possible
+OK not possible
+OK valid
+OK valid
+OK not possible
+OK not possible
+OK valid
+OK valid
+OK not possible
+OK not possible
+OK valid
+OK valid
+OK not possible
+OK not possible
+OK valid
+10 points
+
+
+Test 7:
+OK valid
+OK valid
+OK valid
+OK valid
+OK valid
+10 points
+
+
+Test 8:
+OK valid
+OK valid
+OK valid
+OK valid
+OK valid
+10 points
+
+
+Test 9:
+OK valid
+OK valid
+OK not possible
+OK not possible
+10 points
+
+
+Test 10:
+OK valid
+OK not possible
+OK not possible
+OK valid
+10 points
+
+
+Final score: 100

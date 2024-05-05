@@ -11,51 +11,81 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
+const ll MAXN=5e5+5;
+typedef ll node;
+#define oper min
+#define NEUT MAXN
 struct STree{
-	vector<ll>t; int n;
-	STree2(int n):t(2*n+5,0),n(n){}
-	void upd(int p, ll v){
-		for(p+=n,t[p]+=v;p>1;p>>=1)
-			t[p>>1]=t[p]+t[p^1];
+	int n; vector<node>t;
+	STree(int n):n(n),t(2*n+5,NEUT){}
+	void upd(int p, node v){
+		for(p+=n,t[p]=v;p>1;p>>=1)t[p>>1]=oper(t[p],t[p^1]);
 	}
-	ll query(int l, int r){
-		ll res=0;
+	node query(int l, int r){
+		node res=NEUT;
 		for(l+=n,r+=n;l<r;l>>=1,r>>=1){
-			if(l&1)res+=t[l++];
-			if(r&1)res+=t[--r];
+			if(l&1)res=oper(res,t[l++]);
+			if(r&1)res=oper(res,t[--r]);
 		}
 		return res;
 	}
 };
-const ll MAXN=5e5+5;
-ll badl[MAXN],badr[MAXN];
+#define BLOCKSZ sqrt(n)+5
+struct BL{ // O(1) upd, O(sqrt(n)) sum queries
+	ll n,sq,q; vector<ll>a,sum;
+	//sq=block size, q=number of blocks
+	BH(ll n):n(n),sq(BLOCKSZ),q((n+sq-1)/sq),a(n),sum(q){}
+	void clear(){
+		fore(i,0,n)a[i]=sum[i/sq]=0;
+	}
+	void upd(ll p, ll v){//add v
+		a[p]+=v;
+		sum[p/sq]+=v;
+	}
+	ll query(ll l, ll r){
+		ll res=0;
+		if(l/sq==r/sq){
+			fore(i,l,r)res+=a[i];
+			return res;
+		}
+		fore(i,l,l/sq*sq+sq)res+=a[i];
+		fore(i,r/sq*sq,r)res+=a[i];
+		fore(i,l/sq+1,r/sq)res+=sum[i];
+		return res;
+	}
+};
+ll exl[MAXN];
+struct qu{ll l,r,idx;}
+ll n,sq,nq;
+qu qs[MAXN];
+bool cmp(const qu &a, const qu &b){
+	return (a.l/sq==b.l/sq?a.r<b.r:a.l<b.l);
+}
+void mos(){
+	sort(qs,qs+nq,cmp);
+	ll l=0,r=0;
+	BL b(n);
+	fore(i,0,nq){
+		auto q=qs[i];
+		if(q.r<r)b.clear(),l=r=0;
+		while(r<q.r)b.upd(exl[])
+	}
+}
 int main(){FIN;
-	ll n,q; cin>>n>>q;
+	cin>>n>>nq;
 	vector<ll>a(n),h(n),b;
-	fore(i,0,n)cin>>a[i]>>h[i],b.pb({h[i],i});
-	vector<ll>l(n),r(n); //[]
-	fore(i,0,n){
-		if(a[i]-h[i]<a[0])badl[i]=1;
-		l[i]=upper_bound(ALL(a),a[i]-h[i])-a.begin();
-		if(a[i]+h[i]>a[n-1])badr[i]=1;
-		r[i]=lower_bound(ALL(a),a[i]+h[i])-a.begin()-1;
-	}
-	sort(ALL(b)); reverse(ALL(b));
+	fore(i,0,n)cin>>a[i]>>h[i];
 	STree st(n);
-	for(auto [sddf,i]:b){
-		if(st.query(l[i],i))badl[i]=1;
-		if(st.query(i,r[i]))badr[i]=1;
-		st.upd(i,1);
+	fore(i,0,n){
+		ll p=upper_bound(a,a+n,a[i]-h[i])-a;
+		ll res=min(i,st.query(p,i));
+		exl[i]=res;
+		st.upd(i,res);
 	}
-	reverse(ALL(b));
-	st=STree(n);
-	for(auto [sddf,i]:b){
-		if(st.query(l[i],r[i]+1))bad[i]=1;
-		st.upd(i,bad[i]);
+	fore(i,0,nq){
+		ll l,r; cin>>l>>r; l--;
+		qs[i]={l,r,i};
 	}
-	while(q--){
-		ll s,e; cin>>s>>e;
-		
-	}
+	
 	return 0;
 }

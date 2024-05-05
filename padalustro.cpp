@@ -7,7 +7,7 @@
 #define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
-#define imp(v) for(auto messi:v)cout<<messi<<" "; cout<<"\n"
+#define imp(v) {for(auto gdljh:v)cout<<gdljh<<" "; cout<<"\n";}
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
@@ -708,7 +708,7 @@ struct STree{
 struct STree{ //persistent
 	vector<int>st,L,R; ll n,rt;
 	STree(ll n): st(1,NEUT),L(1,0),R(1,0),n(n),rt(0){}
-	ll new_node(ll v,ll l, ll r){
+	ll new_node(ll v, ll l, ll r){
 		ll ks=SZ(st);
 		st.pb(v),L.pb(l),R.pb(r);
 		return ks;
@@ -1217,7 +1217,7 @@ void remove(ll i){
 }
 //CH get_ans(q.lca) and n with SZ(A) in mos
 
-//BLOCKS STRUCTURES
+//SQRT DECOMPOSITION BLOCKS STRUCTURES
 #define BLOCKSZ sqrt(N)
 struct BL{ //2d queries (static, n points, coordinates up to n)
 	//query O(sqrt(n)), memory O(nsqrt(n)))
@@ -1243,32 +1243,33 @@ struct BL{ //2d queries (static, n points, coordinates up to n)
 		fore(i,s,e)res+=(j0<=a[i]&&a[i]<j1);
 		return res;
 	}
-	ll find(ll i0, ll i1, ll j0, ll j1, ll k){ //whatever, specific on problem
-		// kesimo (i) punto en rectangulo
-		if(k>=query(i0,i1,j0,j1))return -1;
-		ll s=i0,e=min(i1,i0/r*r+r);
-		fore(i,s,e)if(j0<=a[i]&&a[i]<j1){
-			if(k==0)return i;
-			k--;
-		}
-		ll bp=-1;
-		fore(i,i0/r+1,i1/r){
-			ll c=sp[i][j1]-sp[i][j0];
-			if(k-c<0){
-				bp=i;
-				break;
-			}
-			k-=c;
-		}
-		s=i1/r*r,e=i1;
-		if(bp!=-1)s=bp*r,e=s+r;
-		fore(i,s,e)if(j0<=a[i]&&a[i]<j1){
-			if(k==0)return i;
-			k--;
-		}
-		assert(0);
-	}
 };
+
+ll find(ll i0, ll i1, ll j0, ll j1, ll k){ //whatever, specific on problem
+	// kesimo (i) punto en rectangulo
+	if(k>=query(i0,i1,j0,j1))return -1;
+	ll s=i0,e=min(i1,i0/r*r+r);
+	fore(i,s,e)if(j0<=a[i]&&a[i]<j1){
+		if(k==0)return i;
+		k--;
+	}
+	ll bp=-1;
+	fore(i,i0/r+1,i1/r){
+		ll c=sp[i][j1]-sp[i][j0];
+		if(k-c<0){
+			bp=i;
+			break;
+		}
+		k-=c;
+	}
+	s=i1/r*r,e=i1;
+	if(bp!=-1)s=bp*r,e=s+r;
+	fore(i,s,e)if(j0<=a[i]&&a[i]<j1){
+		if(k==0)return i;
+		k--;
+	}
+	assert(0);
+}
 
 #define BLOCKSZ sqrt(n)+5
 struct BH{ //Blocks Histogram

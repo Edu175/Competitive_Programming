@@ -1,5 +1,7 @@
 from os import system
-for p in range(1,11):
+from random import shuffle
+import sys
+def code(p):
 	print('caso ',p)
 	t="subredes"+"0"*(2-len(str(p)))+str(p)+".in"
 	s=open(t,'r').read().strip().split()
@@ -10,11 +12,13 @@ for p in range(1,11):
 	for i in s:
 		g+=i+'\n'
 	g+='\n1\n'
-	
+	per=[i for i in range(n)]
+	shuffle(per)
+	print('hidden permutation:',per)
 	for i in range(n):
-		for j in range(i+1,n):
+		for j in range(0,i):
 			if s[i+1][j]=='1':
-				a.append((i,j))
+				a.append((per[i],per[j]))
 	g+=str(n)+' '+str(len(a))+'\n'*2
 	for (i,j) in a:
 		g+=str(i+1)+' '+str(j+1)+'\n'
@@ -24,3 +28,9 @@ for p in range(1,11):
 		print('FAILED!!!')
 		exit(0)
 	print('ok',p)
+#print(sys.argv)
+if len(sys.argv)>1:
+	code(sys.argv[1])
+else:
+	for p in range(1,11):
+		code(p)

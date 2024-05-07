@@ -128,9 +128,9 @@ struct pt{
 	pt operator-(pt p){return pt(x-p.x,y-p.y);}
 	bool operator==(pt p){return (x==p.x&&y==p.y);}
 	ll operator%(pt p){return x*p.y-y*p.x;}
-	bool left(pt p, pt q){return (p-*this)%(q-*this)>0;}
+	bool left(pt p, pt q){ // is it to the left of directed line pq?
+		return (q-p)%(*this-p)>EPS;}
 };
-pt.x,pt.y;
 
 //CODE JAM
 	ll te=t;

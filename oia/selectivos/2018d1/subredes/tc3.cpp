@@ -12,7 +12,7 @@ using namespace std;
 typedef long long LL;
 typedef int ll;
 typedef pair<ll,ll>ii;
-#pragma GCC optimize("O2,unroll-loops")
+#pragma GCC optimize("O3,unroll-loops")
 #pragma GCC target("avx2,bmi,bmi2,popcnt,lzcnt")
 
 const ll MAXN=6000;

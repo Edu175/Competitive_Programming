@@ -15,31 +15,27 @@ typedef pair<ll,ll> ii;
 #pragma GCC optimize("O3,unroll-loops")
 #pragma GCC target("avx2,bmi,bmi2,popcnt,lzcnt")
 
-const ll MAXN=30;
+const ll MAXN=40;
 LL res=0;
-int has[MAXN];
-unordered_map<int,LL>dp[12];
-bool sg[10][10];
+bool sg[10][10],g[MAXN][MAXN];
+vector<ll> ad[10];
 ll n;
-string bin(int x){
-	string s;
-	fore(i,0,n)s.pb('0'+(x>>i&1));
-	return s;
-}
-LL f(int mk, ll k){
-	//cerr<<bin(mk)<<" "<<int(k)<<": "<<res<<endl;
-	if(dp[k].count(mk))return dp[k][mk];
-	auto &res=dp[k][mk];
-	if(k==10)return res=1;
-	fore(i,0,n)if(mk>>i&1){
-		int mki=mk^(1ll<<i);
-		if(!(k&1))mki&=has[i];
-		res+=f(mki,k+1);
-//		cout<<bin(mk)<<" "<<(int)k<<" "<<int(i)<<" --> "<<bin(mki)<<"\n";
+vector<ll>v;
+bool vis[MAXN];
+void f(){
+	if(SZ(v)==10){res++;return;}
+	fore(x,0,n)if(!vis[x]){
+		bool flag=1;
+		for(auto i:ad[SZ(v)])if(!g[x][v[i]]){flag=0;break;}
+		if(flag){
+			v.pb(x);
+			vis[x]=1;
+			f();
+			v.pop_back();
+			vis[x]=0;
+		}
 	}
-	return res;
 }
-
 void get(ll& v){
 	int n; cin>>n;
 	v=n;
@@ -50,6 +46,7 @@ int main(){FIN;
 	fore(i,0,asd)fore(j,0,asd){
 		char qwe; cin>>qwe;
 		sg[i][j]=(qwe=='1');
+		if(sg[i][j]&&j<i)ad[i].pb(j);
 	}
 	LL sym=0;
 	vector<ll>p;
@@ -62,30 +59,21 @@ int main(){FIN;
 		;
 	}
 	while(next_permutation(ALL(p)));
-	//cerr<<sym<<" sym\n";
+	//cerr<<sym<<" sym"<<endl;
 	ll t; get(t);
 	vector<ll>ns(t),ms(t);
-	fore(i,0,t){
-		get(ns[i]),get(ms[i]);
-//		imp(ms);
-	}
+	fore(i,0,t)get(ns[i]),get(ms[i]);
 	fore(_,0,t){
 		n=ns[_]; ll m=ms[_];
 //		cerr<<"caso "<<int(_)<<endl;
-//		cerr<<(int)n<<" "<<(int)m<<"\n";
-		fore(i,0,12)dp[i].clear();
-		mset(has,0);
 		res=0;
 		fore(i,0,m){
 			ll u,v; get(u),get(v); u--,v--;
-			has[u]|=1ll<<v;
-			has[v]|=1ll<<u;
-//			cerr<<(int)u<<","<<(int)v<<"\n";
+			g[u][v]=g[v][u]=1;
 		}
-//		fore(i,0,n)cerr<<bin(has[i])<<" ";;cout<<"\n";
-		auto res=f((1ll<<n)-1,0);
+		f();
 //		cerr<<res<<"\n";
-		cout<<res/sym<<"\n";
+		cout<<res/sym<<endl;
 	}
 }
 

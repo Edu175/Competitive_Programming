@@ -185,7 +185,7 @@ void factos(){
 	fci[MAXF-1]=fpow(fc[MAXF-1],MOD-2);
 	for(ll i=MAXF-2;i>=0;i--)fci[i]=mul(fci[i+1],(i+1));
 }
-ll nCr(ll n, ll k){ //must call factorials before
+ll nCr(ll n, ll k){ //must call factos before
 	if(n<0||k<0||k>n)return 0;
 	return mul(mul(fc[n],fci[k]),fci[n-k]);
 }
@@ -903,9 +903,10 @@ fore(i,1,n)ed.pb({rand()%i,i});
 //uniform distribution, mersenne twister
 random_device rd;
 mt19937 rng(rd());
+cout<<rng()<<"\n"; //range int
+
 uniform_int_distribution<int>dis(0,1000000000);
 cout<<dis(rng)<<"\n"; //uniform
-cout<<rng()<<"\n"; //range int
 
 //UNORDERED MAP, CUSTOM HASH
 struct custom_hash {
@@ -983,12 +984,11 @@ void tjn(ll u){
 	lw[u]=idx[u]=++qidx;
 	st.push(u); cmp[u]=-2;
 	for(auto v:g[u]){
-		if(!idx[v]||cmp[v]==-2){ //tree edge, back edge
+		if(!idx[v]||cmp[v]==-2){ //tree edge, back edge/cross edge
 			if(!idx[v])tjn(v);
 			lw[u]=min(lw[u],lw[v]);
 		}
 		// else cross edge
-	}
 	if(lw[u]==idx[u]){
 		ll x=u;
 		do{x=st.top(),st.pop(),cmp[x]=qcmp;}

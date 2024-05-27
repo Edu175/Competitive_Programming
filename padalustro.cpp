@@ -65,6 +65,9 @@ long double	//18 digits
 __float128	//34 digits
 bool	//1 o 0 // 1 byte
 
+// WARNING!!! UNDEFINED BEHAVIOUR FOR << >> BIGGER THAN NUMBER SIZE
+
+
 //TIPOS DE DATOS
 queue<ll>q //FIFO
 priority_queue<ll>pq //mayor a menor || priority_queue<ll,vector<ll>,comp>pq
@@ -83,6 +86,8 @@ b.count(); //pop_count de bitset
 b._Find_first(); //first 1-bit (ctz)
 b._Find_next(idx); //next 1-bit strictly after idx 
 // ^^^^ WARNING undefined? for negative indices
+// ^^   may work only for -1
+
 v.resize(n);
 to_string(x);
 s.substr(l,n);// substring [l,l+n) // if no n: suffix [l,SZ(s))
@@ -243,7 +248,7 @@ map<int,int> fact(int n){  // must call init_cribe before		O(log(n))
 
 //UNION FIND Y KRUSKAL
 int uf[MAXN];
-void uf_init(){memset(uf,-1,sizeof(uf));}
+void uf_init(){mset(uf,-1);}
 int uf_find(int x){return uf[x]<0?x:uf[x]=uf_find(uf[x]);}
 bool uf_join(int x, int y){
 	x=uf_find(x);y=uf_find(y);
@@ -483,48 +488,6 @@ pair<ll,node> lca(ll x, ll y){ // {lca,ans}
 
 //DATA STRUCTURES
 
-//SEGMENT TREE
-#define oper min
-#define NEUT INF
-struct STree{
-	vector<ll>st;int n;
-	STree(int n): st(4*n+5,NEUT), n(n) {}
-	void init(int k, int s, int e, vector<ll> &a){
-		if(s+1==e){st[k]=a[s];return;}
-		int m=(s+e)/2;
-		init(2*k,s,m,a);init(2*k+1,m,e,a);
-		st[k]=oper(st[2*k],st[2*k+1]);
-	}
-	void upd(int k, int s, int e, int p, ll v){
-		if(s+1==e){st[k]=v;return;}
-		int m=(s+e)/2;
-		if(p<m)upd(2*k,s,m,p,v);
-		else upd(2*k+1,m,e,p,v);
-		st[k]=oper(st[2*k],st[2*k+1]);
-	}
-	ll query(int k, int s, int e, int a, int b){
-		if(s>=b||e<=a)return NEUT;
-		if(a<=s&&e<=b)return st[k];
-		int m=(s+e)/2;
-		return oper(query(2*k,s,m,a,b),query(2*k+1,m,e,a,b));
-	}
-	void init(vector<ll> &a){init(1,0,n,a);}
-	void upd(int p, ll v){upd(1,0,n,p,v);}
-	ll query(int a, int b){return query(1,0,n,a,b);}
-};// uso: STree name(n);name.init(a);name.upd(i,v);name.query(s,e);	
-
-//BS on STree (put inside struct)
-ll find(ll k, ll s, ll e, ll x){
-	if(s+1==e){
-		if(st[k]>=x)return s;
-		return n; //o s+1?
-	}
-	ll m=(s+e)/2;
-	if(st[2*k]>=x)return find(2*k,s,m,x);
-	return find(2*k+1,m,e,x-st[2*k]);
-}
-ll find(ll x){return find(1,0,n,x);} //lowerbound on sum prefixes
-
 //STree ITERATIVO
 typedef ll node;
 node oper(node a, node b){return a+b;}
@@ -572,14 +535,49 @@ struct STree{
 		return oper(izq,der);
 	}
 };
-//init
-void init(vector<ll>&a){
-	assert(SZ(a)>=n);
-	fore(i,0,n)t[i+n]=node(a[i]);
-	for(int s=1<<(32-__builtin_clz(n)),e=2*n;s>1;s>>=1,e=s<<1){
-		for(int i=s;i<e;i+=2)t[i>>1]=oper(t[i],t[i^1]);
+
+// RECURSIVO
+#define oper min
+#define NEUT INF
+struct STree{
+	vector<ll>st;int n;
+	STree(int n): st(4*n+5,NEUT), n(n) {}
+	void init(int k, int s, int e, vector<ll> &a){
+		if(s+1==e){st[k]=a[s];return;}
+		int m=(s+e)/2;
+		init(2*k,s,m,a);init(2*k+1,m,e,a);
+		st[k]=oper(st[2*k],st[2*k+1]);
 	}
+	void upd(int k, int s, int e, int p, ll v){
+		if(s+1==e){st[k]=v;return;}
+		int m=(s+e)/2;
+		if(p<m)upd(2*k,s,m,p,v);
+		else upd(2*k+1,m,e,p,v);
+		st[k]=oper(st[2*k],st[2*k+1]);
+	}
+	ll query(int k, int s, int e, int a, int b){
+		if(s>=b||e<=a)return NEUT;
+		if(a<=s&&e<=b)return st[k];
+		int m=(s+e)/2;
+		return oper(query(2*k,s,m,a,b),query(2*k+1,m,e,a,b));
+	}
+	void init(vector<ll> &a){init(1,0,n,a);}
+	void upd(int p, ll v){upd(1,0,n,p,v);}
+	ll query(int a, int b){return query(1,0,n,a,b);}
+};// uso: STree name(n);name.init(a);name.upd(i,v);name.query(s,e);	
+
+//BS on STree (put inside struct)
+ll find(ll k, ll s, ll e, ll x){
+	if(s+1==e){
+		if(st[k]>=x)return s;
+		return n; //o s+1?
+	}
+	ll m=(s+e)/2;
+	if(st[2*k]>=x)return find(2*k,s,m,x);
+	return find(2*k+1,m,e,x-st[2*k]);
 }
+ll find(ll x){return find(1,0,n,x);} //lowerbound on sum prefixes
+
 
 // LAZY
 #define NEUT 0
@@ -1075,63 +1073,74 @@ void reroot(ll rt=0){
 
 
 // (without inverse)
+
+ll n;
+vector<ii>g[MAXN]; // node, weight (1 if none)
 struct node{
-	//element (if ll typedef)
-	node(){}
+	ll dp,he;
+	node():dp(0),he(0){}
+	node(ll a, ll b):dp(a),he(b){}
 };
-#define NEUT
-node merge(node a, node b){
-	//merge subtree a and b
+node leaf(ll x){ // often neut
+	return node(0,0);
 }
-void level_up(node &x){// add edge
-	//climb a level in tree
+node up(node x, ll w){
+	x.he+=w;
+	x.dp=max(x.dp,x.he);
+	return x;
+}
+node merge(node a, node b){
+	a.dp=max({a.dp,b.dp,a.he+b.he});
+	a.he=max(a.he,b.he);
+	return a;
 }
 
-node h[MAXN],ch[MAXN]; //hijos, complement hijos
-vector<node>pre[MAXN],suf[MAXN];//	[0,i)  ,  [i,n)
-ll f[MAXN];
-void subtree(ll x){
-	for(auto y:g[x]){
-		if(y==f[x])continue;
-		f[y]=x;
-		subtree(y);
-		h[x]=merge(h[x],h[y]);
-	}
-	level_up(h[x]);
-}
-void father_subtree(ll x){
-	fore(i,0,SZ(g[x])){
-		ll y=g[x][i];
-		if(y==f[x])continue;
-		ch[y]=merge(merge(pre[x][i],suf[x][i+1]),ch[x]);
-		level_up(ch[y]);
-		father_subtree(y);
+node h[MAXN],ch[MAXN]; // hijo, complement hijo (SIN ARISTA PADRE)
+vector<node> pre[MAXN],suf[MAXN];
+ll wf[MAXN],fa[MAXN]; // weight father, father
+void dfs1(ll x){
+	h[x]=leaf(x);
+	for(auto [y,w]:g[x])if(y!=fa[x]){
+		wf[y]=w;
+		fa[y]=x;
+		dfs1(y);
+		h[x]=merge(h[x],up(h[y],w));
 	}
 }
-void rerooting(ll n){
-	fore(i,0,n){// clear if testcases
-		h[i]=NEUT, ch[i]=NEUT; // MUST
-		pre[i].clear();
-		suf[i].clear();
+
+void dfs2(ll x){
+	fore(j,0,SZ(g[x])){
+		auto [y,w]=g[x][j];
+		if(y==fa[x])continue;
+		ch[y]=merge(pre[x][j],suf[x][j+1]);
+		if(fa[x]!=-1)ch[y]=merge(ch[y],up(ch[x],wf[x]));
+		dfs2(y);
 	}
-	subtree(0);
+}
+
+void reroot(ll rt=0){
+	fa[rt]=-1,wf[rt]=0;
+	dfs1(rt);
 	fore(x,0,n){
-		suf[x].resize(SZ(g[x])+1,NEUT);
-		pre[x].resize(SZ(g[x])+1,NEUT);
-		fore(i,1,SZ(g[x])+1){			
-			ll y=g[x][i-1];
-			if(y==f[x])pre[x][i]=pre[x][i-1];
-			else pre[x][i]=merge(pre[x][i-1],h[y]);
+		auto &p=pre[x];
+		auto &s=suf[x];
+		ll m=SZ(g[x]);
+		p=vector<node>(m+1,leaf(x));
+		s=vector<node>(m+1,leaf(x));
+		fore(j,1,m+1){
+			auto [y,w]=g[x][j-1];
+			p[j]=p[j-1];
+			if(y!=fa[x])p[j]=merge(p[j],up(h[y],w));
 		}
-		for(ll i=SZ(g[x])-1;i>=0;i--){
-			ll y=g[x][i];
-			if(y==f[x])suf[x][i]=suf[x][i+1];
-			else suf[x][i]=merge(suf[x][i+1],h[y]);
+		for(ll j=m-1;j>=0;j--){
+			auto [y,w]=g[x][j];
+			s[j]=s[j+1];
+			if(y!=fa[x])s[j]=merge(s[j],up(h[y],w));
 		}
 	}
-	father_subtree(0);
-	// stores subtree in h and complement in ch
+	dfs2(rt);
 }
+
 
 //SQRT DECOMPOSITION
 
@@ -1303,6 +1312,14 @@ struct BH{ //Blocks Histogram
 		assert(0);//no llega
 	}
 };
+//generic
+void upd(ll i0, ll i1, ll v){
+	#define SINGLE(s,e) fore(i,s,e)a[i]=max(a[i],v)
+	SINGLE(i0,min(i1,i0/r*r+r));
+	if(i0/r==i1/r)return res;
+	fore(i,i0/r+1,i1/r)val[i]=max(val[i],v); //blocks
+	SINGLE(i1/r*r,i1);
+}
 
 //HLD
 
@@ -1720,7 +1737,34 @@ node SA(){
 	//cout<<"total steps "<<steps<<"\n";
 	return best;
 }
-//MY BITSET
+// answer only (no reconstuction required)
+
+ll r=0; // current answer, modify in ch
+void ch(int i){ //change to a neighbour (could be erase/insert i or swap i,j)
+	
+}
+double t=1e9; //temperature, 1e9 or 1e5
+ll SA(){
+	srand(175);
+	fore(i,0,n)if(rand()&1)ch(i); //random state
+	ll best=r;
+	while(clock()<=1.99*CLOCKS_PER_SEC){ //time limit 2sec
+		ll old=r;
+		int i=rand()%n;
+		ch(i);
+		best=min(best,r);
+		if(! (r<old||exp((old-r)/t)*RAND_MAX>=rand()) )ch(i);
+		t*=0.99999;
+	}
+	//cerr<<t<<"\n";
+	return best;
+}
+
+// DYNAMIC BITSET
+#include <tr2/dynamic_bitset>
+using namespace tr2;
+dynamic_bitset<> b; //template arguments: word type, allocator type
+
 typedef unsigned long long ull;
 const ll W=64;
 struct my_bitset{

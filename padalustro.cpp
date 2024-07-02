@@ -2,7 +2,7 @@
 #define pb push_back
 #define fst first
 #define snd second
-#define fore(i,a,b) for(ll i=a,ggdem=b;i<ggdem;++i)
+#define fore(i,a,b) for(ll i=a,jet=b;i<jet;++i)
 #define SZ(x) ((int)x.size())
 #define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
@@ -19,8 +19,6 @@ int main(){FIN;
 	}
 	return 0;
 }
-
-//me gustaria declararte mi amor pero solo se declarar variables
 
 template<class x> ostream & operator<<(ostream & out, vector<x> v){
     out<<"{ ";
@@ -80,7 +78,7 @@ list<ll>l; // insert(iterator,element)//after iterator , erase(iterator) , pb, p
 forward_list<ll>fl; // erase_after() , insert_after() , push_front //raro
 
 //FUNCIONES
-rotate(a.begin(),a.begin()+x,a.end()) //circular rotation x to the left
+rotate(a.begin(),a.begin()+x,a.end()); //circular rotation x to the left
 void rot(vector<ll>&a, ll x){rotate(a.begin(),a.begin()+x,a.end());}
 b.count(); //pop_count de bitset
 b._Find_first(); //first 1-bit (ctz)
@@ -509,6 +507,11 @@ struct STree{
 };
 
 //init
+void init(vector<node>a){
+	fore(i,0,SZ(a))t[n+i]=a[i];
+	for(ll i=n-1;i>0;i--)t[i]=oper(t[2*i],t[2*i+1]);
+}
+
 void init(vector<ll>&a){
 	assert(SZ(a)>=n);
 	fore(i,0,n)t[i+n]=a[i];
@@ -516,6 +519,7 @@ void init(vector<ll>&a){
 		for(int i=s;i<e;i+=2)t[i>>1]=oper(t[i],t[i^1]);
 	}
 }
+
 //custom (soporta opers no conmutativas :D)
 typedef ll node;
 node oper(node a, node b){return a+b;}
@@ -578,6 +582,34 @@ ll find(ll k, ll s, ll e, ll x){
 }
 ll find(ll x){return find(1,0,n,x);} //lowerbound on sum prefixes
 
+//primer <= a la izquierda
+vector<ll>st;int n; vector<int>ss,es,pos;
+STree(int n): st(4*n+5,NEUT), n(n), ss(4*n+5),es(4*n+5), pos(n+5) {}
+void init(int k, int s, int e, vector<ll> &a){
+	ss[k]=s,es[k]=e;
+	if(s+1==e){st[k]=a[s];pos[s]=k;return;}
+	int m=(s+e)/2;
+	init(2*k,s,m,a);init(2*k+1,m,e,a);
+	st[k]=oper(st[2*k],st[2*k+1]);
+}
+ll find(ll k, ll s, ll e, ll x){
+	if(s+1==e){
+		if(st[k]<=x)return s;
+		return -1; //o s-1?
+	}
+	ll m=(s+e)/2;
+	if(st[2*k+1]<=x)return find(2*k+1,m,e,x);
+	return find(2*k,s,m,x);
+}
+ll find(ll p){ //primer <= a la izquierda
+	ll k=pos[p],x=st[k];
+	while(k>1){
+		if((k&1)&&st[k^1]<=x)return find(k^1,ss[k^1],es[k^1],x);
+		k/=2;
+	}
+	return -1;
+}
+
 
 // LAZY
 #define NEUT 0
@@ -631,7 +663,7 @@ struct STree{
 
 typedef ll tn; // node type
 typedef ll tl; // lazy type
-tn unit(ll v){return v;}
+// tn unit(ll v){return v;}
 #define NEUT 0
 #define CLEAR 0 // cleared lazy node
 tn oper(tn a, tn b){
@@ -650,12 +682,12 @@ struct STree{
 	STree(ll n):st(4*n+5,NEUT),lazy(4*n+5,CLEAR),n(n){
 		//fore(i,0,n)upd(i,unit(0));
 	}
-	void init(ll k, ll s, ll e, vector<ll>&a){
-		if(e-s==1)st[k]=unit(a[s]);
+	void init(ll k, ll s, ll e, vector<tn>&a){
+		if(e-s==1)st[k]=a[s];
 		else {
 			ll m=(s+e)/2;
 			init(2*k,s,m,a); init(2*k+1,m,e,a);
-			st[k]=oper(st[2*k],st[2*k+1],k);
+			st[k]=oper(st[2*k],st[2*k+1]);
 		}
 	}
 	void push(ll k, ll s, ll e){
@@ -701,6 +733,7 @@ struct STree{
 	void upd(ll a, ll b, tl v){upd(1,0,n,a,b,v);}
 	void upd(ll p, tn v){upd(1,0,n,p,v);}
 	tn query(ll a, ll b){return query(1,0,n,a,b);}
+	void init(vector<tn>&a){init(1,0,n,a);}
 };
 //PERSISTENTE
 struct STree{ //persistent
@@ -734,6 +767,62 @@ struct STree{ //persistent
 //*	if using as STree lazy creation change to
 //	ks=(k?k: ... );
 //	to avoid mle 
+
+
+typedef ii node;
+node oper(node a, node b){return {a.fst+b.fst,a.snd+b.snd};}
+node inv(node a, node b){return {a.fst-b.fst,a.snd-b.snd};}
+node NEUT={0,0};
+struct STree{ //persistent 
+	vector<node>st; vector<int>L,R; ll n,rt;
+	STree(ll n): st(1,NEUT),L(1,0),R(1,0),n(n),rt(0){}
+	ll new_node(node v, ll l, ll r){
+		ll ks=SZ(st);
+		st.pb(v),L.pb(l),R.pb(r);
+		return ks;
+	}
+	ll upd(ll k, ll s, ll e, ll p, node v){
+		ll ks=new_node(st[k],L[k],R[k]); // *
+		if(s+1==e){st[ks]=v;return ks;}
+		ll m=(s+e)/2,ps;
+		if(p<m)ps=upd(L[ks],s,m,p,v),L[ks]=ps;
+		else ps=upd(R[ks],m,e,p,v),R[ks]=ps;
+		st[ks]=oper(st[L[ks]],st[R[ks]]);
+		return ks;
+	}
+	node query(ll k, ll s, ll e, ll a, ll b){
+		if(a<=s&&e<=b)return st[k];
+		if(e<=a||b<=s)return NEUT;
+		ll m=(s+e)/2;
+		return oper(query(L[k],s,m,a,b),query(R[k],m,e,a,b));
+	}
+	ll upd(ll k, ll p, node v){return rt=upd(k,0,n,p,v);} // update on root k (first root is 0)
+	ll upd(ll p, node v){return upd(rt,p,v);} // update on last root
+	node query(ll k, ll a, ll b){return query(k,0,n,a,b);}
+	
+	// (for 2d static queries)
+	// n = 2nd coordinate
+	vector<int>rts,keys;
+	void init(vector<pair<ii,node>>a){
+		// init 2d updates, (x,y) coords, value
+		rts={0}; keys={};
+		sort(ALL(a),[&](pair<ii,node>a, pair<ii,node> b){
+			return a.fst.fst<b.fst.fst;});
+		for(auto [pa,v]:a){
+			auto [x,y]=pa;
+			keys.pb(x);
+			rts.pb(upd(y,v));
+		}
+	}
+	node get(ll i, ll j0, ll j1){ // get rectangle [0,i) [j0,j1)
+		ll p=lower_bound(ALL(keys),i)-keys.begin();
+		return query(rts[p],j0,j1);
+	}
+	node get(ll i0, ll i1, ll j0, ll j1){
+		// get rectangle [i0,i1) [j0,j1) with inverse operation
+		return inv(get(i1,j0,j1),get(i0,j0,j1));
+	}
+};
 
 
 //FENWICK TREE
@@ -876,28 +965,6 @@ ll rnd(){ // [0,2³⁰) in cf
 	return ((1ll*rand())<<15)+rand();
 }
 
-//generate random tree O(n²)
-vector<ll>a={0};
-vector<ll>vis(n);
-vis[0]=1;
-vector<ii>ed;
-fore(i,0,n-1){
-	ll p=rand()%(n-1-i);
-	fore(j,0,n){
-		if(vis[j])continue;
-		if(!p){
-			ed.pb({a[rand()%SZ(a)],j});
-			vis[j]=1;
-			a.pb(j);
-		}
-		p--;
-	}
-}
-
-// shuffle labels
-vector<ii>ed;
-fore(i,1,n)ed.pb({rand()%i,i});
-
 //uniform distribution, mersenne twister
 random_device rd;
 mt19937 rng(rd());
@@ -982,7 +1049,7 @@ void tjn(ll u){
 	lw[u]=idx[u]=++qidx;
 	st.push(u); cmp[u]=-2;
 	for(auto v:g[u]){
-		if(!idx[v]||cmp[v]==-2){ //tree edge, back edge/cross edge
+		if(!idx[v]||cmp[v]==-2){ //tree edge || back edge
 			if(!idx[v])tjn(v);
 			lw[u]=min(lw[u],lw[v]);
 		}

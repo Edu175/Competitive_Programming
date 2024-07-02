@@ -18,7 +18,7 @@ random_device rd;
 mt19937 rng(rd());
 
 int main(){FIN;
-	ll n,m; srand((ll)&n); cin>>n>>m; n--;
+	ll n,m; cin>>n>>m; n--;
 	vector<ll>ev(n+1);
 	ll rnd[m];
 	fore(i,0,m)rnd[i]=(rng()<<31)^rng();

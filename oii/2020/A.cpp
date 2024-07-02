@@ -11,9 +11,33 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll>ii;
+const ll MAXN=1005,MAXT=2*MAXN;
 
-in main(){FIN;
-	ll n,m; cin>>n>>m;
-	
+ll n,k;
+ll a[MAXN],r[MAXN],t[MAXN],p[MAXN];
+
+bool cmp(ll i, ll j){
+	return t[i]*r[j]<t[j]*r[i];
+}
+
+ll dp[MAXN][MAXT];
+
+ll f(ll i, ll s){
+	ll &res=dp[i][s];
+	if(res!=-1)return res;
+	if(i==n)return res=0;
+	res=f(i+1,s);
+	ll x=p[i];
+	if(s+t[x]<=k)res=max(res,max(0ll,a[x]-r[x]*(s+t[x]))+f(i+1,s+t[x]));
+	return res;
+}
+
+int main(){FIN;
+	cin>>n>>k;
+	fore(i,0,n)cin>>a[i]>>r[i]>>t[i];
+	fore(i,0,n)p[i]=i;
+	sort(p,p+n,cmp);
+	mset(dp,-1);
+	cout<<f(0,0)<<"\n";
 	return 0;
 }

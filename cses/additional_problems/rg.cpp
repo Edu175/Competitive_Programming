@@ -10,11 +10,13 @@
 #define imp(v) for(auto edu:v)cout<<edu<<" "; cout<<"\n"
 using namespace std;
 typedef long long ll;
+random_device rd;
+mt19937 rng(rd());
 
 int main(){FIN;
-	ll N,V; srand((ll)&N); cin>>N>>V;
-	ll n=rand()%N+1;
-	cout<<n<<" "<<rand()%V+1<<"\n";
-	fore(i,0,n)cout<<rand()%V+1<<" ";;cout<<"\n";
+	ll N,V; cin>>N>>V;
+	ll n=rng()%N+1;
+	cout<<n<<"\n";
+	fore(i,0,n)cout<<rng()%V+1<<" ";;cout<<"\n";
 	return 0;
 }

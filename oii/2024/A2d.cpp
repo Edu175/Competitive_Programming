@@ -45,7 +45,7 @@ struct STree{ //persistent
 	}
 	ll upd(ll k, ll s, ll e, ll p, node v){
 		ll ks=new_node(st[k],L[k],R[k]); // *
-		if(s+1==e){st[ks]=v;return ks;}
+		if(s+1==e){st[ks]=oper(st[k],v);return ks;}
 		ll m=(s+e)/2,ps;
 		if(p<m)ps=upd(L[ks],s,m,p,v),L[ks]=ps;
 		else ps=upd(R[ks],m,e,p,v),R[ks]=ps;
@@ -58,18 +58,20 @@ struct STree{ //persistent
 		ll m=(s+e)/2;
 		return oper(query(L[k],s,m,a,b),query(R[k],m,e,a,b));
 	}
-	ll upd(ll k, ll p, node v){return rt=upd(k,0,n,p,v);} // update on root k (first root is 0)
+	ll upd(ll k, ll p, node v){return rt=upd(k,-n,n,p,v);} // update on root k (first root is 0)
 	ll upd(ll p, node v){return upd(rt,p,v);} // update on last root
-	node query(ll k, ll a, ll b){return query(k,0,n,a,b);}
+	node query(ll k, ll a, ll b){return query(k,-n,n,a,b);}
 	
 	// (for 2d static queries)
 	// n = 2nd coordinate
-	vector<int>rts,keys;
+	vector<int>rts; vector<ll>keys;
 	void init(vector<pair<ii,node>>a){
 		// init 2d updates, (x,y) coords, value
 		rts={0}; keys={};
+		// for(auto i:a)cout<<i.fst.fst<<" ";;cout<<"\n";
 		sort(ALL(a),[&](pair<ii,node>a, pair<ii,node> b){
 			return a.fst.fst<b.fst.fst;});
+		// for(auto i:a)cout<<i.fst.fst<<" ";;cout<<"\n";
 		for(auto [pa,v]:a){
 			auto [x,y]=pa;
 			keys.pb(x);
@@ -77,12 +79,15 @@ struct STree{ //persistent
 		}
 	}
 	node get(ll i, ll j0, ll j1){ // get rectangle [0,i) [j0,j1)
+		// imp(keys) cout<<endl;
 		ll p=lower_bound(ALL(keys),i)-keys.begin();
 		return query(rts[p],j0,j1);
 	}
 	node get(ll i0, ll i1, ll j0, ll j1){
 		// get rectangle [i0,i1) [j0,j1) with inverse operation
-		return inv(get(i1,j0,j1),get(i0,j0,j1));
+		node ret=inv(get(i1,j0,j1),get(i0,j0,j1));
+		// cout<<"get ["<<i0<<","<<i1<<") ["<<j0<<","<<j1<<") = "<<ret.fst<<","<<ret.snd<<"\n";
+		return ret;
 	}
 };
 
@@ -108,6 +113,7 @@ int main(){FIN;
 			continue;
 		}
 		auto mayor=[&](){
+			// assert(0);
 			vector<ll>dis;
 			fore(i,0,n)dis.pb(d[1][i]);
 			sort(ALL(dis));
@@ -129,6 +135,7 @@ int main(){FIN;
 		};
 		ll flag=d[0][b]==k;
 		if(!flag){mayor();continue;}
+		// imp(d[0]) imp(d[1])
 		auto calc=[&](ll d0, ll d1){
 			if(d0+d1+l>=k)return r-l+1;
 			return max(0ll,d0+d1+r-k+1);
@@ -141,31 +148,37 @@ int main(){FIN;
 				ll b0=d[0][y],b1=d[1][x];
 				ll add=calc(d0,d1);
 				if(d0+d1<b0+b1)res-=add;
-				if(d0+d1==b0+b1)dos-=add;
+				if(d0+d1==b0+b1)dos-=add;//,cout<<x<<","<<y<<"-="<<add<<"\n";
 			}
 		}
+		// cout<<res<<" "<<dos<<"\n";
 		vector<pair<ii,node>>ini;
 		fore(x,0,n){
 			ll d0=d[0][x],d1=d[1][x];
+			// cout<<
 			ini.pb({{d1,d0-d1},{d1,1}});
 		}
+		// for(auto [co,val]:ini)cout<<co.fst<<","<<co.snd<<": "<<val.fst<<","<<val.snd<<"\n";
 		STree st(INF);
 		st.init(ini);
 		fore(x,0,n){
 			ll d0=d[0][x],d1=d[1][x];
 			auto same=[&](ll s, ll e){
+				// cout<<"same "<<x<<": "<<s<<","<<e<<":\n";
 				ll res=0;
 				auto [sum,q]=st.get(k-r-d0,k-l-d0,s,e);
 				res+=(d0+r-k+1)*q+sum;
+				// cout<<sum<<","<<q<<" = "<<res<<" prov\n";
 				q=st.get(k-l-d0,INF,s,e).snd;
 				res+=(r-l+1)*q;
-				// cout<<"same "<<x<<": "<<s<<","<<e<<": "<<res<<"\n";
+				// cout<<q<<"\n";
+				// cout<<res<<"\n\n";
 				return res;
 			};
 			res+=same(d0-d1+1,INF);
 			dos+=same(d0-d1,d0-d1+1);
 		}
-		cout<<res<<" "<<dos<<"\n";
+		// cout<<res<<" "<<dos<<"\n";
 		dos/=2;
 		res+=dos;
 		

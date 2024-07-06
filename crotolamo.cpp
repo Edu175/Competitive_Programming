@@ -268,22 +268,22 @@ ll add(ll x, char h){
 // (without inverse)
 ll n;
 vector<ii>g[MAXN]; // node, weight (1 if none)
-struct node{
-	ll dp,he;
-	node():dp(0),he(0){}
-	node(ll a, ll b):dp(a),he(b){}
+struct node {
+	ll dp,q;
+	node():dp(0),q(0){}
+	node(ll q):dp(0),q(q){}
 };
-node leaf(ll x){ // often neut
-	return node(0,0);
+node NEUT;
+node leaf(ll x){
+	return node(1);
 }
-node up(node x, ll w){
-	x.he+=w;
-	x.dp=max(x.dp,x.he);
+node up(node x, ll w=1){
+	x.dp+=x.q;
 	return x;
 }
 node merge(node a, node b){
-	a.dp=max({a.dp,b.dp,a.he+b.he});
-	a.he=max(a.he,b.he);
+	a.q+=b.q;
+	a.dp+=b.dp;
 	return a;
 }
 node h[MAXN],ch[MAXN]; // hijo, complement hijo (SIN ARISTA PADRE)
@@ -302,7 +302,7 @@ void dfs2(ll x){
 	fore(j,0,SZ(g[x])){
 		auto [y,w]=g[x][j];
 		if(y==fa[x])continue;
-		ch[y]=merge(pre[x][j],suf[x][j+1]);
+		ch[y]=merge(leaf(x),merge(pre[x][j],suf[x][j+1]));
 		if(fa[x]!=-1)ch[y]=merge(ch[y],up(ch[x],wf[x]));
 		dfs2(y);
 	}
@@ -314,7 +314,7 @@ void reroot(ll rt=0){
 		auto &p=pre[x];
 		auto &s=suf[x];
 		ll m=SZ(g[x]);
-		p=s=vector<node>(m+1,leaf(x));
+		p=s=vector<node>(m+1,NEUT);
 		fore(j,1,m+1){
 			auto [y,w]=g[x][j-1];
 			p[j]=p[j-1];
@@ -328,7 +328,6 @@ void reroot(ll rt=0){
 	}
 	dfs2(rt);
 }
-
 // (with inverse)
 //example: tree hashing
 vector<ll> g[MAXN];

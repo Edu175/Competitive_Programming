@@ -90,7 +90,8 @@ v.resize(n);
 to_string(x);
 s.substr(l,n);// substring [l,l+n) // if no n: suffix [l,SZ(s))
 stoll(s); //string to ll
-getline(cin,s);cin.ignore();
+cin.ignore();
+getline(cin,s);
 //a=arreglo, n=tamaño de a, s=string, v=vector, st=set
 find(ALL(v),x)//O(n)
 find(a,a+n,x)//O(n)
@@ -141,8 +142,13 @@ struct pt{
 		cout<<"Case #"<<te-t<<": ";
 
 //INPUT OUTPUT POR ARCHIVO
-	ifstream cin;   cin.open("input.in", ios::in);
-	ofstream cout; cout.open("output.out", ios::out);
+#ifdef ONLINE_JUDGE
+freopen("billboard.in","r",stdin);
+freopen("billboard.out","w",stdout);
+#endif
+// or
+ifstream cin;   cin.open("input.in", ios::in);
+ofstream cout; cout.open("output.out", ios::out);
 	
 //HACKER CUP
 	ll t; cin>>t;

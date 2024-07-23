@@ -44,6 +44,10 @@ g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG
 //all warnings
 g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG -Wshadow -Wconversion
 
+function<void(ll)> dfs=... // un poco mas lento
+auto dfs=[&](ll x, auto &&dfs){
+	for(auto y:g[x])dfs(y,dfs);
+};
 //DEBUGGEAR CON GDB
 // must have -g -D_GLIBCXX_DEBUG
 
@@ -1905,4 +1909,35 @@ void reset(vector<ll>&v){
 		dp[i]=0;
 	}
 	resi=0;
+}
+
+
+// compare substrings with suffix array
+string S;
+vector<int>sa,lcp,pos;
+void SA_compare_init(string &_s){
+	S=_s;
+	sa=constructSA(S);
+	lcp=computeLCP(S,sa);
+	pos.resize(SZ(sa));
+	fore(i,0,SZ(sa))pos[sa[i]]=i;
+	st_init(lcp);
+}
+ll get_lcp(ll i, ll j){
+	if(i==j)return SZ(S)-1-i;
+	ll l=pos[i],r=pos[j];
+	if(l>r)swap(l,r);
+	return st_query(l+1,r+1);
+}
+
+ll compare(ii a, ii b){
+	auto [i,i1]=a; auto [j,j1]=b; i1-=i,j1-=j;
+	ll k=get_lcp(i,j);
+	if(k>=i1&&k>=j1){
+		if(i1==j1)return 0;
+		return i1<j1?-1:1;
+	}
+	if(k>=i1)return -1;
+	if(k>=j1)return 1;
+	return S[i+k]<S[j+k]?-1:1;
 }

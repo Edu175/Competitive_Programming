@@ -210,6 +210,9 @@ ll ceb(ll n, ll k){ //n cajitas, k bolitas
 ll cat(ll n){
 	return (nCr(2*n,n)-nCr(2*n,n+1)+MOD)%MOD;
 }
+ll rbs(ll n){ // number of Regular Bracket Sequences
+	return sub(nCr(n,n/2),nCr(n,n/2-1));
+}
 
 //Divisores
 vector<ll> divs[MAXN];
@@ -1940,4 +1943,29 @@ ll compare(ii a, ii b){
 	if(k>=i1)return -1;
 	if(k>=j1)return 1;
 	return S[i+k]<S[j+k]?-1:1;
+}
+
+
+// EULER WALK
+// not tested
+// returns edge indices
+vector<ll> eulerWalk(vector<vector<ii>>& gr, ll nedges, ll src=0) {
+	ll n = SZ(gr);
+	vector<ll> D(n), its(n), eu(nedges), ret;
+	vector<ii> s = {{src,-1}};
+	// D[src]++; // to allow Euler paths, not just cycles
+	while (!s.empty()) {
+		// imp(s);
+		auto [x,e] = s.back(); 
+		ll y, &it = its[x], end = SZ(gr[x]);
+		if (it == end){ ret.pb(e); s.pop_back(); continue; }
+		tie(y, e) = gr[x][it++];
+		if (!eu[e]) {
+			D[x]--, D[y]++;
+			eu[e] = 1; s.pb({y,e});
+		}}
+	ret.pop_back();
+	reverse(ALL(ret));
+	for (ll x : D) if (x < 0 || SZ(ret) != nedges) return {};
+	return ret;
 }

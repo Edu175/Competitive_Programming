@@ -29,6 +29,11 @@ int main(){FIN;
 // COMPILAR
 g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG
 
+// memoria (y tiempo) usada por un programa:
+command time -v ./a
+// o
+/usr/bin/time ./a // maxresident
+
 //INPUT OUTPUT POR ARCHIVO
 #ifdef ONLINE_JUDGE
 freopen("billboard.in","r",stdin);

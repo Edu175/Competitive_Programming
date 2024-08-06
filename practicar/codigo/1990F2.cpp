@@ -44,19 +44,32 @@ int main(){FIN;
 		fore(i,0,n)cin>>a[i];
 		STree stm(n,0),sts(n,1);
 		fore(i,0,n)sts.upd(i,a[i]),stm.upd(i,i);
+		ll dbg=0;
 		auto f=[&](ll l, ll r, auto &&f)->ll{
 			if(r-l<=0)return -1;
 			ll p=stm.query(l,r),s=sts.query(l,r);
 			// cout<<l<<","<<r<<" "<<p<<"\n";
-			if(s-a[p]>a[p])return r-l;
+			if(s-a[p]>a[p]){
+				if(dbg){
+					cout<<"candidate "<<l<<","<<r<<"\n";
+					cout<<"subarray: ";
+					fore(i,l,r)cout<<a[i]<<" ";;cout<<" done\n";
+				}
+				return r-l;
+			}
 			return max(f(l,p,f),f(p+1,r,f));
 		};
+		ll cnt=0;
 		while(q--){
 			ll ty,l,r; cin>>ty>>l>>r; l--;
 			if(ty==1){
+				cnt++;
+				if(n==200000&&cnt==7)dbg=1;
 				cout<<f(l,r,f)<<"\n";
+				dbg=0;
 			}
 			else {
+				if(n==2e5&&cnt<7)cout<<"upd "<<l<<" "<<r<<"\n";
 				a[l]=r;
 				sts.upd(l,r);
 				stm.upd(l,l);

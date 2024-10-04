@@ -7,10 +7,11 @@
 #define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
-#define imp(v) {for(auto gdljh:v)cout<<gdljh<<" "; cout<<"\n";}
+#define imp(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
+typedef vector<ll> vv;
 
 int main(){FIN;
 	ll t; cin>>t;
@@ -44,8 +45,8 @@ ifstream cin;   cin.open("input.in", ios::in);
 ofstream cout; cout.open("output.out", ios::out);
 
 // LEER LINEA DE STRING
-cin.ignore();
 getline(cin,s);
+cin.ignore();
 
 // RANDOM NUMBERS
 random_device rd;
@@ -104,6 +105,7 @@ unordered_map<ll,int,custom_hash> um;
 #include<ext/pb_ds/assoc_container.hpp>
 using namespace __gnu_pbds;
 gp_hash_table<ll,int,custom_hash> ht;
+gp_hash_table<ll,null_type,custom_hash> st; // for unordered set
 */
 
 // -------------------- MATH ----------------------------
@@ -226,6 +228,32 @@ void dfs_tree(ll rt=0){
 	art[rt]=(cnt_>1);
 }
 //uncomment for testcases
+
+// EULER WALK
+// not tested
+// returns edge indices
+vector<ll> eulerWalk(vector<vector<ii>>& gr, ll nedges, ll src=0) {
+	ll n = SZ(gr);
+	vector<ll> D(n), its(n), eu(nedges), ret;
+	vector<ii> s = {{src,-1}};
+	// D[src]++; // to allow Euler paths, not just cycles
+	while (!s.empty()) {
+		// imp(s);
+		auto [x,e] = s.back(); 
+		ll y, &it = its[x], end = SZ(gr[x]);
+		if (it == end){ ret.pb(e); s.pop_back(); continue; }
+		tie(y, e) = gr[x][it++];
+		if (!eu[e]) {
+			D[x]--, D[y]++;
+			eu[e] = 1; s.pb({y,e});
+		}}
+	ret.pop_back();
+	reverse(ALL(ret));
+	for (ll x : D) if (x < 0 || SZ(ret) != nedges) return {};
+	return ret;
+}
+
+
 
 // -------------------- TREES ----------------------------
 // LCA
@@ -418,6 +446,38 @@ void reset(vector<ll>&v){
 	resi=0;
 }
 
+// "binary lifting" with O(n) preprocessing
+// (only for trees, I think)
+// not tested
+ll D[MAXN],F[MAXN],jump[MAXN]; // Depth, Father
+ii V[MAXN],val[MAXN]; // V = Father value, val = jump value
+void makeLeaf(ll x, ll p, ii _val){
+	F[x]=p;
+	V[x]=_val;
+	D[x]=D[p]+1;
+	if(D[p]-D[jump[p]]==D[jump[p]]-D[jump[jump[p]]]){
+		jump[x]=jump[jump[p]];
+		val[x]=oper(V[x],oper(val[p],val[jump[p]]));
+	}
+	else jump[x]=p,val[x]=V[x];
+}
+D[n]=0;
+F[n]=-1; jump[n]=n;
+void go(ll &x, ll &z){
+	auto can=[&](ll* to, ii* v)->bool{ // if can, jump
+		if(z<v[x].fst&&to[x]<n){
+			z+=v[x].snd;
+			x=to[x];
+			return 1;
+		}
+		return 0;
+	};
+	while(can(jump,val)||can(F,V));
+	// last jump
+	if((pot>=s[x]||z<s[x])&&a[x]==n)z+=v[x],x=a[x];
+	else z+=s[x],x=w[x];
+}
+
 // -------------------- DATA STRUCTURES ----------------------------
 // SEGMENT TREE ITERATIVO (soporta operacion no conmutativa)
 typedef ll node;
@@ -499,6 +559,7 @@ void acum(tl &a, tl v){ // accumulate lazy node
 	a+=v;
 }
 tn calc(ll s, ll e, tn a, tl v){ // calculate STree range, a=previous value
+	assert(s|e|1); // useless, it's only to avoid compiler warning
 	a+=v;
 	return a;
 } 
@@ -681,6 +742,38 @@ struct MinQ{
 		dif+=x;
 	}
 };
+
+
+//-------------------------------------STRINGS--------------------------
+// compare substrings with suffix array
+string S;
+vector<int>sa,lcp,pos;
+void SA_compare_init(string &_s){
+	S=_s;
+	sa=constructSA(S);
+	lcp=computeLCP(S,sa);
+	pos.resize(SZ(sa));
+	fore(i,0,SZ(sa))pos[sa[i]]=i;
+	st_init(lcp);
+}
+ll get_lcp(ll i, ll j){
+	if(i==j)return SZ(S)-1-i;
+	ll l=pos[i],r=pos[j];
+	if(l>r)swap(l,r);
+	return st_query(l+1,r+1);
+}
+
+ll compare(ii a, ii b){
+	auto [i,i1]=a; auto [j,j1]=b; i1-=i,j1-=j;
+	ll k=get_lcp(i,j);
+	if(k>=i1&&k>=j1){
+		if(i1==j1)return 0;
+		return i1<j1?-1:1;
+	}
+	if(k>=i1)return -1;
+	if(k>=j1)return 1;
+	return S[i+k]<S[j+k]?-1:1;
+}
 
 // -------------------- MISCELLANEOUS ----------------------------
 //MOS ON TREE 

@@ -1,0 +1,4 @@
+ulimit -s unlimited
+alias g='g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG'
+alias gf='g++ -O2 -std=c++17 -Wall -Wextra'
+alias gw='g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG -Wconversion -Wshadow'

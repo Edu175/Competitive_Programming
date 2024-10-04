@@ -13,7 +13,7 @@ typedef pair<ll,ll> ii;
 const ll INF=1e16;
 ll n,c;
 vector<ll>p,d;
-ll fake=21;
+ll fake=109;
 ii operator^(ii a, ii b){
 	return {max(a.fst,b.fst),min(a.snd,b.snd)};
 }
@@ -24,7 +24,7 @@ bool can(ll m){
 	vector<ii>ed;
 	fore(i,0,n){
 		vector<ll>idx;
-		fore(j,i+1,n)if(dis(i,j)>m)idx.pb(j);
+		fore(j,0,n)if(i!=j&&dis(i,j)>m)idx.pb(j);
 		if(SZ(idx)){
 			ll mn=idx[0],mx=idx[0];
 			auto cuenta=[&](ll i, ll b){
@@ -40,7 +40,10 @@ bool can(ll m){
 	}
 	if(!SZ(ed))return 1;
 	ii par=ed[0];
-	for(auto i:ed)par=par^i;
+	for(auto &i:ed){
+		if(i.fst>i.snd)swap(i.fst,i.snd);
+		par=par^i;
+	}
 	// if(m==fake){
 	// 	for(auto [i,j]:ed)cout<<i<<","<<j<<" ";;cout<<"\n";
 	// }

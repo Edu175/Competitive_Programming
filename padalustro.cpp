@@ -7,10 +7,11 @@
 #define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
-#define imp(v) {for(auto gdljh:v)cout<<gdljh<<" "; cout<<"\n";}
+#define imp(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
+typedef vector<ll> vv;
 
 int main(){FIN;
 	ll t; cin>>t;
@@ -19,6 +20,7 @@ int main(){FIN;
 	}
 	return 0;
 }
+
 
 template<class x> ostream & operator<<(ostream & out, vector<x> v){
     out<<"{ ";
@@ -945,6 +947,13 @@ fore(d,0,k)fore(mk,0,1ll<<k){
 for(int s=m;s;s=(s-1)&m) // Decreasing order
 for (int s=0;s=s-m&m;) 	 // Increasing order
 
+// Generate all size-k bitmasks
+ll mk=(1ll<<k)-1,r,c;
+while(mk<=(1ll<<n)-(1ll<<(n-k))){
+	// Code here
+	c=mk&-mk,r=mk+c,mk=r|(((r^mk)>>2)/c);
+}
+
 //HASHING
 #define bint __int128
 struct Hash{
@@ -1067,6 +1076,7 @@ void tjn(ll u){
 			lw[u]=min(lw[u],lw[v]);
 		}
 		// else cross edge
+	}
 	if(lw[u]==idx[u]){
 		ll x=u;
 		do{x=st.top(),st.pop(),cmp[x]=qcmp;}
@@ -1968,4 +1978,36 @@ vector<ll> eulerWalk(vector<vector<ii>>& gr, ll nedges, ll src=0) {
 	reverse(ALL(ret));
 	for (ll x : D) if (x < 0 || SZ(ret) != nedges) return {};
 	return ret;
+}
+
+// "binary lifting" with O(n) preprocessing
+// (only for trees, I think)
+// not tested
+ll D[MAXN],F[MAXN],jump[MAXN]; // Depth, Father
+ii V[MAXN],val[MAXN]; // V = Father value, val = jump value
+void makeLeaf(ll x, ll p, ii _val){
+	F[x]=p;
+	V[x]=_val;
+	D[x]=D[p]+1;
+	if(D[p]-D[jump[p]]==D[jump[p]]-D[jump[jump[p]]]){
+		jump[x]=jump[jump[p]];
+		val[x]=oper(V[x],oper(val[p],val[jump[p]]));
+	}
+	else jump[x]=p,val[x]=V[x];
+}
+D[n]=0;
+F[n]=-1; jump[n]=n;
+void go(ll &x, ll &z){
+	auto can=[&](ll* to, ii* v)->bool{ // if can, jump
+		if(z<v[x].fst&&to[x]<n){
+			z+=v[x].snd;
+			x=to[x];
+			return 1;
+		}
+		return 0;
+	};
+	while(can(jump,val)||can(F,V));
+	// last jump
+	if((pot>=s[x]||z<s[x])&&a[x]==n)z+=v[x],x=a[x];
+	else z+=s[x],x=w[x];
 }

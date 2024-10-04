@@ -49,6 +49,6 @@ long long plan_roller_coaster(std::vector<int> A, std::vector<int> B) {
 			break;
 		}
 	}
-	for(auto i:ret)cout<<i.fst<<","<<i.snd<<" ";;cout<<"\n";
+	// for(auto i:ret)cout<<i.fst<<","<<i.snd<<" ";;cout<<"\n";
     return res;
 }

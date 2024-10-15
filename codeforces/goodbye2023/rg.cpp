@@ -11,20 +11,21 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-
+random_device rd;
+mt19937 rng(rd());
 int main(){FIN;
-	ll N; srand((ll)&N); cin>>N;
-	ll n=rand()%N+1;
+	ll N; cin>>N;
+	ll n=rng()%N+1;
 	vector<ll>a={0};
 	vector<ll>vis(n);
 	vis[0]=1;
 	vector<ii>ed;
 	fore(i,0,n-1){
-		ll p=rand()%(n-1-i);
+		ll p=rng()%(n-1-i);
 		fore(j,0,n){
 			if(vis[j])continue;
 			if(!p){
-				ed.pb({a[rand()%SZ(a)],j});
+				ed.pb({a[rng()%SZ(a)],j});
 				vis[j]=1;
 				a.pb(j);
 			}
@@ -37,7 +38,7 @@ int main(){FIN;
 	cout<<n<<"\n";
 	fore(i,1,n)cout<<p[i]+1<<" ";
 	cout<<"\n";
-	fore(i,0,n)cout<<rand()%n+1<<" ";
+	fore(i,0,n)cout<<rng()%n+1<<" ";
 	cout<<"\n";
 	return 0;
 }

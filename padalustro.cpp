@@ -995,6 +995,22 @@ cout<<rng()<<"\n"; //range int
 uniform_int_distribution<int>dis(0,1000000000);
 cout<<dis(rng)<<"\n"; //uniform
 
+//get k random integers from 1 to n
+vv getDistinct(ll k, ll n){
+	vv res;
+	if(2*k<n){
+		set<ll>st;
+		while(SZ(st)<k)st.insert(rng()%n+1);
+		for(auto i:st)res.pb(i);
+		shuffle(ALL(res),rng);
+	}
+	else {
+		vv v(n); iota(ALL(v),1); shuffle(ALL(v),rng);
+		fore(i,0,k)res.pb(v[i]);
+	}
+	return res;
+}
+
 //UNORDERED MAP, CUSTOM HASH
 struct custom_hash {
     static uint64_t splitmix64(uint64_t x) {
@@ -1778,6 +1794,7 @@ void dfs_(ll x){
 	}
 }
 void dfs_init(ll n=0, ll m=0){
+	assert(n|m|1); // warning chota
 	mset(lw,-1); mset(art,0); mset(vised,0);
 	//fore(i,0,n)lw[i]=-1,art[i]=0;
 	//fore(i,0,m)vised[i]=0;

@@ -60,6 +60,8 @@ void solve(ll k, ll R){ // k-length, [10,R)
 }
 
 int main(){FIN;
+	pot[0]=1;
+	fore(i,1,19)pot[i]=pot[i-1]+
 	ll cnt=0,bef=-1;
 	fore(i,10,ll(1e9)){
 		ll now=bar(i);

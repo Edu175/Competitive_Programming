@@ -18,6 +18,8 @@ int main(){FIN;
 	ll n,m; cin>>n>>m;
 	vv a(n);
 	fore(i,0,n)cin>>a[i];
-	
+	ld res=0;
+	vv coef(n);
+	fore(i,n-m+1,n)res+=s[i]
 	return 0;
 }

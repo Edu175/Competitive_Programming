@@ -57,6 +57,35 @@ shuffle(ALL(a),rng); // instead of random_shuffle
 // chrono::steady_clock::now().time_since_epoch().count()
 // for time in miliseconds
 
+//get k random DISTINCT integers from 1 to n (in O(k*log))
+vv getDistinct(ll k, ll n){
+	vv res;
+	if(2*k<n){
+		set<ll>st;
+		while(SZ(st)<k)st.insert(rng()%n+1);
+		for(auto i:st)res.pb(i);
+		shuffle(ALL(res),rng);
+	}
+	else {
+		vv v(n); iota(ALL(v),1); shuffle(ALL(v),rng);
+		fore(i,0,k)res.pb(v[i]);
+	}
+	return res;
+}
+
+// LAMBDA RECURSIVA
+function<void(ll)> dfs=... // un poco mas lento
+auto dfs=[&](ll x, auto &&dfs){
+	for(auto y:g[x])dfs(y,dfs);
+};
+
+// Generate all size-k bitmasks
+ll mk=(1ll<<k)-1,r,c;
+while(mk<=(1ll<<n)-(1ll<<(n-k))){
+	// Code here
+	c=mk&-mk,r=mk+c,mk=r|(((r^mk)>>2)/c);
+}
+
 // DYNAMIC BITSET
 // EN CODEFORCES SIGUE BUGEADO https://codeforces.com/blog/entry/129454
 #include <tr2/dynamic_bitset>
@@ -128,6 +157,11 @@ void factos(){
 ll nCr(ll n, ll k){ //must call factos before
 	if(n<0||k<0||k>n)return 0;
 	return mul(mul(fc[n],fci[k]),fci[n-k]);
+}
+
+// number of Regular Bracket Sequences of size n
+ll rbs(ll n){
+	return sub(nCr(n,n/2),nCr(n,n/2-1));
 }
 
 // DIVISORES
@@ -217,6 +251,7 @@ void dfs_(ll x){
 	}
 }
 void dfs_init(ll n=0, ll m=0){
+	assert(n|m|1); // warning chota
 	mset(lw,-1); mset(art,0); mset(vised,0);
 	//fore(i,0,n)lw[i]=-1,art[i]=0;
 	//fore(i,0,m)vised[i]=0;
@@ -478,7 +513,7 @@ void go(ll &x, ll &z){
 	else z+=s[x],x=w[x];
 }
 
-// -------------------- DATA STRUCTURES ----------------------------
+// -------------------- DATA STRUCTURES ----------------------
 // SEGMENT TREE ITERATIVO (soporta operacion no conmutativa)
 typedef ll node;
 node oper(node a, node b){return a+b;}
@@ -627,14 +662,15 @@ struct STree{
 //*	if using as STree lazy creation change to
 //	ks=(k?k: ... ); in upd
 //	to avoid mle 
-//
+
 // for 2d static queries
+// O(p logn) where p = number of points
 typedef ii node;
 node oper(node a, node b){return {a.fst+b.fst,a.snd+b.snd};}
 node inv(node a, node b){return {a.fst-b.fst,a.snd-b.snd};}
 	// (paste inside persistent)
 	// n = 2nd coordinate
-	// IF ONLY COPYING THIS CHANGE TO oper= IN LEAF UPDATE
+	// IF ONLY COPYING THIS CHANGE TO oper= IN LEAF UPDATE (acummulate, instead of assign)
 	vector<int>rts,keys;
 	void init(vector<pair<ii,node>>a){
 		// init 2d updates, (x,y) coords, value
@@ -745,7 +781,7 @@ struct MinQ{
 };
 
 
-//-------------------------------------STRINGS--------------------------
+//---------------------------------STRINGS-------------------------
 // compare substrings with suffix array
 string S;
 vector<int>sa,lcp,pos;
@@ -776,7 +812,7 @@ ll compare(ii a, ii b){
 	return S[i+k]<S[j+k]?-1:1;
 }
 
-// -------------------- MISCELLANEOUS ----------------------------
+// ------------------ MISCELLANEOUS --------------------------
 //MOS ON TREE 
 //needs lca // (CH = change)
 ll C[MAXN],S[MAXN],E[MAXN],P[MAXN];

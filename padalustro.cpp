@@ -212,7 +212,8 @@ ll ceb(ll n, ll k){ //n cajitas, k bolitas
 ll cat(ll n){
 	return (nCr(2*n,n)-nCr(2*n,n+1)+MOD)%MOD;
 }
-ll rbs(ll n){ // number of Regular Bracket Sequences
+// number of Regular Bracket Sequences
+ll rbs(ll n){
 	return sub(nCr(n,n/2),nCr(n,n/2-1));
 }
 
@@ -817,7 +818,8 @@ struct STree{ //persistent
 	
 	// (for 2d static queries)
 	// n = 2nd coordinate
-	// IF ONLY COPYING THIS CHANGE TO oper= IN LEAF UPDATE
+	// O(p logn) where p = number of points
+	// IF ONLY COPYING THIS CHANGE TO oper= IN LEAF UPDATE (acummulate, instead of assign)
 	vector<int>rts,keys;
 	void init(vector<pair<ii,node>>a){
 		// init 2d updates, (x,y) coords, value
@@ -996,7 +998,7 @@ cout<<rng()<<"\n"; //range int
 uniform_int_distribution<int>dis(0,1000000000);
 cout<<dis(rng)<<"\n"; //uniform
 
-//get k random integers from 1 to n
+//get k random DISTINCT integers from 1 to n (in O(k*log))
 vv getDistinct(ll k, ll n){
 	vv res;
 	if(2*k<n){

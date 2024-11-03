@@ -11,7 +11,8 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-const ll MAXN=
+typedef vector<ll> vv;
+const ll MAXN=2e5+5;
 // MAXN: max number of nodes or 2 * max number of variables (2SAT)
 bool truth[MAXN]; // truth[cmp[i]]=value of variable i (2SAT)
 int nvar;int neg(int x){return MAXN-1-x;} // (2SAT)
@@ -47,10 +48,53 @@ bool satisf(int _nvar){
 	fore(i,0,nvar)if(cmp[i]==cmp[neg(i)])return false;
 	return true;
 }
+vv ord;
+ll vis[MAXN],is[MAXN];
+void dfs(ll x){
+	vis[x]=1;
+	ll c=cmp[x],good=!is[c];
+	is[c]=1;
+	for(auto y:g[x])if(!vis[y])dfs(y);
+	if(good)ord.pb(c),is[c]=1;
+}
+
 int main(){FIN;
-	ll t; cin>>t;
-	while(t--){
-		
+	ll n,m; cin>>n>>m;
+	fore(i,0,n){
+		char t,y; ll u,v; cin>>t>>u>>y>>v;
+		u--,v--;
+		if(t=='-')u=neg(u);
+		if(y=='-')v=neg(v);
+		addor(u,v);
 	}
+	auto ans=satisf(m);
+	if(!ans){
+		cout<<"IMPOSSIBLE\n";
+		return 0;
+	}
+	fore(i,0,m)fore(fg,0,2){
+		ll x=fg?neg(i):i;
+		// cout<<x<<": "<<cmp[x]<<"\n";
+		if(vis[x])continue;
+		dfs(x);
+	}
+	// imp(ord);
+	vv good(MAXN),h[qcmp];
+	fore(i,0,m)fore(fg,0,2){
+		ll x=fg?neg(i):i;
+		h[cmp[x]].pb(x);
+	}
+	for(auto c:ord){
+		ll flag=1;
+		for(auto x:h[c])flag&=!good[neg(x)];
+		if(flag){
+			for(auto x:h[c])good[x]=1;
+		}
+	}
+	fore(i,0,m){
+		if(good[i])cout<<"+ ";
+		else cout<<"- ";
+	}
+	cout<<"\n";
 	return 0;
 }

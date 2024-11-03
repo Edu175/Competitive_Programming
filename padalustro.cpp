@@ -798,7 +798,7 @@ struct STree{ //persistent
 	}
 	ll upd(ll k, ll s, ll e, ll p, node v){
 		ll ks=new_node(st[k],L[k],R[k]); // *
-		if(s+1==e){st[ks]=v;return ks;}
+		if(s+1==e){st[ks]=oper(st[ks],v);return ks;}
 		ll m=(s+e)/2,ps;
 		if(p<m)ps=upd(L[ks],s,m,p,v),L[ks]=ps;
 		else ps=upd(R[ks],m,e,p,v),R[ks]=ps;
@@ -817,6 +817,7 @@ struct STree{ //persistent
 	
 	// (for 2d static queries)
 	// n = 2nd coordinate
+	// IF ONLY COPYING THIS CHANGE TO oper= IN LEAF UPDATE
 	vector<int>rts,keys;
 	void init(vector<pair<ii,node>>a){
 		// init 2d updates, (x,y) coords, value

@@ -634,6 +634,7 @@ node oper(node a, node b){return {a.fst+b.fst,a.snd+b.snd};}
 node inv(node a, node b){return {a.fst-b.fst,a.snd-b.snd};}
 	// (paste inside persistent)
 	// n = 2nd coordinate
+	// IF ONLY COPYING THIS CHANGE TO oper= IN LEAF UPDATE
 	vector<int>rts,keys;
 	void init(vector<pair<ii,node>>a){
 		// init 2d updates, (x,y) coords, value

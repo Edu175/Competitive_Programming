@@ -70,7 +70,7 @@ int main(){FIN;
 	fore(x,0,n)a.pb({val[x],x});
 	sort(ALL(a));
 	vector<ll>b;
-	fore(i,0,n+1){ //meto todos (mismo valor) a la vez, dsp calculo
+	fore(i,0,n){ //meto todos (mismo valor) a la vez, dsp calculo
 		ll x=a[i].snd;
 		//cout<<x<<" ";
 		for(auto y:g[x])if(val[y]<=val[x])join(x,y);
@@ -87,9 +87,9 @@ int main(){FIN;
 		ll res=0;
 		if(fl[x])res=val[x];
 		else res=dp[x];
-		cout<<res<<" ";
+		cout<<res<<"\n";
 	}
-	cout<<"\n";
+	// cout<<"\n";
 	/*cout<<"\n";
 	fore(i,0,n){
 		cout<<i<<" "<<fat[i]<<": "<<ans[i]<<" "<<dp[i]<<" "<<fl[i]<<"\n";

@@ -43,8 +43,8 @@ int main(){FIN;
 	}
 	fore(i,0,n)cin>>val[i];
 	fore(i,0,n){
-		cout<<bfs(i,n)<<" ";
+		cout<<bfs(i,n)<<"\n";
 	}
-	cout<<"\n";
+	// cout<<"\n";
 	return 0;
 }

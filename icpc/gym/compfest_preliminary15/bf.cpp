@@ -11,51 +11,44 @@ using namespace std;
 typedef long long ll;
 typedef vector<ll> vv;
 typedef pair<ll,ll> ii;
-const ll MAXN=1e5+5,MOD=99824435;
-ll add(ll a, ll b){a+=b;if(a>=MOD)a-=MOD;return a;}
-ll mul(ll a, ll b){return a*b%MOD;}
-vector<ii> g[MAXN];
+const ll MAXN=1e5+5;
 
-ll ans=0,unos=0;
-void bf(ll x){
-	for(auto [y,w]:g[x]){
-		if(!w)ans=add(ans,unos);
-		else unos=add(unos,1);
-		bf(y);
+vector<ii> g[MAXN];
+ll we[MAXN];
+ll n;
+vv d;
+void dfs(ll x){
+	for(auto [y,i]:g[x])if(d[y]==-1){
+		d[y]=d[x]+we[i];
+		dfs(y);
 	}
 }
-// random_device rd;
-// mt19937 rng(rd());
+ll get(){
+	d=vv(n,-1);
+	d[0]=0; dfs(0);
+	auto mx=max_element(ALL(d))-d.begin();
+	// cout<<mx<<": "<<d[mx]<<"\n";
+	d=vv(n,-1);
+	d[mx]=0; dfs(mx);
+	return *max_element(ALL(d));
+}
 
-// void stress(ll N){
-	
-// }
 int main(){
 	JET
-	ll n; cin>>n;
-	fore(i,0,n){
-		ll m; cin>>m;
-		fore(j,0,m){
-			ll u,w; cin>>u>>w; u--;
-			g[i].pb({u,w});
-		}
+	cin>>n;
+	fore(i,0,n-1){
+		ll u,v,w; cin>>u>>v>>w; u--,v--;
+		g[u].pb({v,i});
+		g[v].pb({u,i});
+		we[i]=w;
 	}
-	dfs(0);
-	// reverse(ALL(ord));
-	for(auto x:ord){
-		dp[x]={0,0,0};
-		for(auto [y,w]:g[x]){
-			vv tmp={0,0,0};
-			tmp[w]++;
-			vv r=merge(tmp,dp[y]);
-			dp[x]=merge(dp[x],r);
-		}
+	// cout<<get()<<"\n";
+	ll q; cin>>q;
+	while(q--){
+		ll x,k; cin>>x>>k; x--;
+		for(auto [y,i]:g[x])we[i]*=k;
+		cout<<get()<<"\n";
+		for(auto [y,i]:g[x])we[i]/=k;
 	}
-	ll res=dp[0][2];
-	cout<<res<<"\n";
-	
-	//bf
-	bf(0);
-	cout<<ans<<" bf\n";
 	return 0;
 }

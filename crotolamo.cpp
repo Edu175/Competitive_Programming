@@ -139,6 +139,7 @@ gp_hash_table<ll,null_type,custom_hash> st; // for unordered set
 
 // -------------------- MATH ----------------------------
 // COMBINATORIA
+// MODULAR OPERATIONS
 int add(int a, int b){a+=b;if(a>=MOD)a-=MOD;return a;}
 int sub(int a, int b){a-=b;if(a<0)a+=MOD;return a;}
 int mul(ll a, ll b){return a*b%MOD;}
@@ -164,11 +165,19 @@ ll rbs(ll n){
 	return sub(nCr(n,n/2),nCr(n,n/2-1));
 }
 
-// DIVISORES
-// O(nlogn) memoria y tiempo
-vector<ll> divs[MAXN];
+// NUMBER THEORY
+// divisores and phi in VlogV time and memory
+vector<ll> divs[MAXV];
 void divisores(){
-	fore(i,1,MAXN)for(int j=i;j<MAXN;j+=i)divs[j].pb(i);
+	fore(i,1,MAXV)for(int j=i;j<MAXV;j+=i)divs[j].pb(i);
+}
+
+ll phi[MAXV];
+void phinit(){
+	fore(i,1,MAXV){
+		phi[i]+=i;
+		for(int j=2*i;j<MAXV;j+=i)phi[j]-=phi[i];
+	}
 }
 //O(√n) cada query
 vector<ll> divs(ll x){

@@ -14,10 +14,20 @@ typedef pair<ll,ll> ii;
 random_device rd;
 mt19937 rng(rd());
 
-
 int main(){
 	JET
-	int n=rng()%15+1;
-	int m=rng()%12+1;
-	cout<<n<<" "<<m;
+	ll N,V; cin>>N>>V;
+	ll n=rng()%(N-1)+2;
+	cout<<n<<"\n";
+	fore(i,1,n){
+		ll p=rng()%i;
+		cout<<p+1<<" "<<i+1<<" "<<rng()%V+1<<"\n";
+	}
+	ll Q; cin>>Q;
+	ll q=rng()%Q+1;
+	cout<<q<<"\n";
+	while(q--){
+		ll x=rng()%n,k=rng()%V+1;
+		cout<<x+1<<" "<<k<<"\n";
+	}
 }

@@ -29,33 +29,16 @@ template<class x> ostream & operator<<(ostream & out, vector<x> v){
     return out;
 }
 
+// codeforces lento:
+%3f
+// append to url
+
 //PRAGMAS
 
 //#pragma GCC optimize("Ofast") // may lead to precision errors
 
 #pragma GCC optimize("O3,unroll-loops")
 #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
-gedit A.cpp && gedit B.cpp && gedit C.cpp && gedit D.cpp && gedit E.cpp && gedit F.cpp && gedit G.cpp
-
-// COMPILAR
-g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG <file> -o a
-//fast
-g++ -O2 -std=c++17 -Wall -Wextra
-//debug
-g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG
-//all warnings
-g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG -Wshadow -Wconversion
-
-function<void(ll)> dfs=... // un poco mas lento
-auto dfs=[&](ll x, auto &&dfs){
-	for(auto y:g[x])dfs(y,dfs);
-};
-//DEBUGGEAR CON GDB
-// must have -g -D_GLIBCXX_DEBUG
-
-gdb ./a
-run <in
-where
 
 //TIPOS DE VARIABLES
 short			//-3.2e4 a 3.2e4 // 2 bytes
@@ -132,57 +115,11 @@ ll gcd(ll a, ll b){
 hypot(l,r);//return double
 hypotf,fipotl//float,long double
 
-struct pt{
-	ll x,y;
-	pt(ll x, ll y):x(x),y(y){}
-	pt(){}
-	pt operator-(pt p){return pt(x-p.x,y-p.y);}
-	bool operator==(pt p){return (x==p.x&&y==p.y);}
-	ll operator%(pt p){return x*p.y-y*p.x;}
-	bool left(pt p, pt q){ // is it to the left of directed line pq?
-		return (q-p)%(*this-p)>EPS;}
-};
-
-//CODE JAM
-	ll te=t;
-	while(t--){
-		cout<<"Case #"<<te-t<<": ";
-
-//INPUT OUTPUT POR ARCHIVO
-#ifdef ONLINE_JUDGE
-freopen("billboard.in","r",stdin);
-freopen("billboard.out","w",stdout);
-#endif
-// or
-ifstream cin;   cin.open("input.in", ios::in);
-ofstream cout; cout.open("output.out", ios::out);
-	
-//HACKER CUP
-	ll t; cin>>t;
-	fore(_,0,t){
-		cout<<"Case #"<<_+1<<": ";
-		
-		
-__builtin_popcountll(x); //contar bits 1 de x
-__builtin_clzll(x); // count leading zeros // 64-funcion contar bits
-__builtin_ctzll(x); // count trailing zeros // cantidad de factores 2
-
 //FLOOR SQRT
 ll fqrt(ll x){ //if ceil change to r*r<x and return r
 	ll r=sqrt(x)-3;
 	for(;r<0||r*r<=x;r++)if(r<0)continue;
 	return r-1;
-}
-
-//FAST POW y NUMEROS COMBINATORIOS
-ll fpow(ll b, ll e){
-	if(e<0)return 0;
-	ll ret=1;
-	while(e){
-		if(e&1)ret=ret*b%MOD;
-		b=b*b%MOD,e>>=1;
-	}
-	return ret;
 }
 
 //MODULAR OPERATIONS
@@ -231,30 +168,6 @@ void phinit(){
 		for(int j=2*i;j<MAXV;j+=i)phi[j]-=phi[i];
 	}
 }
-//O(√n) cada query
-vector<ll> divs(ll x){
-	vector<ll>res;
-	for(int i=1; i*i<=x;i++){
-		if(x%i==0)res.pb(i),res.pb(x/i);
-		if(i*i==x)res.pop_back();
-	}
-	return res;
-}
-
-//FACTORIZACION EN PRIMOS
-vector<pair<ll,ll>> fact(ll x){
-	vector<pair<ll,ll>>v;
-	for(ll i=2; i*i<=x; i++){
-		ll count=0;
-		while(x%i==0){
-			count++;
-			x/=i;
-		}
-		if(count)v.pb({i,count});
-	}
-	if(x>1)v.pb({x,1});
-	return v;
-}
 
 //CRIBA
 int cr[MAXV]; // -1 if prime, some not trivial divisor if not	O(nloglog(n))
@@ -297,17 +210,6 @@ bool uf_join(ll a, ll b){
 	return 1;
 }
 
-vector<pair<ll,pair<ll,ll>>>es; //edges(cost,(u,v))
-ll kruskal(ll n){
-	sort(ALL(es)); uf_init(n);
-	ll res=0;
-	for(auto i:es){
-		ll a=i.snd.fst, b=i.snd.snd, w=i.fst;
-		if(uf_join(a,b))res+=w;
-	}
-	return res;
-}
-
 //PRIM
 ll is[MAXN];
 ll prim(){
@@ -324,27 +226,6 @@ ll prim(){
 		res+=w; //add edge
 	}
 	return res;
-}
-//DIJKSTRA  O(N + MlogM)
-vector<ii> g[MAXN];//g[u]={cost,v}
-ll d[MAXN];
-void dijkstra(ll x){
-	mset(d,-1);//flag value
-	d[x]=0;
-	priority_queue<ii,vector<ii>,greater<ii>> q;//ascending order {cost,u}
-	q.push({0,x});
-	while(SZ(q)){
-		x=q.top().snd;auto c=q.top().fst;
-		q.pop();
-		if(d[x]!=c)continue;//if changed
-		for(auto i:g[x]){
-			ll y=i.fst,c=i.snd;
-			if(d[y]==-1||d[x]+c<d[y]){
-				d[y]=d[x]+c;
-				q.push({d[y],y});
-			}
-		}
-	}
 }
 
 //FLOYD WARSHALL
@@ -390,7 +271,35 @@ ll father(ll v, ll x){ // v-ésimo padre de x
 	}
 	return x;
 }
-// O(1) query with O(n sqrt(n)) preprocessing
+
+// lca O(1)
+ll D[MAXN],fa[MAXN],P[MAXN];
+vv ord;
+void lca_dfs(ll x){
+	for(auto y:g[x])if(y!=fa[x]){
+		fa[y]=x;
+		D[y]=D[x]+1;
+		ord.pb(x);
+		lca_dfs(y);
+	}
+	P[x]=SZ(ord);
+	ord.pb(x);
+}
+ll oper(ll i, ll j){return D[i]<D[j]?i:j;}
+// (...)
+// sparse table (K is 1 more)
+void lca_init(){
+	fa[0]=-1; D[0]=0;
+	lca_dfs(0);
+	st_init(ord);
+}
+ll lca(ll x, ll y){
+	ll l=P[x],r=P[y];
+	if(l>r)swap(l,r);
+	return st_query(l,r+1);
+}
+
+// father O(1) query with O(n sqrt(n)) preprocessing
 const ll B=316;
 ll F[B+5][MAXN];
 ll Fb[MAXN/B+5][MAXN];
@@ -531,235 +440,16 @@ struct STree{
 	}
 };
 
-//init
-void init(vector<node>a){
-	fore(i,0,SZ(a))t[n+i]=a[i];
-	for(ll i=n-1;i>0;i--)t[i]=oper(t[2*i],t[2*i+1]);
-}
+	// init (put inside struct)
+	void init(vector<node>a){
+		fore(i,0,n)t[n+i]=a[i];
+		for(ll i=n-1;i>0;i--)t[i]=oper(t[2*i],t[2*i+1]);
+	}
 
-void init(vector<ll>&a){
-	assert(SZ(a)>=n);
-	fore(i,0,n)t[i+n]=a[i];
-	for(int s=1<<(32-__builtin_clz(n)),e=2*n;s>1;s>>=1,e=s<<1){
-		for(int i=s;i<e;i+=2)t[i>>1]=oper(t[i],t[i^1]);
-	}
-}
+// custom en el crotolamo
 
-//custom (soporta opers no conmutativas :D)
-typedef ll node;
-node oper(node a, node b){return a+b;}
-#define NEUT 0
-struct STree{
-	int n; vector<node>t;
-	STree(int n):n(n),t(2*n+5,NEUT){}
-	void upd(int p, node v){
-		for(p+=n,t[p]=v;p>1;p>>=1)p^=p&1,t[p>>1]=oper(t[p],t[p^1]);
-	}
-	node query(int l, int r){
-		node izq=NEUT,der=NEUT;
-		for(l+=n,r+=n;l<r;l>>=1,r>>=1){
-			if(l&1)izq=oper(izq,t[l++]);
-			if(r&1)der=oper(t[--r],der);
-		}
-		return oper(izq,der);
-	}
-};
+// LAZY en el crotolamo
 
-// RECURSIVO
-#define oper min
-#define NEUT INF
-struct STree{
-	vector<ll>st;int n;
-	STree(int n): st(4*n+5,NEUT), n(n) {}
-	void init(int k, int s, int e, vector<ll> &a){
-		if(s+1==e){st[k]=a[s];return;}
-		int m=(s+e)/2;
-		init(2*k,s,m,a);init(2*k+1,m,e,a);
-		st[k]=oper(st[2*k],st[2*k+1]);
-	}
-	void upd(int k, int s, int e, int p, ll v){
-		if(s+1==e){st[k]=v;return;}
-		int m=(s+e)/2;
-		if(p<m)upd(2*k,s,m,p,v);
-		else upd(2*k+1,m,e,p,v);
-		st[k]=oper(st[2*k],st[2*k+1]);
-	}
-	ll query(int k, int s, int e, int a, int b){
-		if(s>=b||e<=a)return NEUT;
-		if(a<=s&&e<=b)return st[k];
-		int m=(s+e)/2;
-		return oper(query(2*k,s,m,a,b),query(2*k+1,m,e,a,b));
-	}
-	void init(vector<ll> &a){init(1,0,n,a);}
-	void upd(int p, ll v){upd(1,0,n,p,v);}
-	ll query(int a, int b){return query(1,0,n,a,b);}
-};// uso: STree name(n);name.init(a);name.upd(i,v);name.query(s,e);	
-
-//BS on STree (put inside struct)
-ll find(ll k, ll s, ll e, ll x){
-	if(s+1==e){
-		if(st[k]>=x)return s;
-		return n; //o s+1?
-	}
-	ll m=(s+e)/2;
-	if(st[2*k]>=x)return find(2*k,s,m,x);
-	return find(2*k+1,m,e,x-st[2*k]);
-}
-ll find(ll x){return find(1,0,n,x);} //lowerbound on sum prefixes
-
-//primer <= a la izquierda
-vector<ll>st;int n; vector<int>ss,es,pos;
-STree(int n): st(4*n+5,NEUT), n(n), ss(4*n+5),es(4*n+5), pos(n+5) {}
-void init(int k, int s, int e, vector<ll> &a){
-	ss[k]=s,es[k]=e;
-	if(s+1==e){st[k]=a[s];pos[s]=k;return;}
-	int m=(s+e)/2;
-	init(2*k,s,m,a);init(2*k+1,m,e,a);
-	st[k]=oper(st[2*k],st[2*k+1]);
-}
-ll find(ll k, ll s, ll e, ll x){
-	if(s+1==e){
-		if(st[k]<=x)return s;
-		return -1; //o s-1?
-	}
-	ll m=(s+e)/2;
-	if(st[2*k+1]<=x)return find(2*k+1,m,e,x);
-	return find(2*k,s,m,x);
-}
-ll find(ll p){ //primer <= a la izquierda
-	ll k=pos[p],x=st[k];
-	while(k>1){
-		if((k&1)&&st[k^1]<=x)return find(k^1,ss[k^1],es[k^1],x);
-		k/=2;
-	}
-	return -1;
-}
-
-
-// LAZY
-#define NEUT 0
-#define CLEAR 0 // cleared lazy node
-ll oper(ll a, ll b){
-	return a+b;
-}
-void acum(ll &a, ll v){ // accumulate lazy node
-	a+=v;
-}
-ll calc(ll s, ll e, ll a, ll v){ // calculate STree range, a=previous value
-	return a+(e-s)*v;
-} 
-
-struct STree{
-	vector<ll>st,lazy; ll n;
-	STree(ll n):st(4*n+5,NEUT),lazy(4*n+5,CLEAR),n(n){}
-	void push(ll k, ll s, ll e){
-		if(lazy[k]==CLEAR)return;
-		st[k]=calc(s,e,st[k],lazy[k]);
-		if(e-s!=1){
-			acum(lazy[2*k],lazy[k]);
-			acum(lazy[2*k+1],lazy[k]);
-		}
-		lazy[k]=CLEAR;
-	}
-	void upd(ll k, ll s, ll e, ll a, ll b, ll v){
-		push(k,s,e);
-		if(e<=a||b<=s)return;
-		if(a<=s&&e<=b){
-			acum(lazy[k],v);
-			push(k,s,e);
-			return;
-		}
-		ll m=(s+e)/2;
-		upd(2*k,s,m,a,b,v),upd(2*k+1,m,e,a,b,v);
-		st[k]=oper(st[2*k],st[2*k+1]);
-	}
-	ll query(ll k, ll s, ll e, ll a, ll b){
-		if(e<=a||b<=s)return NEUT;
-		push(k,s,e);
-		if(a<=s&&e<=b)return st[k];
-		ll m=(s+e)/2;
-		return oper(query(2*k,s,m,a,b),query(2*k+1,m,e,a,b));
-	}
-	void upd(ll a, ll b, ll v){upd(1,0,n,a,b,v);}
-	ll query(ll a, ll b){return query(1,0,n,a,b);}
-};
-
-//custom (with normal single update)
-
-typedef ll tn; // node type
-typedef ll tl; // lazy type
-// tn unit(ll v){return v;}
-#define NEUT 0
-#define CLEAR 0 // cleared lazy node
-tn oper(tn a, tn b){
-	return max(a,b);
-}
-void acum(tl &a, tl v){ // accumulate lazy node
-	a+=v;
-}
-tn calc(ll s, ll e, tn a, tl v){ // calculate STree range, a=previous value
-	a+=v;
-	return a;
-} 
-
-struct STree{
-	vector<tn>st; vector<tl>lazy; ll n;
-	STree(ll n):st(4*n+5,NEUT),lazy(4*n+5,CLEAR),n(n){
-		//fore(i,0,n)upd(i,unit(0));
-	}
-	void init(ll k, ll s, ll e, vector<tn>&a){
-		if(e-s==1)st[k]=a[s];
-		else {
-			ll m=(s+e)/2;
-			init(2*k,s,m,a); init(2*k+1,m,e,a);
-			st[k]=oper(st[2*k],st[2*k+1]);
-		}
-	}
-	void push(ll k, ll s, ll e){
-		if(lazy[k]==CLEAR)return;
-		st[k]=calc(s,e,st[k],lazy[k]);
-		if(e-s!=1){
-			acum(lazy[2*k],lazy[k]);
-			acum(lazy[2*k+1],lazy[k]);
-		}
-		lazy[k]=CLEAR;
-	}
-	void upd(ll k, ll s, ll e, ll a, ll b, tl v){ // range update
-		push(k,s,e);
-		if(e<=a||b<=s)return;
-		if(a<=s&&e<=b){
-			acum(lazy[k],v);
-			push(k,s,e);
-			return;
-		}
-		ll m=(s+e)/2;
-		upd(2*k,s,m,a,b,v),upd(2*k+1,m,e,a,b,v);
-		st[k]=oper(st[2*k],st[2*k+1]);
-	}
-	void upd(ll k, ll s, ll e, ll p, tn v){ // assign v to position p
-		push(k,s,e);
-		if(e<=p||p<s)return;
-		if(e-s==1&&s==p){
-			push(k,s,e);
-			st[k]=v;
-			return;
-		}
-		ll m=(s+e)/2;
-		upd(2*k,s,m,p,v),upd(2*k+1,m,e,p,v);
-		st[k]=oper(st[2*k],st[2*k+1]);
-	}
-	tn query(ll k, ll s, ll e, ll a, ll b){
-		if(e<=a||b<=s)return NEUT;
-		push(k,s,e);
-		if(a<=s&&e<=b)return st[k];
-		ll m=(s+e)/2;
-		return oper(query(2*k,s,m,a,b),query(2*k+1,m,e,a,b));
-	}
-	void upd(ll a, ll b, tl v){upd(1,0,n,a,b,v);}
-	void upd(ll p, tn v){upd(1,0,n,p,v);}
-	tn query(ll a, ll b){return query(1,0,n,a,b);}
-	void init(vector<tn>&a){init(1,0,n,a);}
-};
 //PERSISTENTE
 struct STree{ //persistent
 	vector<int>st,L,R; ll n,rt;
@@ -793,8 +483,7 @@ struct STree{ //persistent
 //	ks=(k?k: ... );
 //	to avoid mle 
 
-
-typedef ii node;
+typedef pair<ll,ll> node;
 node oper(node a, node b){return {a.fst+b.fst,a.snd+b.snd};}
 node inv(node a, node b){return {a.fst-b.fst,a.snd-b.snd};}
 node NEUT={0,0};
@@ -830,10 +519,11 @@ struct STree{ //persistent
 	// O(p logn) where p = number of points
 	// IF ONLY COPYING THIS CHANGE TO oper= IN LEAF UPDATE (acummulate, instead of assign)
 	vector<int>rts,keys;
-	void init(vector<pair<ii,node>>a){
+	typedef pair<pair<ll,ll>,node> dat;
+	void init(vector<dat>a){
 		// init 2d updates, (x,y) coords, value
 		rts={0}; keys={};
-		sort(ALL(a),[&](pair<ii,node>a, pair<ii,node> b){
+		sort(ALL(a),[&](const dat &a, const dat &b){
 			return a.fst.fst<b.fst.fst;});
 		for(auto [pa,v]:a){
 			auto [x,y]=pa;
@@ -912,8 +602,8 @@ int get_sum(int i0, int j0, int i1, int j1){
 	return get(i1,j1)-get(i1,j0)-get(i0,j1)+get(i0,j0);
 }
 
-//SPARSE TABLE
-const ll K=18;//K such that 2^k>n
+// SPARSE TABLE
+const ll K=18; // K such that 2^k>n
 #define oper min
 ll st[K][1ll<<K];
 void st_init(vector<ll> &a){
@@ -963,6 +653,7 @@ for (int s=0;s=s-m&m;) 	 // Increasing order
 ll mk=(1ll<<k)-1,r,c;
 while(mk<=(1ll<<n)-(1ll<<(n-k))){
 	// Code here
+	if(!k)break;
 	c=mk&-mk,r=mk+c,mk=r|(((r^mk)>>2)/c);
 }
 
@@ -1127,21 +818,22 @@ void scc(){
 bool tk[MAXN];
 ll fat[MAXN];	// father in centroid decomposition 
 ll szt[MAXN];	// size of subtree
-
+ll tag[MAXN];	// tag[y]>=tag[x] for every y in x's subgraph (has to be conenected to x)
 ll calcsz(ll x, ll f){
 	szt[x]=1;
 	for(auto y:g[x])if(y!=f&&!tk[y])szt[x]+=calcsz(y,x);
 	return szt[x];
 }
+ll ccnt=0;
 void cdfs(ll x=0,ll f=-1,ll sz=-1){	// O(nlogn)
 	if(sz==-1)sz=calcsz(x,-1);
 	for(auto y:g[x])if(!tk[y]&&szt[y]*2>=sz){
 		szt[x]=0;cdfs(y,f,sz);return;
 	}
-	fat[x]=f; tk[x]=1;
+	fat[x]=f; tk[x]=1; tag[x]=ccnt++;
 	for(auto y:g[x])if(!tk[y])cdfs(y,x);
 }
-void centroid(){mset(tk,0);cdfs();}
+void centroid(){mset(tk,0);ccnt=0;cdfs();}
 
 //TRIE
 ll tr[MAXN][30], qidx=0; //MAXN = MAX NODES
@@ -1709,9 +1401,7 @@ struct MinQ{
 		if(!SZ(q))return INF;
 		return q.front().fst+dif;
 	}
-	void add(ll x){
-		dif+=x;
-	}
+	void add(ll x){dif+=x;}
 };
 
 //decompose range in O(log) subranges
@@ -2040,3 +1730,25 @@ void go(ll &x, ll &z){
 	if((pot>=s[x]||z<s[x])&&a[x]==n)z+=v[x],x=a[x];
 	else z+=s[x],x=w[x];
 }
+
+
+// cache relabeling
+// helpful to reduce constant when the slow part is a dfs
+// you can generalize this for other problems
+// for centroid is roughly a x2 speedup
+ll nl[MAXN],orig[MAXN]; // new label for helping cache
+ll cnt=0;
+void cache(ll x, ll fa=-1){
+	nl[x]=cnt;
+	orig[cnt++]=x;
+	for(auto y:g[x])if(y!=fa)cache(y,x);
+}
+// inside main (store edges in ed in the same order as inserted)
+cache(0);
+fore(i,0,n)g[i].clear();
+for(auto [x,y]:ed){
+	ll u=nl[x],v=nl[y];
+	g[u].pb(v);
+	g[v].pb(u);
+}
+//

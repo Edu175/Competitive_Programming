@@ -13,6 +13,24 @@ typedef long long ll;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
 const ll INF=1e9+5;
+
+/*
+vv getbf(vv a, ll NO, auto best){
+	ll n=SZ(a);
+	vector<vv> dp(n+5,vv(n+5,NO));
+	dp[n][0]=0;
+	fore(k,1,n+1)forr(i,0,n){
+		auto &res=dp[i][k];
+		if(!k){res=NO;continue;}
+		res=NO;
+		fore(j,i+1,n){
+			ll resi=st_query(i,j)+dp[j][k-1];
+			res=best(res,resi);
+		}
+	}
+	return dp[0];
+}
+*/
 int main(){
 	ET
 	ll n,q; cin>>n>>q;

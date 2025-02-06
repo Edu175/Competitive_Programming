@@ -13,13 +13,16 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
+vv g[2555];
+#define dfs(x) for(auto y:g[x])dfs(y);
 
 int main(){FIN;
 	ll n,m; cin>>n>>m;
 	vv a(n);
 	fore(i,0,n)cin>>a[i];
 	ld res=0;
+	dfs(0);
 	vv coef(n);
-	fore(i,n-m+1,n)res+=s[i]
+	// fore(i,n-m+1,n)res+=s[i]
 	return 0;
 }

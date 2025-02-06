@@ -31,9 +31,9 @@ int main(){FIN;
 g++ -O2 -std=c++17 -Wall -Wextra -g -D_GLIBCXX_DEBUG
 
 // memoria (y tiempo) usada por un programa:
-command time -v ./a
+command time -v ./a // maxresident
 // o
-/usr/bin/time ./a // maxresident
+/usr/bin/time ./a
 
 //INPUT OUTPUT POR ARCHIVO
 #ifdef ONLINE_JUDGE
@@ -47,6 +47,33 @@ ofstream cout; cout.open("output.out", ios::out);
 // LEER LINEA DE STRING
 getline(cin,s);
 cin.ignore();
+
+
+// builtins
+__builtin_popcountll(x); // contar bits prendidos de x
+__builtin_clzll(x); // count leading zeros // 64-funcion: contar bits
+__builtin_ctzll(x); // count trailing zeros // cantidad de factores 2
+
+// CUSTOM COMPARATOR FOR SET/MAP/PQ
+// with struct:
+struct Cmp{
+	bool operator()(const ii &a, const ii &b)const{
+		return a.fst*b.snd<b.fst*a.snd;
+	}
+};
+Cmp cmp; // for direct usage call cmp(a,b)
+
+set<ii,Cmp> st;
+map<ii,ll,Cmp> mp;
+priority_queue<ii,vector<ii>,Cmp> pq; // dont forget to flip < if you want min-heap
+
+// with lambda: (weird if you want to return it in a recursive function, just use the struct one)
+auto cmp=[](const ii &a, const ii &b){
+	return a.fst*b.snd<b.fst*a.snd;
+};
+set<ii,decltype(cmp)> st(cmp);
+map<ii,ll,decltype(cmp)> mp(cmp);
+priority_queue<ii,vector<ii>,decltype(cmp)> pq(cmp);
 
 // RANDOM NUMBERS
 random_device rd;
@@ -83,6 +110,7 @@ auto dfs=[&](ll x, auto &&dfs){
 ll mk=(1ll<<k)-1,r,c;
 while(mk<=(1ll<<n)-(1ll<<(n-k))){
 	// Code here
+	if(!k)break;
 	c=mk&-mk,r=mk+c,mk=r|(((r^mk)>>2)/c);
 }
 
@@ -165,6 +193,33 @@ ll rbs(ll n){
 	return sub(nCr(n,n/2),nCr(n,n/2-1));
 }
 
+// offline queries of B(n,k)= sum_{i=1}^{k-1} nCr(n,i)
+// no special cases, works for negatives (put k==0? return 1 in nCr, before everything, just in case)
+// uses the fact that 2*B(n,k)=nCr(n,k-1)+B(n+1,k)
+// for B(l,r,n) [l,r] :
+// 2*B(l,r,n)=nCr(n,l)+nCr(n,r)-nCr(n+1,l)+B(l,r,n+1)
+auto actu=[&](ll w, ll n, ll k){
+	ll dl=k,dr=n;
+	auto &l=par[w].fst;	// previous k
+	auto &r=par[w].snd;	// previous n
+	auto &cur=curs[w];	// previous ans
+	while(l>dl){
+		cur=sub(cur,nCr(r,--l));
+	}
+	while(r<dr){
+		cur=add(cur,cur);
+		cur=sub(cur,nCr(r,l-1));
+		(r++);
+	}
+	while(l<dl){
+		cur=add(cur,nCr(r,l++));
+	}
+	while(r>dr){
+		(--r);
+		cur=add(cur,nCr(r,l-1));
+		cur=mul(cur,(MOD+1)/2);
+	}
+};
 // NUMBER THEORY
 // divisores and phi in VlogV time and memory
 vector<ll> divs[MAXV];
@@ -531,7 +586,7 @@ struct STree{
 	int n; vector<node>t;
 	STree(int n):n(n),t(2*n+5,NEUT){}
 	void upd(int p, node v){
-		for(p+=n,t[p]=v;p>1;p>>=1)p^=p&1,t[p>>1]=oper(t[p],t[p^1]);
+		for(p+=n,t[p]=oper(t[p],v);p>1;p>>=1)p^=p&1,t[p>>1]=oper(t[p],t[p^1]);
 	}
 	node query(int l, int r){
 		node izq=NEUT,der=NEUT;
@@ -542,9 +597,9 @@ struct STree{
 		return oper(izq,der);
 	}
 };
-	//init
+	// init (put inside struct)
 	void init(vector<node>a){
-		fore(i,0,SZ(a))t[n+i]=a[i];
+		fore(i,0,n)t[n+i]=a[i];
 		for(ll i=n-1;i>0;i--)t[i]=oper(t[2*i],t[2*i+1]);
 	}
 
@@ -602,25 +657,25 @@ tn oper(tn a, tn b){
 void acum(tl &a, tl v){ // accumulate lazy node
 	a+=v;
 }
-tn calc(ll s, ll e, tn a, tl v){ // calculate STree range, a=previous value
+tn calc(int s, int e, tn a, tl v){ // calculate STree range, a=previous value
 	assert(s|e|1); // useless, it's only to avoid compiler warning
 	a+=v;
 	return a;
 } 
 struct STree{
-	vector<tn>st; vector<tl>lazy; ll n;
-	STree(ll n):st(4*n+5,NEUT),lazy(4*n+5,CLEAR),n(n){
+	vector<tn>st; vector<tl>lazy; int n;
+	STree(int n):st(4*n+5,NEUT),lazy(4*n+5,CLEAR),n(n){
 		//fore(i,0,n)upd(i,unit(0));
 	}
-	void init(ll k, ll s, ll e, vector<tn>&a){
+	void init(int k, int s, int e, vector<tn>&a){
 		if(e-s==1)st[k]=a[s];
 		else {
-			ll m=(s+e)/2;
+			int m=(s+e)/2;
 			init(2*k,s,m,a); init(2*k+1,m,e,a);
 			st[k]=oper(st[2*k],st[2*k+1]);
 		}
 	}
-	void push(ll k, ll s, ll e){
+	void push(int k, int s, int e){
 		if(lazy[k]==CLEAR)return;
 		st[k]=calc(s,e,st[k],lazy[k]);
 		if(e-s!=1){
@@ -629,7 +684,7 @@ struct STree{
 		}
 		lazy[k]=CLEAR;
 	}
-	void upd(ll k, ll s, ll e, ll a, ll b, tl v){ // range update
+	void upd(int k, int s, int e, int a, int b, tl v){ // range update
 		push(k,s,e);
 		if(e<=a||b<=s)return;
 		if(a<=s&&e<=b){
@@ -637,19 +692,19 @@ struct STree{
 			push(k,s,e);
 			return;
 		}
-		ll m=(s+e)/2;
+		int m=(s+e)/2;
 		upd(2*k,s,m,a,b,v),upd(2*k+1,m,e,a,b,v);
 		st[k]=oper(st[2*k],st[2*k+1]);
 	}
-	tn query(ll k, ll s, ll e, ll a, ll b){
+	tn query(int k, int s, int e, int a, int b){
 		if(e<=a||b<=s)return NEUT;
 		push(k,s,e);
 		if(a<=s&&e<=b)return st[k];
-		ll m=(s+e)/2;
+		int m=(s+e)/2;
 		return oper(query(2*k,s,m,a,b),query(2*k+1,m,e,a,b));
 	}
-	void upd(ll a, ll b, tl v){upd(1,0,n,a,b,v);}
-	tn query(ll a, ll b){return query(1,0,n,a,b);}
+	void upd(int a, int b, tl v){upd(1,0,n,a,b,v);}
+	tn query(int a, int b){return query(1,0,n,a,b);}
 	void init(vector<tn>&a){init(1,0,n,a);}
 };
 // may be useful
@@ -674,17 +729,18 @@ struct STree{
 
 // for 2d static queries
 // O(p logn) where p = number of points
-typedef ii node;
+typedef pair<ll,ll> node;
 node oper(node a, node b){return {a.fst+b.fst,a.snd+b.snd};}
 node inv(node a, node b){return {a.fst-b.fst,a.snd-b.snd};}
 	// (paste inside persistent)
 	// n = 2nd coordinate
 	// IF ONLY COPYING THIS CHANGE TO oper= IN LEAF UPDATE (acummulate, instead of assign)
 	vector<int>rts,keys;
-	void init(vector<pair<ii,node>>a){
+	typedef pair<pair<ll,ll>,node> dat;
+	void init(vector<dat>a){
 		// init 2d updates, (x,y) coords, value
-		rts={0}; keys={}; // if 
-		sort(ALL(a),[&](pair<ii,node>a, pair<ii,node> b){
+		rts={0}; keys={};
+		sort(ALL(a),[&](const dat &a, const dat &b){
 			return a.fst.fst<b.fst.fst;});
 		for(auto [pa,v]:a){
 			auto [x,y]=pa;
@@ -784,13 +840,11 @@ struct MinQ{
 		if(!SZ(q))return INF;
 		return q.front().fst+dif;
 	}
-	void add(ll x){
-		dif+=x;
-	}
+	void add(ll x){dif+=x;}
 };
 
 
-//---------------------------------STRINGS-------------------------
+// ------------------------------STRINGS-------------------------
 // compare substrings with suffix array
 string S;
 vector<int>sa,lcp,pos;
@@ -820,6 +874,26 @@ ll compare(ii a, ii b){
 	if(k>=j1)return 1;
 	return S[i+k]<S[j+k]?-1:1;
 }
+
+// ------------------------ FLOW ------------------------------
+
+// FLOW WITH DEMANDS
+
+// add edge (x,y) with capacity c and demand d
+// where s_ and t_ are the new source and sink
+// only checks if demands are satisfied
+// doesn't guarantee max flow
+
+// to optimize constant you can merge all t,s edges
+// and only add an edge when cap is non-zero
+
+auto add_demand=[&](ll x, ll y, ll d, ll c){ // d <= c
+	fl.add_edge(s_,y,d);
+	fl.add_edge(t,s,d);
+	fl.add_edge(x,t_,d);
+	fl.add_edge(x,y,c-d);
+};
+
 
 // ------------------ MISCELLANEOUS --------------------------
 //MOS ON TREE 
@@ -996,4 +1070,24 @@ ll SA(){
 	}
 	//cerr<<t<<"\n";
 	return best;
+}
+
+// cache relabeling
+// helpful to reduce constant when the slow part is a dfs
+// you can generalize this for other problems
+// for centroid is roughly a x2 speedup
+ll nl[MAXN],orig[MAXN]; // new label for helping cache
+ll cnt=0;
+void cache(ll x, ll fa=-1){
+	nl[x]=cnt;
+	orig[cnt++]=x;
+	for(auto y:g[x])if(y!=fa)cache(y,x);
+}
+// inside main (store edges in ed in the same order as inserted)
+cache(0);
+fore(i,0,n)g[i].clear();
+for(auto [x,y]:ed){
+	ll u=nl[x],v=nl[y];
+	g[u].pb(v);
+	g[v].pb(u);
 }

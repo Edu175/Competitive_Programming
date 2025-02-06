@@ -12,36 +12,22 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
 
-ll lis(vector<ll>&a){
-	ll n=SZ(a);
-	vector<ll>lis;
-	fore(i,0,n){
-		ll lwb=lower_bound(ALL(lis),a[i])-lis.begin();
-		if(lwb==SZ(lis))lis.pb(a[i]);
-		else lis[lwb]=a[i];
-	}
-	return SZ(lis);
-}
-
 int main(){FIN;
 	ll n; cin>>n;
-	vector<ll>a;
-	fore(i,0,n)a.pb(i);
-	vector<vector<ll>> ks[n+1];
-	ll res=n;
-	do{
-		vector<ll>ai=a;
-		for(auto &i:ai)i=-i;
-		ll x=max(lis(a),lis(ai));
-		ks[x].pb(a);
-		res=min(res,x);
+	ll res=0;
+	ll x=0,y=0;
+	set<ii>st;
+	auto simul=[&](ll q, ll dx, ll dy){
+		while(q--&&!st.count({x,y}))st.insert({x,y}),x+=dx,y+=dy,res++;
+	};
+	fore(i,0,n){
+		char c; ll q; cin>>c>>q; q*=2;
+		if(c=='R')simul(q,1,0);
+		if(c=='U')simul(q,0,1);
+		if(c=='L')simul(q,-1,0);
+		if(c=='D')simul(q,0,-1);
 	}
-	while(next_permutation(ALL(a)));
-	fore(k,0,n+1){
-		cout<<k<<":\n";
-		for(auto i:ks[k]){imp(i);}
-		cout<<"\n";
-	}
-	cout<<res<<"\n";
+	if(st.count({x,y}))cerr<<"choco\n";
+	cout<<res/2<<"\n";
 	return 0;
 }

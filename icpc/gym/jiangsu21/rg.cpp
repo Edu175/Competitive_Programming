@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+#define fore(i,a,b) for(ll i=a,jet=b; i<jet;i++)
+#define SZ(x) ((ll)x.size())
+#define mset(a,v) memset((a),(v),sizeof(a))
+#define ALL(x) x.begin(),x.end()
+#define pb push_back
+#define fst first
+#define snd second
+#define JET ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+using namespace std;
+typedef long long ll;
+typedef vector<ll> vv;
+typedef pair<ll,ll> ii;
+random_device rd;
+mt19937 rng(rd());
+
+int main(){
+    JET
+    cout<<"1\n";
+	ll N,A; cin>>N>>A;
+	ll n=rng()%N+1;
+	fore(i,0,n)cout<<char('a'+rng()%A);;cout<<"\n";
+    return 0;
+}

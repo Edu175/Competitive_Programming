@@ -7,12 +7,13 @@
 #define SZ(x) ((ll)x.size())
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define JET ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+#define impt(v) {for(auto i:v)cout<<i.x<<","<<i.y<<" ";;cout<<endl;}
 using namespace std;
 typedef long long ll;
 typedef vector<ll> vv;
 typedef pair<ll,ll> ii;
 typedef long double ld;
-const ld EPS=1e-7,INF=1e6+5;
+const ld EPS=1e-9,INF=1e20;
 
 struct pt {  // for 3D add z coordinate
 	ld x,y;
@@ -42,6 +43,7 @@ struct pt {  // for 3D add z coordinate
 };
 pt ccw90(1,0);
 pt cw90(-1,0);
+
 // Returns planar graph representing Delaunay's triangulation.
 // Edges for each vertex are in ccw order.
 // It can work with doubles, but also integers (replace long double in line 51)
@@ -155,9 +157,90 @@ vector<vector<int>> delaunay(vector<pt> v){
 	}
 	return g;
 }
+int sgn2(ld x){return x<0?-1:1;}
+struct ln {
+	pt p,pq;
+	ln(pt p, pt q):p(p),pq(q-p){}
+	ln(){}
+	bool has(pt r){return dist(r)<=EPS;}
+	bool seghas(pt r){return has(r)&&(r-p)*(r-(p+pq))<=EPS;}
+	bool operator/(ln l){return abs(pq.unit()%l.pq.unit())<=EPS;} // 2D
+	bool operator==(ln l){return *this/l&&has(l.p);}
+	pt operator^(ln l){ // intersection
+		// if(*this/l)return pt(DINF,DINF);
+		pt r=l.p+l.pq*((p-l.p)%pq/(l.pq%pq));
+//		if(!has(r)){return pt(NAN,NAN,NAN);} // check only for 3D
+		return r;
+	}
+	ld angle(ln l){return pq.angle(l.pq);}
+	int side(pt r){return has(r)?0:sgn2(pq%(r-p));} // 2D
+	pt proj(pt r){return p+pq*((r-p)*pq/pq.norm2());}
+	pt ref(pt r){return proj(r)*2-r;}
+	ld dist(pt r){return (r-proj(r)).norm();}
+	ln rot(auto a){return ln(p,p+pq.rot(a));} // 2D
+};
+ln bisector(ln l, ln m){ // angle bisector
+	pt p=l^m;
+	return ln(p,p+l.pq.unit()+m.pq.unit());
+}
+ln bisector(pt p, pt q){ // segment bisector (2D)
+	return ln((p+q)*.5,p).rot(ccw90);
+}
 
 int main(){
 	JET
-	
+	vector<pt> box(4);
+	fore(i,0,4)cin>>box[i].x>>box[i].y;
+	sort(ALL(box));
+	swap(box[1],box[2]);
+	swap(box[2],box[3]);
+	// impt(box)
+	auto expand=[&](ll d){
+		box[0].x-=d; box[0].y-=d;
+		box[1].x+=d; box[1].y-=d;
+		box[2].x+=d; box[2].y+=d;
+		box[3].x-=d; box[3].y+=d;
+	};
+	expand(1);
+	ll n; cin>>n;
+	vector<pt>a(n);
+	fore(i,0,n)cin>>a[i].x>>a[i].y;
+	// impt(a)
+	fore(i,0,n)fore(j,0,4)a.pb(ln(box[j],box[(j+1)%4]).ref(a[i]));
+	// impt(a)
+	auto g=delaunay(a);
+	expand(-1);
+	// impt(box)
+	ld res=0;
+	fore(x,0,n){ // only real points
+		vector<ln>ls;
+		// cout<<"\n"<<x<<":\n";
+		for(auto y:g[x]){
+			ln l=bisector(a[x],a[y]);
+			// cout<<y<<": "<<a[y].x<<","<<a[y].y<<"\n";
+			// cout<<l.p.x<<","<<l.p.y<<"--"<<l.pq.x<<","<<l.pq.y<<"\n";
+			ll did=0;
+			if(abs(l.pq.x)<=EPS){
+				l.p.x=max(l.p.x,box[0].x);
+				l.p.x=min(l.p.x,box[2].x);
+				did=1;
+			}
+			if(abs(l.pq.y)<=EPS){
+				l.p.y=max(l.p.y,box[0].y);
+				l.p.y=min(l.p.y,box[2].y);
+				did=1;
+			}
+			// cout<<l.p.x<<","<<l.p.y<<"--"<<l.pq.x<<","<<l.pq.y<<"\n";
+			if(y<n||did)ls.pb(l);
+		}
+		// cout<<x<<"->"<<y<<"\n";
+		fore(i,0,SZ(ls)){
+			pt p=ls[i]^ls[(i+1)%SZ(ls)];
+			// cout<<x<<": "<<p.x<<","<<p.y<<": "<<(p-a[x]).norm()<<"\n";
+			res=max(res,(p-a[x]).norm2());
+		}
+	}
+	res=sqrtl(res);
+	cout<<fixed<<setprecision(15)<<res<<"\n";
 	return 0;
 }

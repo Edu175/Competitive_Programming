@@ -13,6 +13,16 @@ typedef long long ll;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
 
+ll lis(vv a){
+	vv v;
+	for(auto i:a){
+		ll p=lower_bound(ALL(v),i)-v.begin();
+		if(p>=SZ(v))v.pb(i);
+		else v[p]=i;
+	}
+	return SZ(v);
+}
+
 int main(){FIN;
 	ll n,k; cin>>n>>k; k--;
 	vv a(n),b(n),p(n),q(n);
@@ -20,68 +30,35 @@ int main(){FIN;
 	fore(i,0,n)cin>>b[i];
 	fore(i,0,n)cin>>p[i],p[i]--;
 	fore(i,0,n)cin>>q[i],q[i]--;
-	deque<ll> ind;
-	ll x=p[k];
-	vv vis(n);
+	vv ida(n,-1),vis(n);
+	ll x=p[k],cnt=0,did=0;
+	// cout<<"cyc a\n";
 	while(x!=k){
-		ind.push_front(x);
-		vis[x]=1;
+		did|=a[x]>0;
+		if(did)ida[x]=cnt++;
+		// cout<<x<<" "<<did<<"\n";
 		x=p[x];
 	}
+	ll res=cnt; did=0;
 	x=q[k];
-	ll did=0;
+	vv vec;
+	// cout<<"cyc b\n";
 	while(x!=k){
-		did|=vis[x];
-		if(!vis[x]){
-			if(did)ind.pb(x);
-			else ind.push_front(x);
-		}
+		did|=b[x]>0;
+		if(did&&ida[x]!=-1)vec.pb(ida[x]);
+		res+=did;
+		// cout<<x<<" "<<did<<"\n";
 		vis[x]=1;
 		x=q[x];
 	}
-	ind.pb(k);
-	vis[k]=1;
-	fore(i,0,n)if(!vis[i])ind.pb(i);
-	vv nl(n,n);
-	fore(i,0,SZ(ind))nl[ind[i]]=i;
-	imp(ind);
+	// cout<<res<<" before\n";
+	// imp(vec)
+	res-=lis(vec);
 	ll flag=1;
-	fore(i,0,n)if(!vis[i]&&(a[i]||b[i]))flag=0;
-	if(!flag){
-		cout<<"-1\n";
-		return 0;
+	fore(i,0,n)if(i!=k){
+		flag&=(!a[i]||ida[i]!=-1);
+		flag&=(!b[i]||vis[i]);
 	}
-	// vv per(n); iota(ALL(per),0);
-	// auto lam=[&](ll i, ll j){return nl[i]<nl[j];};
-	// sort(ALL(per),lam);
-	fore(i,0,n)p[i]=nl[p[i]];
-	fore(i,0,n)q[i]=nl[q[i]];
-	// n=SZ(ind);
-	auto redef=[&](vv &a){
-		vv b(n);
-		fore(i,0,SZ(a))b[nl[i]]=a[i];
-		a=b;
-	};
-	redef(a);
-	redef(b);
-	redef(p); // useless
-	redef(q);
-	imp(q)
-	imp(a)
-	imp(b)
-	ll res=0;
-	auto move=[&](ll i){
-		res++;
-		cout<<"move "<<i<<"\n";
-		a[p[i]]+=a[i]; a[i]=0;
-		b[q[i]]+=b[i]; b[i]=0;
-		imp(a)
-		imp(b)
-	};
-	for(ll i=nl[k]-1;i>=0;i--)if(q[i]<i&&b[i])move(i);
-	fore(i,0,nl[k])if(a[i]||b[i])move(i);
-	cout<<"after\n";
-	fore(i,0,n)flag&=((a[i]+b[i]>0)==(i==nl[k]));
 	if(!flag){
 		cout<<"-1\n";
 		return 0;

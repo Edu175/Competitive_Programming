@@ -1,0 +1,5 @@
+def lcm(a):
+		r=1
+		for i in a:
+			r=r*i//gcd(r,i)
+		return r

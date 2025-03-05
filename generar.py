@@ -15,6 +15,7 @@ chdir(d)
 #system('cd '+con)
 fin=input("Hasta (minuscula): ")
 system('code ~/Desktop/padalustro.cpp')
+system('code ~/Desktop/crotolamo.cpp')
 for i in range(ord('a'),ord(fin)+1):
 	open(chr(i)+'.cpp','w').write(template)
 	system('code '+chr(i)+'.cpp')

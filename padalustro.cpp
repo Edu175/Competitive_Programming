@@ -111,10 +111,6 @@ ll gcd(ll a, ll b){
 	return gcd_odd(remtz(a),remtz(b))<<min(__builtin_ctz(a),__builtin_ctz(b));
 }
 
-//GEO
-hypot(l,r);//return double
-hypotf,fipotl//float,long double
-
 //FLOOR SQRT
 ll fqrt(ll x){ //if ceil change to r*r<x and return r
 	ll r=sqrt(x)-3;
@@ -127,6 +123,7 @@ int add(int a, int b){a+=b;if(a>=MOD)a-=MOD;return a;}
 int sub(int a, int b){a-=b;if(a<0)a+=MOD;return a;}
 int mul(ll a, ll b){return a*b%MOD;}
 int fpow(int a, ll b){
+	if(b<0)return 0;
 	int r=1;
 	while(b){if(b&1)r=mul(r,a); b>>=1; a=mul(a,a);}
 	return r;
@@ -273,14 +270,13 @@ ll father(ll v, ll x){ // v-ésimo padre de x
 }
 
 // lca O(1)
-ll D[MAXN],fa[MAXN],P[MAXN];
+ll D[MAXN],P[MAXN];
 vv ord;
-void lca_dfs(ll x){
-	for(auto y:g[x])if(y!=fa[x]){
-		fa[y]=x;
+void lca_dfs(ll x, ll fa){
+	for(auto y:g[x])if(y!=fa){
 		D[y]=D[x]+1;
 		ord.pb(x);
-		lca_dfs(y);
+		lca_dfs(y,x);
 	}
 	P[x]=SZ(ord);
 	ord.pb(x);
@@ -289,8 +285,8 @@ ll oper(ll i, ll j){return D[i]<D[j]?i:j;}
 // (...)
 // sparse table (K is 1 more)
 void lca_init(){
-	fa[0]=-1; D[0]=0;
-	lca_dfs(0);
+	D[0]=0;
+	lca_dfs(0,-1);
 	st_init(ord);
 }
 ll lca(ll x, ll y){
@@ -613,7 +609,7 @@ void st_init(vector<ll> &a){
 		st[k][i]=oper(st[k-1][i],st[k-1][i+(1ll<<(k-1))]);
 }
 ll st_query(int s, int e){
-	int k=31-__builtin_clz(e-s);
+	int k=__lg(e-s);
 	return oper(st[k][s],st[k][e-(1<<k)]);
 }
 // might be better for multiple testcases
@@ -881,31 +877,32 @@ void reroot(ll rt=0){
 	dfs2(rt);
 }
 
-
-// (without inverse)
-
-ll n;
-vector<ii>g[MAXN]; // node, weight (1 if none)
-struct node{
-	ll dp,he;
-	node():dp(0),he(0){}
-	node(ll a, ll b):dp(a),he(b){}
+// without inverse, has final operation
+// didn't test final
+vector<ii> g[MAXN]; // node, weight (1 if none)
+struct node {
+	ll res,mx;
+	node():res(0),mx(0){}
 };
-node leaf(ll x){ // often neut
-	return node(0,0);
-}
-node up(node x, ll w){
-	x.he+=w;
-	x.dp=max(x.dp,x.he);
-	return x;
+node NEUT;
+node leaf(ll x){
+	return NEUT;
 }
 node merge(node a, node b){
-	a.dp=max({a.dp,b.dp,a.he+b.he});
-	a.he=max(a.he,b.he);
+	a.res=max({a.res,b.res,a.mx+b.mx});
+	a.mx=max(a.mx,b.mx);
 	return a;
 }
+void final(node &v, ll x){}
+node up(node x, ll w=1){
+	x.mx+=w;
+	x.res=max(x.res,x.mx);
+	return x;
+}
+
 
 node h[MAXN],ch[MAXN]; // hijo, complement hijo (SIN ARISTA PADRE)
+node tot[MAXN]; // total
 vector<node> pre[MAXN],suf[MAXN];
 ll wf[MAXN],fa[MAXN]; // weight father, father
 void dfs1(ll x){
@@ -916,41 +913,45 @@ void dfs1(ll x){
 		dfs1(y);
 		h[x]=merge(h[x],up(h[y],w));
 	}
+	final(h[x],x);
 }
-
 void dfs2(ll x){
 	fore(j,0,SZ(g[x])){
 		auto [y,w]=g[x][j];
 		if(y==fa[x])continue;
-		ch[y]=merge(pre[x][j],suf[x][j+1]);
+		ch[y]=merge(leaf(x),merge(pre[x][j],suf[x][j+1]));
 		if(fa[x]!=-1)ch[y]=merge(ch[y],up(ch[x],wf[x]));
+		final(ch[y],x);
 		dfs2(y);
 	}
 }
-
-void reroot(ll rt=0){
+void reroot(ll n){
+	ll rt=0;
 	fa[rt]=-1,wf[rt]=0;
 	dfs1(rt);
 	fore(x,0,n){
-		auto &p=pre[x];
-		auto &s=suf[x];
 		ll m=SZ(g[x]);
-		p=vector<node>(m+1,leaf(x));
-		s=vector<node>(m+1,leaf(x));
-		fore(j,1,m+1){
-			auto [y,w]=g[x][j-1];
-			p[j]=p[j-1];
-			if(y!=fa[x])p[j]=merge(p[j],up(h[y],w));
-		}
-		for(ll j=m-1;j>=0;j--){
-			auto [y,w]=g[x][j];
-			s[j]=s[j+1];
-			if(y!=fa[x])s[j]=merge(s[j],up(h[y],w));
-		}
+		auto doit=[&](vector<node> &p){
+			p=vector<node>(m+1,NEUT);
+			fore(j,1,m+1){
+				auto [y,w]=g[x][j-1];
+				p[j]=p[j-1];
+				if(y!=fa[x])p[j]=merge(p[j],up(h[y],w));
+			}
+		};
+		doit(pre[x]); reverse(ALL(g[x]));
+		doit(suf[x]); reverse(ALL(g[x]));
+		reverse(ALL(suf[x]));
 	}
 	dfs2(rt);
+	fore(x,0,n){
+		tot[x]=h[x];
+		if(fa[x]!=-1)tot[x]=merge(tot[x],up(ch[x],wf[x])),final(tot[x],x);
+		else assert(x==rt),tot[x]=h[x];
+		// you may want to treat the root specially
+		// if that is the case, remember to recalculate tot[rt]
+	}
 }
-
 
 //SQRT DECOMPOSITION
 
@@ -1613,10 +1614,12 @@ void virtual_init(){
 	fore(i,0,n)vis_[i]=0;
 	lca_init();
 }
-vector<ll> t[MAXN];
+vector<ll> t[MAXN]; // rooted tree
 ll is[MAXN]; // is it a real tree node?
 void make_tree(vector<ll>&v){
-//makes virtual tree t and adds virtual nodes to v
+	// makes virtual tree t and adds virtual nodes to v
+	// root is first node
+	// sorts v in dfs order
 	sort(ALL(v),cmp);
 	for(auto i:v)is[i]=vis_[i]=1;
 	fore(j,0,SZ(v)-1){
@@ -1633,7 +1636,7 @@ void make_tree(vector<ll>&v){
 	}
 }
 ll resi;
-ll c[MAXN],dp[MAXN];
+ll dp[MAXN];
 void reset(vector<ll>&v){
 	for(auto i:v){
 		is[i]=vis_[i]=0;
@@ -1751,4 +1754,38 @@ for(auto [x,y]:ed){
 	g[u].pb(v);
 	g[v].pb(u);
 }
-//
+
+
+// GEO
+
+typedef long double ld;
+const ld EPS=1e-7;
+
+struct pt {  // for 3D add z coordinate
+	ld x,y;
+	pt(ld x, ld y):x(x),y(y){}
+	pt(){}
+	ld norm2(){return *this**this;}
+	ld norm(){return sqrt(norm2());}
+	bool operator==(pt p){return abs(x-p.x)<=EPS&&abs(y-p.y)<=EPS;}
+	pt operator+(pt p){return pt(x+p.x,y+p.y);}
+	pt operator-(pt p){return pt(x-p.x,y-p.y);}
+	pt operator*(ld t){return pt(x*t,y*t);}
+	pt operator/(ld t){return pt(x/t,y/t);}
+	ld operator*(pt p){return x*p.x+y*p.y;}
+//	pt operator^(pt p){ // only for 3D
+//		return pt(y*p.z-z*p.y,z*p.x-x*p.z,x*p.y-y*p.x);}
+	ld angle(pt p){ // redefine acos for values out of range
+		return acos(*this*p/(norm()*p.norm()));}
+	pt unit(){return *this/norm();}
+	ld operator%(pt p){return x*p.y-y*p.x;}
+	// 2D from now on
+	bool operator<(pt p)const{ // for convex hull
+		return x<p.x-EPS||(abs(x-p.x)<=EPS&&y<p.y-EPS);}
+	bool left(pt p, pt q){ // is it to the left of directed line pq?
+		return (q-p)%(*this-p)>EPS;}
+	pt rot(pt r){return pt(*this%r,*this*r);}
+	pt rot(ld a){return rot(pt(sin(a),cos(a)));}
+};
+pt ccw90(1,0);
+pt cw90(-1,0);

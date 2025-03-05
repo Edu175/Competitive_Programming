@@ -8,64 +8,63 @@
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define JET ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
 
-bool check(vv a){
-	sort(ALL(a));
-	fore(i,0,SZ(a)-1){
-		if(a[i+1]-a[i]>1)return 0;
-	}
+// veo que sea conexo para toda linea, plano y espacio.
+
+vector<vv> dirs[4];
+vv operator+(vv a, vv b){
+	assert(SZ(a)==SZ(b));
+	fore(i,0,SZ(a))a[i]+=b[i];
+	return a;
+}
+
+bool check(vector<vv> &a, ll d){
+	auto &dir=dirs[d];
+	set<vv>st;
+	for(auto i:a)st.insert(i);
+	set<vv>vis;
+	auto dfs=[&](vv x, auto &&dfs)->void{
+		vis.insert(x);
+		for(auto d:dir){
+			auto y=x+d;
+			if(st.count(y)&&!vis.count(y))dfs(y,dfs);
+		}
+	};
+	dfs(*a.begin(),dfs);
+	for(auto x:a)if(!vis.count(x))return 0;
 	return 1;
 }
 
-
 int main(){
 	JET
-	ll n; cin>>n;
-	vv xs(n),ys(n),zs(n);
-	fore(i,0,n)cin>>xs[i];
-	fore(i,0,n)cin>>ys[i];
-	fore(i,0,n)cin>>zs[i];
-	map<ii,vv>mpz;
-	map<ll,vector<ii>>mpy;
-	vector<pair<ll,ii>> mpx;
-	fore(i,0,n){
-		ll x=xs[i],y=ys[i],z=zs[i];
-		mpz[{x,y}].pb(z);
-		mpy[x].pb({y,z});
-		mpx.pb({x,{y,z}});
-	}
-	
-	ll flag=check(xs);
-	cout<<"flag "<<flag<<" check\n";
-	map<ii,set<ll>>mp;
-	for(auto i:mpx)mp[i.snd].insert(i.fst);
-	for(auto [ksdjf,st]:mp){
-		for(auto i:xs)if(!st.count(i)){flag=0;break;}
-	}
-	
-	cout<<"flag "<<flag<<" xs\n";
-	
-	for(auto [x,v]:mpy){
-		vector<ll>ys;
-		map<ll,set<ll>>mp;
-		for(auto i:v)ys.pb(i.fst),mp[i.snd].insert(i.fst);
-		flag&=check(ys);
-		for(auto [ksdjf,st]:mp){
-			for(auto i:ys)if(!st.count(i)){flag=0;break;}
+	fore(d,1,4){
+		auto &dir=dirs[d];
+		fore(fg,0,2)fore(w,0,d){
+			vv now(d); now[w]=fg?1:-1;
+			dir.pb(now);
 		}
 	}
-	cout<<"flag "<<flag<<" ys\n";
-	
-	for(auto [xy,v]:mpy){
-		vector<ll>zs;
-		for(auto i:v)zs.pb(i.fst);
-		flag&=check(zs);
+	ll n; cin>>n;
+	vector<vv>a(n,vv(3));
+	fore(h,0,3){
+		fore(i,0,n)cin>>a[i][h];
 	}
-	cout<<"flag "<<flag<<" zs\n";
-	
+	ll flag=1;
+	fore(d,1,4){
+		vv is(3); fore(i,3-d,3)is[i]=1;
+		do{
+			map<vv,vector<vv>>mp;
+			fore(i,0,n){
+				vv k,v;
+				fore(j,0,3)(is[j]?v:k).pb(a[i][j]);
+				mp[k].pb(v);
+			}
+			for(auto [k,b]:mp)flag&=check(b,d);
+		}while(next_permutation(ALL(is)));
+	}
 	if(flag)cout<<"YES\n";
 	else cout<<"NO\n";
 	return 0;

@@ -79,6 +79,8 @@ int main(){ET;
 		p[i]++;
 		if(p[i]!=SZ(a[i]))put(i);
 		res=add(res,mul(v,fpow(365,d)));
+		cerr<<v<<" ";
 	}
+	cerr<<"\n";
 	cout<<res<<"\n";
 }

@@ -165,6 +165,30 @@ gp_hash_table<ll,int,custom_hash> ht;
 gp_hash_table<ll,null_type,custom_hash> st; // for unordered set
 */
 
+// IMPRIMIR CUALQUIER CONTAINER
+// en c++20 es bastante mas corto pero no lo tengo :(
+template <typename T, typename = void>
+struct is_container : std::false_type {};
+template <typename T>
+struct is_container<T, std::void_t<decltype(std::declval<T>().begin())>> : std::true_type {};
+template <typename T>
+string cv(const T& x) {
+    if constexpr (is_container<T>::value) {
+        // std::cout << "This is a container.\n";
+		string ret="{ ";
+		for(auto i:x)ret+=cv(i)+" ";
+		ret+="}";
+		return ret;
+    }
+	else {
+		// std::cout << "This is NOT a container.\n";
+		return to_string(x);
+	}
+}
+// uso: cout<<cv(vec)<<"\n";
+// sirve tambien para containers de containers
+// siempre y cuando exista to_string para el ultimo tipo
+
 // -------------------- MATH ----------------------------
 // COMBINATORIA
 // MODULAR OPERATIONS
@@ -172,6 +196,7 @@ int add(int a, int b){a+=b;if(a>=MOD)a-=MOD;return a;}
 int sub(int a, int b){a-=b;if(a<0)a+=MOD;return a;}
 int mul(ll a, ll b){return a*b%MOD;}
 int fpow(int a, ll b){
+	if(b<0)return 0;
 	int r=1;
 	while(b){if(b&1)r=mul(r,a); b>>=1; a=mul(a,a);}
 	return r;
@@ -398,27 +423,31 @@ ll add(ll x, char h){
 
 //REROOTING
 // (without inverse)
-ll n;
-vector<ii>g[MAXN]; // node, weight (1 if none)
+// didn't test final, but it's often unnecesary
+vector<ii> g[MAXN]; // node, weight (1 if none)
 struct node {
-	ll dp,q;
-	node():dp(0),q(0){}
-	node(ll q):dp(0),q(q){}
+	ll res,mx;
+	node():res(0),mx(0){}
 };
 node NEUT;
 node leaf(ll x){
-	return node(1);
-}
-node up(node x, ll w=1){
-	x.dp+=x.q;
-	return x;
+	return NEUT;
 }
 node merge(node a, node b){
-	a.q+=b.q;
-	a.dp+=b.dp;
+	a.res=max({a.res,b.res,a.mx+b.mx});
+	a.mx=max(a.mx,b.mx);
 	return a;
 }
+void final(node &v, ll x){}
+node up(node x, ll w=1){
+	x.mx+=w;
+	x.res=max(x.res,x.mx);
+	return x;
+}
+
+
 node h[MAXN],ch[MAXN]; // hijo, complement hijo (SIN ARISTA PADRE)
+node tot[MAXN]; // total
 vector<node> pre[MAXN],suf[MAXN];
 ll wf[MAXN],fa[MAXN]; // weight father, father
 void dfs1(ll x){
@@ -429,6 +458,7 @@ void dfs1(ll x){
 		dfs1(y);
 		h[x]=merge(h[x],up(h[y],w));
 	}
+	final(h[x],x);
 }
 void dfs2(ll x){
 	fore(j,0,SZ(g[x])){
@@ -436,30 +466,38 @@ void dfs2(ll x){
 		if(y==fa[x])continue;
 		ch[y]=merge(leaf(x),merge(pre[x][j],suf[x][j+1]));
 		if(fa[x]!=-1)ch[y]=merge(ch[y],up(ch[x],wf[x]));
+		final(ch[y],x);
 		dfs2(y);
 	}
 }
-void reroot(ll rt=0){
+void reroot(ll n){
+	ll rt=0;
 	fa[rt]=-1,wf[rt]=0;
 	dfs1(rt);
 	fore(x,0,n){
-		auto &p=pre[x];
-		auto &s=suf[x];
 		ll m=SZ(g[x]);
-		p=s=vector<node>(m+1,NEUT);
-		fore(j,1,m+1){
-			auto [y,w]=g[x][j-1];
-			p[j]=p[j-1];
-			if(y!=fa[x])p[j]=merge(p[j],up(h[y],w));
-		}
-		for(ll j=m-1;j>=0;j--){
-			auto [y,w]=g[x][j];
-			s[j]=s[j+1];
-			if(y!=fa[x])s[j]=merge(s[j],up(h[y],w));
-		}
+		auto doit=[&](vector<node> &p){
+			p=vector<node>(m+1,NEUT);
+			fore(j,1,m+1){
+				auto [y,w]=g[x][j-1];
+				p[j]=p[j-1];
+				if(y!=fa[x])p[j]=merge(p[j],up(h[y],w));
+			}
+		};
+		doit(pre[x]); reverse(ALL(g[x]));
+		doit(suf[x]); reverse(ALL(g[x]));
+		reverse(ALL(suf[x]));
 	}
 	dfs2(rt);
+	fore(x,0,n){
+		tot[x]=h[x];
+		if(fa[x]!=-1)tot[x]=merge(tot[x],up(ch[x],wf[x])),final(tot[x],x);
+		else assert(x==rt),tot[x]=h[x];
+		// you may want to treat the root specially
+		// if that is the case, remember to recalculate tot[rt]
+	}
 }
+
 // (with inverse)
 //example: tree hashing
 vector<ll> g[MAXN];
@@ -515,10 +553,12 @@ void virtual_init(){
 	fore(i,0,n)vis_[i]=0;
 	lca_init();
 }
-vector<ll> t[MAXN];
+vector<ll> t[MAXN]; // rooted tree
 ll is[MAXN]; // is it a real tree node?
 void make_tree(vector<ll>&v){
-//makes virtual tree t and adds virtual nodes to v
+	// makes virtual tree t and adds virtual nodes to v
+	// root is first node
+	// sorts v in dfs order
 	sort(ALL(v),cmp);
 	for(auto i:v)is[i]=vis_[i]=1;
 	fore(j,0,SZ(v)-1){
@@ -535,7 +575,7 @@ void make_tree(vector<ll>&v){
 	}
 }
 ll resi;
-ll c[MAXN],dp[MAXN];
+ll dp[MAXN];
 void reset(vector<ll>&v){
 	for(auto i:v){
 		is[i]=vis_[i]=0;
@@ -648,7 +688,6 @@ struct STree{
 // SEGMENT TREE LAZY
 typedef ll tn; // node type
 typedef ll tl; // lazy type
-// tn unit(ll v){return v;}
 #define NEUT 0
 #define CLEAR 0 // cleared lazy node
 tn oper(tn a, tn b){
@@ -664,9 +703,7 @@ tn calc(int s, int e, tn a, tl v){ // calculate STree range, a=previous value
 } 
 struct STree{
 	vector<tn>st; vector<tl>lazy; int n;
-	STree(int n):st(4*n+5,NEUT),lazy(4*n+5,CLEAR),n(n){
-		//fore(i,0,n)upd(i,unit(0));
-	}
+	STree(int n):st(4*n+5,NEUT),lazy(4*n+5,CLEAR),n(n){}
 	void init(int k, int s, int e, vector<tn>&a){
 		if(e-s==1)st[k]=a[s];
 		else {
@@ -1046,6 +1083,45 @@ void dnc(ll l, ll r, ll s, ll e){ // all [,)
 	ll &res=dp[m];
 	fore(j,s,e)if(f(m,j)<res)opt=j,resi=f(m,j);
 	if(r-l>1)dnc(l,m,s,opt+1),dnc(m+1,r,opt,e);
+}
+
+// 1D1D dp optimization
+// technically it's only the part inside aliens, but all problems I saw that required 1D1D also needed aliens (only 3, I'll change it when I encounter a counterexample)
+
+ii dp[MAXN];
+ll lam;
+ii cost(ll l, ll r){ // monge inequality must hold (only for this function)
+	ll now=sqrtl((r-l)*(sp[r]-sp[l]));
+	ii ret={now+dp[r].fst+lam,dp[r].snd+1};
+	return ret;
+}
+
+ii aliens(ll _lam){
+	lam=_lam;
+	deque<ii>dq; dq.pb({n-1,n});
+	for(ll j=n-1;j>=0;j--){ // info hasta (j
+		auto opt=dq.back().snd;
+		assert(dq.back().fst==j);
+		dp[j]=cost(j,opt);
+		if(!j)break;
+		dq.pop_back();
+		if(!SZ(dq)||dq.back().fst<j-1)dq.pb({j-1,opt});
+		ll s=0;
+		while(SZ(dq)){
+			auto [i,opt]=dq.front();
+			if(cost(i,j)<cost(i,opt))s=i,dq.pop_front();
+			else break;
+		}
+		if(!SZ(dq)){assert(s==j-1);dq.pb({s,j});continue;}
+		ll l=s,r=dq.front().fst-1;
+		while(l<=r){
+			ll m=(l+r)/2;
+			if(cost(m,j)<cost(m,dq.front().snd))l=m+1;
+			else r=m-1;
+		}
+		if(r>=0)dq.push_front({r,j});
+	}
+	return dp[0];
 }
 
 //SIMULATED ANNEALING

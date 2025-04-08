@@ -66,6 +66,8 @@ struct MCF{
 };
 int main(){FIN;
 	ll n; cin>>n;
+	// vector<ll> a(n);
+	// fore(i,0,n)cin>>a[i];
 	vector<ll>b(n),a(n+1);
 	fore(i,0,n)cin>>b[i];
 	fore(i,1,n)a[i]=b[i]-b[i-1];

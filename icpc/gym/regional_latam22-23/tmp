@@ -1,0 +1,98 @@
+#include <bits/stdc++.h>
+#define fore(i,a,b) for(ll i=a, jet=b; i<jet; i++)
+#define fst first
+#define snd second
+#define mset(a,v) memset((a),(v),sizeof(a))
+#define ALL(x) x.begin(),x.end()
+#define SZ(x) ((ll)x.size())
+#define pb push_back
+#define ET ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+using namespace std;
+typedef long long ll;
+typedef unsigned long long ull;
+typedef vector<ll> vv;
+typedef pair<ll,ll> ii;
+const ull R0=0x7e42ce82270a65b5;
+const ull R1=0x4b489bc9a97a7ded;
+const ull R2=0xaaeab0586d2aafaf;
+ull falopa(ull x){
+	x+=R0;
+	x=(x^(x>>30))*R1;
+	x=(x^(x>>27))*R2;
+	return x^(x>>31);
+}
+const ll MAXN=105;
+/*struct Dinic{
+	int nodes,src,dst;
+	vector<int> dist,q,work;
+	struct edge{int to,rev; ll f,cap;};
+	vector<vector<edge>> g;
+	Dinic(int x):nodes(x)
+};*/
+unordered_map<ull,bool> dp[MAXN];
+ull hsh[MAXN];
+ll sz0[MAXN],sz1[MAXN];
+vv g0[MAXN],g1[MAXN];
+bool f(ll x, ll u, ll fa0, ll fa1){
+	if(sz0[x]<sz1[u])return 0;
+	if(dp[x].count(hsh[u]))return dp[x][hsh[u]];
+	auto &res=dp[x][hsh[u]];
+	unordered_map<ull,ii>oc;
+	for(auto v:g1[u])if(v!=fa1){
+		auto &w=oc[hsh[v]];
+		w.fst++,w.snd=v;
+	}
+	for(auto [dkfjh,par]:oc){
+		auto [cant,v]=par;
+		// add de s a v con cant
+		for(auto y:g0[x])if(y!=fa0){
+			ll hay=f(y,v,x,u);
+			if(hay);// add de v a y con inf
+		}
+	}
+	// check
+}
+void done(){
+	cout<<"Y\n";
+	exit(0);
+}
+
+void dfs0(ll x, ll fa){
+	sz0[x]=1;
+	for(auto y:g0[x])if(y!=fa){
+		dfs0(y,x);
+		sz0[x]+=sz0[y];
+	}
+}
+void dfs1(ll x, ll fa){
+	sz1[x]=1; hsh[x]=0;
+	for(auto y:g1[x])if(y!=fa){
+		dfs1(y,x);
+		sz1[x]+=sz1[y];
+		hsh[x]+=hsh[y];
+	}
+	hsh[x]=falopa(hsh[x]);
+}
+ll n,m;
+void doit(ll rt){
+	dfs1(rt,-1);
+	fore(x,0,n)if(f(x,rt,-1,-1))done();
+}
+
+int main(){
+	ET
+	cin>>n;
+	fore(i,0,n-1){
+		ll u,v; cin>>u>>v; u--,v--;
+		g0[u].pb(v);
+		g0[v].pb(u);
+	}
+	cin>>m;
+	fore(i,0,m-1){
+		ll u,v; cin>>u>>v; u--,v--;
+		g1[u].pb(v);
+		g1[v].pb(u);
+	}
+	fore(i,0,m)doit(i);
+	cout<<"N\n";
+}

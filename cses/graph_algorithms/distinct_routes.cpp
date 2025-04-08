@@ -2,18 +2,19 @@
 #define pb push_back
 #define fst first
 #define snd second
-#define fore(i,a,b) for(ll i=a,ggdem=b;i<ggdem;++i)
+#define fore(i,a,b) for(int i=a,jet=b;i<jet;++i)
 #define SZ(x) ((int)x.size())
 #define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
-#define imp(v) for(auto messi:v)cout<<messi<<" "; cout<<"\n"
+#define imp(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
-
+typedef vector<ll> vv;
 // Min cut: nodes with dist>=0 vs nodes with dist<0
 // Matching MVC: left nodes with dist<0 + right nodes with dist>0
+const ll INF=1e18;
 struct Dinic{
 	int nodes,src,dst;
 	vector<int> dist,q,work;
@@ -59,15 +60,39 @@ struct Dinic{
 		return result;
 	}
 };
+const ll MAXN=505;
+
+vv g[MAXN];
+vector<vv>p;
+
+void go(ll x){
+	p.back().pb(x);
+	if(SZ(g[x])){
+		auto y=g[x].back(); g[x].pop_back();
+		go(y);
+	}
+}
 
 int main(){FIN;
 	ll n,m; cin>>n>>m;
-	Dinic f(n);
+	Dinic fl(n);
 	fore(i,0,m){
 		ll u,v; cin>>u>>v; u--,v--;
-		f.add_edge(u,v,1);
+		fl.add_edge(u,v,1);
 	}
-	ll res=f.get_flow(0,n-1);
+	ll res=fl.max_flow(0,n-1);
 	cout<<res<<"\n";
+	// build caminitos
+	fore(x,0,n)for(auto y:fl.g[x])if(y.f>0)g[x].pb(y.to);
+	while(SZ(g[0])){
+		p.pb({});
+		go(0);
+	}
+	assert(SZ(p)==res);
+	for(auto v:p){
+		cout<<SZ(v)<<"\n";
+		for(auto i:v)cout<<i+1<<" ";
+		cout<<"\n";
+	}
 	return 0;
 }

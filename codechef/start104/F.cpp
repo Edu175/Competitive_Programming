@@ -11,6 +11,7 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
+typedef vector<ll> vv;
 const ll MAXN=2005,MAXF=MAXN;
 ll MOD;
 

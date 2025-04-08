@@ -208,7 +208,7 @@ void factos(){
 	fci[MAXF-1]=fpow(fc[MAXF-1],MOD-2);
 	for(ll i=MAXF-2;i>=0;i--)fci[i]=mul(fci[i+1],(i+1));
 }
-ll nCr(ll n, ll k){ //must call factos before
+ll nCr(ll n, ll k){ // must call factos before
 	if(n<0||k<0||k>n)return 0;
 	return mul(mul(fc[n],fci[k]),fci[n-k]);
 }
@@ -217,6 +217,31 @@ ll nCr(ll n, ll k){ //must call factos before
 ll rbs(ll n){
 	return sub(nCr(n,n/2),nCr(n,n/2-1));
 }
+
+// STIRLING NUMBERS
+
+// First kind (unsigned):
+// s(n,k) = number of permutations with k cycles
+// s(n,k) = s(n-1,k-1) + (n-1) * s(n-1,k)
+ll usn(ll n, ll k){
+	auto &res=mem[n][k];
+	if(res!=-1)return res;
+	if(k>n)return res=0;
+	if(k==0)return res=n==0;
+	return res=add(usn(n-1,k-1),mul(n-1,usn(n-1,k)));
+}
+
+// Second kind:
+// S(n,k) = number of partitions of {1..n} into exactly k parts
+// S(n,k) = S(n-1,k-1) + k * S(n-1,k)
+
+// both can also be calculated in O(nlogn) for fixed k (with GF)
+
+// BELL NUMBERS
+// b_n = number of partitions of {1..n}
+// b_n+1 = sum_{k=0}^{n} nCr(n,k) * b_k
+// let B(x) be the EGF of b_n, B(x) = e^(e^x-1)
+
 
 // offline queries of B(n,k)= sum_{i=1}^{k-1} nCr(n,i)
 // no special cases, works for negatives (put k==0? return 1 in nCr, before everything, just in case)
@@ -245,6 +270,8 @@ auto actu=[&](ll w, ll n, ll k){
 		cur=mul(cur,(MOD+1)/2);
 	}
 };
+
+
 // NUMBER THEORY
 // divisores and phi in VlogV time and memory
 vector<ll> divs[MAXV];
@@ -322,36 +349,30 @@ ll prim(){
 
 //DFS TREE (articulation points and bridges)
 vector<ii> g[MAXN]; // {node,edge}
-ll lw[MAXN],dis[MAXN],art[MAXN],br[MAXM],vised[MAXM];
-ll cnt_=0;
+int lw[MAXN],D[MAXN],art[MAXN]; // articulation point iff !=0
+bool br[MAXM],vised[MAXM]; 
 void dfs_(ll x){
-	lw[x]=dis[x];
-	for(auto [y,ed]:g[x])if(!vised[ed]){
-		cnt_+=(x==0);
-		vised[ed]=1;
-		if(lw[y]==-1){ //tree edge
-			dis[y]=dis[x]+1;
+	lw[x]=D[x];
+	for(auto [y,i]:g[x])if(!vised[i]){
+		vised[i]=1;
+		if(lw[y]==-1){ // tree edge
+			D[y]=D[x]+1;
 			dfs_(y);
 			lw[x]=min(lw[x],lw[y]);
-			art[x]|=(lw[y]>=dis[x]);
-			br[ed]=(lw[y]>=dis[y]);
+			art[x]+=(lw[y]>=D[x]);
+			br[i]=(lw[y]>=D[y]);
 		}
-		else lw[x]=min(lw[x],dis[y]); //back edge
+		else lw[x]=min(lw[x],D[y]),br[i]=0; // back edge
 	}
 }
-void dfs_init(ll n=0, ll m=0){
-	assert(n|m|1); // warning chota
-	mset(lw,-1); mset(art,0); mset(vised,0);
-	//fore(i,0,n)lw[i]=-1,art[i]=0;
-	//fore(i,0,m)vised[i]=0;
+void dfs_tree(int n, int m=0){
+	if(!m)mset(lw,-1), mset(art,0), mset(vised,0);
+	else { // multiple testcases
+		fore(i,0,n)lw[i]=-1,art[i]=0;
+		fore(i,0,m)vised[i]=0;
+	}
+	fore(i,0,n)if(lw[i]==-1)D[i]=0,dfs_(i),art[i]--;
 }
-void dfs_tree(ll rt=0){
-	if(lw[rt]!=-1)return;
-	dis[rt]=0; cnt_=0;
-	dfs_(rt);
-	art[rt]=(cnt_>1);
-}
-//uncomment for testcases
 
 // EULER WALK
 // not tested
@@ -644,7 +665,7 @@ struct STree{
 	}
 
 // para STree recursivo
-	// BS on STree (put inside struct)
+	// descenso en STree (put inside struct)
 	ll find(ll k, ll s, ll e, ll x){
 		if(s+1==e){
 			if(st[k]>=x)return s;
@@ -656,7 +677,30 @@ struct STree{
 	}
 	ll find(ll x){return find(1,0,n,x);} //lowerbound on sum prefixes
 
-	// BS on STree desde el medio
+	
+	// descenso en STree desde el medio
+	
+	// cosas a cambiar:
+	// si quiero la primera posicion en la cual
+	// se cumple una proposicion,
+	// solo tengo que cambiar la definicion de bad
+	// si quiero la ultima posicion, reversea el stree
+	int find(int k, int s, int e, int a, int b, int j){
+		// ejemplo: primera pos en la cual el bit j esta apagado 
+		if(e<=a||b<=s) return -1; // -1 es que no lo encontre
+		// push(k,s,e); para lazy
+		int m = (s+e)/2;
+		bool bad=(st[k].fst>>j&1); // bad es que no lo va a encontrar en este subarbol
+		if(bad&&(a<=s&&e<=b))return -1;
+		if(e-s==1)return s;
+		int res=find(2*k,s,m,a,b,j);
+		if(res==-1)res=find(2*k+1,m,e,a,b,j);
+		return res; // cuando lo encuentra devuelve algo != -1
+	}
+	int find(int a, int b, int j){return find(1,0,n,a,b,j);}
+
+	
+	// otra version:
 	// Ej: primer <= a la izquierda
 	vector<ll>st;int n; vector<int>ss,es,pos;
 	STree(int n): st(4*n+5,NEUT), n(n), ss(4*n+5),es(4*n+5), pos(n+5) {}
@@ -745,7 +789,7 @@ struct STree{
 	void init(vector<tn>&a){init(1,0,n,a);}
 };
 // may be useful
-	void upd(ll k, ll s, ll e, ll p, tn v){ // assign v to position p
+	void upd(int k, int s, int e, int p, tn v){ // assign v to position p
 		push(k,s,e);
 		if(e<=p||p<s)return;
 		if(e-s==1&&s==p){
@@ -753,11 +797,11 @@ struct STree{
 			st[k]=v;
 			return;
 		}
-		ll m=(s+e)/2;
+		int m=(s+e)/2;
 		upd(2*k,s,m,p,v),upd(2*k+1,m,e,p,v);
 		st[k]=oper(st[2*k],st[2*k+1]);
 	}
-	void upd(ll p, tn v){upd(1,0,n,p,v);}
+	void upd(int p, tn v){upd(1,0,n,p,v);}
 
 //  para PERSISTENT STree:
 //*	if using as STree lazy creation change to

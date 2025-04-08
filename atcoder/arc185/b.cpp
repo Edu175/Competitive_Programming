@@ -12,31 +12,21 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
-const ll INF=1e15;
+
 int main(){FIN;
 	ll t; cin>>t;
 	while(t--){
 		ll n; cin>>n;
-		vv a(n);
-		fore(i,0,n)cin>>a[i];
-		vv b(n+1);
-		fore(i,0,n-1)b[i+1]=a[i+1]-a[i];
-		b[0]=b[n]=INF;
-		n++;
-		imp(b);
-		ll q=0;
-		fore(i,0,n-1){
-			if(b[i]>=0){
-				ll c=min(q,b[i]);
-				b[i+1]+=c;
-				q-=c;
-			}
-			else {
-				b[i+1]+=b[i];
-				q+=abs(b[i]);
-			}
+		vv a(n); ll sum=0;
+		fore(i,0,n)cin>>a[i],sum+=a[i];
+		reverse(ALL(a));
+		ll fg=1;
+		fore(i,0,n){
+			ll v=sum/n+(i<sum%n);
+			fg&=a[i]>=v;
+			if(i<n-1)a[i+1]+=a[i]-v;
 		}
-		if(q==0)cout<<"Yes\n";
+		if(fg)cout<<"Yes\n";
 		else cout<<"No\n";
 	}
 	return 0;

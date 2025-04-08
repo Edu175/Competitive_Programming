@@ -13,21 +13,11 @@ typedef long long ll;
 typedef vector<ll> vv;
 random_device rd;
 mt19937 rng(rd());
-const ll BIAS=10;
 
 int main(){FIN;
 	ll N,V; cin>>N>>V;
 	ll n=rng()%N+1;
 	cout<<n<<"\n";
-	string s="RULD";
-	ll prev=0;
-	fore(i,0,n){
-		ll cur=rng()%BIAS==0;
-		vv all;
-		fore(i,0,4)if(i!=prev&&i!=(prev^2))all.pb(i);
-		cur=all[cur];
-		cout<<s[cur]<<" "<<rng()%V+1<<"\n";
-		prev=cur;
-	}
+	fore(i,0,n)cout<<rng()%V+1<<" ";;cout<<"\n";
 	return 0;
 }

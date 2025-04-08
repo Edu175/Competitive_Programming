@@ -10,20 +10,30 @@
 #define imp(v) for(auto edu:v)cout<<edu<<" "; cout<<"\n"
 using namespace std;
 typedef long long ll;
-#pragma GCC optimize("Ofast") // may lead to precision errors
+typedef pair<ll,ll> ii;
+typedef vector<ll> vv;
 
-#pragma GCC optimize("O3,unroll-loops")
-#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+ll pot[19];
+unordered_map<ll,ii> dp[10];
+
+ii f(ll mx, ll n){
+	if(dp[mx].count(n))return dp[mx][n];
+	auto &res=dp[mx][n];
+	if(n<0)return res={0,n};
+	if(n==0)return res=mx?ii({1,-mx}):ii({0,0});
+	ll j=-1,d=-1,n_=n;
+	while(n_)j++,d=n_%10,n_/=10;
+	auto rq=f(max(mx,d),n-d*pot[j]);
+	res.fst=rq.fst;
+	n=d*pot[j]+rq.snd;
+	rq=f(mx,n);
+	res.fst+=rq.fst; res.snd=rq.snd;
+	return res;
+}
+
 int main(){FIN;
+	pot[0]=1; fore(i,1,19)pot[i]=pot[i-1]*10;
 	ll n; cin>>n;
-	ll res=0;
-	while(n){
-		ll ni=n;
-		short mx=0;
-		while(ni)mx=max(mx,short(ni%10)),ni/=10;
-		res++;
-		n-=mx;
-	}
-	cout<<res<<"\n";
+	cout<<f(0,n).fst<<"\n";
 	return 0;
 }

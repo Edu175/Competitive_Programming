@@ -135,7 +135,7 @@ void factos(){
 	fci[MAXF-1]=fpow(fc[MAXF-1],MOD-2);
 	for(ll i=MAXF-2;i>=0;i--)fci[i]=mul(fci[i+1],(i+1));
 }
-ll nCr(ll n, ll k){ //must call factos before
+ll nCr(ll n, ll k){ // must call factos before
 	if(n<0||k<0||k>n)return 0;
 	return mul(mul(fc[n],fci[k]),fci[n-k]);
 }
@@ -179,7 +179,7 @@ map<int,int> fact(int n){  // must call init_cribe before		O(log(n))
 	return res;
 }
 
-//UNION FIND Y KRUSKAL
+//UNION FIND
 int uf[MAXN];
 void uf_init(){mset(uf,-1);}
 int uf_find(int x){return uf[x]<0?x:uf[x]=uf_find(uf[x]);}
@@ -1476,39 +1476,6 @@ vector<ll> euler_path(ll s){
 	if(!flag)return {};
 	return res;
 }
-
-//DFS TREE (articulation points and bridges)
-vector<ii> g[MAXN]; // {node,edge}
-ll lw[MAXN],dis[MAXN],art[MAXN],br[MAXM],vised[MAXM];
-ll cnt_=0;
-void dfs_(ll x){
-	lw[x]=dis[x];
-	for(auto [y,ed]:g[x])if(!vised[ed]){
-		cnt_+=(x==0);
-		vised[ed]=1;
-		if(lw[y]==-1){ //tree edge
-			dis[y]=dis[x]+1;
-			dfs_(y);
-			lw[x]=min(lw[x],lw[y]);
-			art[x]|=(lw[y]>=dis[x]);
-			br[ed]=(lw[y]>=dis[y]);
-		}
-		else lw[x]=min(lw[x],dis[y]); //back edge
-	}
-}
-void dfs_init(ll n=0, ll m=0){
-	assert(n|m|1); // warning chota
-	mset(lw,-1); mset(art,0); mset(vised,0);
-	//fore(i,0,n)lw[i]=-1,art[i]=0;
-	//fore(i,0,m)vised[i]=0;
-}
-void dfs_tree(ll rt=0){
-	if(lw[rt]!=-1)return;
-	dis[rt]=0; cnt_=0;
-	dfs_(rt);
-	art[rt]=(cnt_>1);
-}
-//uncomment for testcases
 
 //SIMULATED ANNEALING
 //For example, see https://codeforces.com/contest/1556/submission/244884389

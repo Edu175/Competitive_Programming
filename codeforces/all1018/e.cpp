@@ -12,33 +12,38 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
-const ll INF=1e15;
+typedef ll node;
 int main(){FIN;
 	ll t; cin>>t;
 	while(t--){
 		ll n; cin>>n;
-		vv a(n),c(n,-1);
+		string s; cin>>s;
+		// STree st(n);
+		// fore(i,0,n)st.upd(i,1);
+		ll fij=0,cp=0;
 		fore(i,0,n){
-			cin>>a[i],a[i]--;
-			if(a[i]!=-1)c[a[i]]=i&1;
+			if(s[i]=='B')fij+=cp;
+			else cp++;
 		}
-		// imp(c)
-		ll fij=0;
-		fore(i,0,n)fij+=(i+1)*(n-i);
-		vector<vv>dp(n+3,vv(n+3,-INF));
-		dp[n][(n+1)/2]=0;
-		for(ll i=n-1;i>=0;i--)fore(q,0,n){
-			auto &res=dp[i][q];
-			ll m=(n+1)/2;
-			ll go0=(i+1)*(q-(m-1-q))+dp[i+1][q+1];
-			ll qp=i-q,mp=n/2;
-			ll go1=(i+1)*(qp-(mp-1-qp))+dp[i+1][q];
-			if(c[i]!=-1)res=(c[i]?go1:go0);
-			else res=max(go0,go1);
-			// cout<<i<<" "<<q<<": "<<go0<<" "<<go1<<": "<<res<<"\n";
+		vector<char> b;
+		ll q=0;
+		fore(i,0,n){
+			q++;
+			if(i==n-1||s[i]!=s[i+1]){
+				if(q&1){
+					if(SZ(b)&&b.back()==s[i])b.pop_back();
+					else b.pb(s[i]);
+				}
+				q=0;
+			}
 		}
-		ll res=fij+dp[0][0];
-		// cerr<<fij<<": ";
+		ll sz=SZ(b);
+		if(sz)sz+=-(b[0]=='B')-(b.back()=='P');
+		assert(sz%2==0);
+		ll res=(sz+3)/4;
+		fij-=res;
+		fij/=2;
+		res+=fij;
 		cout<<res<<"\n";
 	}
 	return 0;

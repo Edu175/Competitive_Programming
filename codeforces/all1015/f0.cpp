@@ -28,6 +28,18 @@ struct STree{
 		}
 		return res;
 	}
+	int find(int k, int s, int e, int a, int b, int x){
+		if(e<=a||b<=s) return -1; // -1 es que no lo encontre
+		// push(k,s,e); para lazy
+		int m = (s+e)/2;
+		bool bad=t[k]>=x; // bad es que no lo va a encontrar en este subarbol
+		if(bad&&(a<=s&&e<=b))return -1;
+		if(e-s==1)return s;
+		int res=find(2*k,s,m,a,b,x);
+		if(res==-1)res=find(2*k+1,m,e,a,b,x);
+		return res; // cuando lo encuentra devuelve algo != -1
+	}
+	int find(int a, int b, int x){return find(1,0,n,a,b,x);}
 };
 
 int main(){FIN;
@@ -53,21 +65,58 @@ int main(){FIN;
 			l[i]=st1.query(0,x),fg&=l[i]<r[i];
 			if(p[x]!=-1)st1.upd(x,p[x]);
 		}
+		// fore(i,0,n){
+		// 	cout<<i<<": "<<l[i]<<","<<r[i]<<" "<<p[a[i]]<<"\n";
+		// }
 		if(!fg){
 			cout<<"-1\n";
 			continue;
 		}
-		priority_queue<ii>pq;
+		set<ll>st;
+		ll t=0;
+		multiset<ii>ms;
 		vector<ll> h[n+1];
-		fore(i,0,n)if(p[a[i]]==-1)h[l[i]].pb(i);
-		fore(t,0,n){
-			for(auto i:h[t])pq.push({-r[i],-i});
-			if(b[t]==-1){
-				if(!SZ(pq)){fg=0;break;}
-				auto [dsj,i]=pq.top(); pq.pop(); i=-i;
-				b[t]=a[i];
-				fg&=t<r[i];
+		auto cand=[&](ll i){ms.insert({r[i],i});};
+		auto add=[&](ll i){
+			if(l[i]<=t)cand(i);
+			else h[l[i]].pb(i);
+		};
+		
+		STree de(n,0); // descenso
+		fore(i,0,n)if(p[a[i]]==-1)de.upd(i,a[i]);
+		// fore(i,0,n)cout<<de.t[i+de.n]<<" ";;cout<<"\n";
+		auto esc=[&](ll from){
+			// cout<<"esc "<<from<<": ";
+			while(1){
+				ll j=de.find(from+1,n,from==-1?de.NEUT:a[from]);
+				if(j==-1||st.count(j))break;
+				from=j;
+				st.insert(j);
+				add(j);
+				// cout<<j<<" ";
 			}
+			// cout<<"\n";
+		};
+		esc(-1);
+		while(t<n){
+			for(auto i:h[t])cand(i);
+			if(b[t]==-1){
+				// cout<<"pongo en "<<t<<":\n";
+				// imp(st)
+				if(!SZ(ms)){fg=0;break;}
+				ll i=ms.begin()->snd; ms.erase(ms.begin());
+				b[t]=a[i];
+				de.upd(i,de.NEUT);
+				fg&=t<r[i];
+				// if(!fg)cout<<"fail\n";
+				ll from=-1;
+				auto it=st.lower_bound(i); assert(*it==i);
+				if(it!=st.begin())from=*prev(it);
+				// cout<<i<<"\n\n";
+				esc(from);
+				st.erase(it);
+			}
+			t++;
 		}
 		fore(i,0,n)if(b[i]!=-1)p[b[i]]=i;
 		fore(x,0,n){

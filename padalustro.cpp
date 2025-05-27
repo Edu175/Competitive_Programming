@@ -234,7 +234,7 @@ void floyd(){//O(n^3)
 }
 
 //LCA
-vector<ll>g[MAXN]; ll n;
+vector<ll>g[MAXN];
 const ll K=18; //K such that 2^K>=n
 ll F[K][MAXN],D[MAXN];
 void lca_dfs(ll x){
@@ -243,7 +243,7 @@ void lca_dfs(ll x){
 		F[0][y]=x;D[y]=D[x]+1;lca_dfs(y);
 	}
 }
-void lca_init(){
+void lca_init(ll n){
 	D[0]=0;F[0][0]=-1;
 	lca_dfs(0);
 	fore(k,1,K)fore(x,0,n){

@@ -13,51 +13,53 @@ typedef long long ll;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
 
-const ll INF= 1e15;
-	struct Dinic{
-	int nodes,src,dst;
-	vector<int> dist,q,work;
-	struct edge {int to,rev;ll f,cap;};
+ll INF=1e15; // a constant > to any flow
+struct Dinic{
+	int n;
+	struct edge{int to,rev; ll f,cap;};
 	vector<vector<edge>> g;
-	Dinic(int x):nodes(x),g(x),dist(x),q(x),work(x){}
-	void add_edge(int s, int t, ll cap){
-		g[s].pb((edge){t,SZ(g[t]),0,cap});
-		g[t].pb((edge){s,SZ(g[s])-1,0,0});
+	vector<int> d,q,work;
+	Dinic(int n):n(n),g(n),d(n),q(n),work(n){}
+	void add_edge(int u, int v, ll cap){
+		g[u].pb({v,SZ(g[v]),0,cap});
+		g[v].pb({u,SZ(g[u])-1,0,0});
 	}
-	bool dinic_bfs(){
-		fill(ALL(dist),-1);dist[src]=0;
-		int qt=0;q[qt++]=src;
+	int s,t;
+	bool bfs(){
+		fill(ALL(d),-1);
+		int qt=0;
+		d[s]=0; q[qt++]=s;
 		for(int qh=0;qh<qt;qh++){
-			int u=q[qh];
-			fore(i,0,SZ(g[u])){
-				edge &e=g[u][i];int v=g[u][i].to;
-				if(dist[v]<0 && e.f<e.cap) dist[v]=dist[u]+1,q[qt++]=v;
+			auto x=q[qh];
+			for(auto &e:g[x])if(e.f<e.cap&&d[e.to]==-1){
+				d[e.to]=d[x]+1;
+				q[qt++]=e.to;
 			}
 		}
-		return dist[dst]>=0;
+		return d[t]!=-1;
 	}
-	ll dinic_dfs(int u, ll f ){
-		if(u==dst) return f;
-		for(int &i=work[u];i<SZ(g[u]);i++){
-			edge &e=g[u][i];
-			if(e.cap<=e.f) continue;
-			int v=e.to;
-			if(dist[v]==dist[u]+1){
-				ll df=dinic_dfs(v,min(f,e.cap-e.f));
-				if(df>0){e.f+=df;g[v][e.rev].f-=df;return df;}
+	ll dfs(int x, ll F){
+		if(x==t)return F;
+		ll _F=F;
+		for(auto &i=work[x];i<SZ(g[x]);i++){
+			auto &e=g[x][i];
+			if(d[e.to]==d[x]+1&&e.f<e.cap){
+				ll dF=dfs(e.to,min(F,e.cap-e.f));
+				F-=dF;
+				e.f+=dF; g[e.to][e.rev].f-=dF;
+				if(!F)break;
 			}
 		}
-		return 0;
+		return _F-F;
 	}
-	ll max_flow(int _src, int _dst){
-		src=_src; dst=_dst;
-		ll result=0;
-		while(dinic_bfs()){
+	ll max_flow(int _s, int _t){
+		s=_s,t=_t;
+		ll ret=0;
+		while(bfs()){
 			fill(ALL(work),0);
-			while(ll delta=dinic_dfs(src,INF))result+=delta;
-			
+			ret+=dfs(s,INF);
 		}
-		return result;
+		return ret;
 	}
 };
 

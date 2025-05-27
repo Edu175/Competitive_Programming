@@ -15,11 +15,14 @@ const ll MAXN=5005;
 
 ii operator+(ii a, ii b){return {a.fst+b.fst,a.snd+b.snd};}
 ii dp[MAXN][MAXN];
+bitset<MAXN> vis[MAXN];
 ll a[MAXN];
 ii f(ll l, ll r, ll p){
+	if(l>r)return {0,0};
 	ii &res=dp[l][r];
-	if(res.fst!=-1)return res;
-	if(l>r)return res={0,0};
+	if(vis[l][r])return res;
+	vis[l][r]=1;
+	// if(l>r)return res={0,0};
 	if(!p){
 		res=ii({a[l],0})+f(l+1,r,p^1);
 		if(a[r]+f(l,r-1,p^1).fst>res.fst)res=ii({a[r],0})+f(l,r-1,p^1);
@@ -33,7 +36,7 @@ ii f(ll l, ll r, ll p){
 
 int main(){FIN;
 	ll n; cin>>n;
-	fore(i,0,n+3)fore(j,0,n+3)dp[i][j]={-1,-1};
+	// fore(i,0,n+3)fore(j,0,n+3)dp[i][j]={-1,-1};
 	fore(i,0,n)cin>>a[i];
 	cout<<f(0,n-1,0).fst<<"\n";
 	return 0;

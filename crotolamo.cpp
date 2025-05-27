@@ -273,6 +273,13 @@ auto actu=[&](ll w, ll n, ll k){
 
 
 // NUMBER THEORY
+
+// CRT in PYTHON
+from sympy.ntheory.modular import crt
+crt([99, 97, 95], [49, 76, 65])
+# parameters: moduli, remainders
+# returns: solution, modulus
+
 // divisores and phi in VlogV time and memory
 vector<ll> divs[MAXV];
 void divisores(){
@@ -306,7 +313,7 @@ struct matrix{
 	bool add(ll v){
 		if(v==0)return 0;
 		for(ll j=B-1;j>=0;j--)v=min(v,v^x[j]);
-		if(v){x[31-__builtin_clz(v)]=v;return 1;}
+		if(v){x[__lg(v)]=v;return 1;}
 		return 0;
 	}
 };
@@ -375,15 +382,13 @@ void dfs_tree(int n, int m=0){
 }
 
 // EULER WALK
-// not tested
 // returns edge indices
 vector<ll> eulerWalk(vector<vector<ii>>& gr, ll nedges, ll src=0) {
 	ll n = SZ(gr);
 	vector<ll> D(n), its(n), eu(nedges), ret;
 	vector<ii> s = {{src,-1}};
-	// D[src]++; // to allow Euler paths, not just cycles
+	D[src]++; // to allow Euler paths, not just cycles
 	while (!s.empty()) {
-		// imp(s);
 		auto [x,e] = s.back(); 
 		ll y, &it = its[x], end = SZ(gr[x]);
 		if (it == end){ ret.pb(e); s.pop_back(); continue; }
@@ -398,7 +403,63 @@ vector<ll> eulerWalk(vector<vector<ii>>& gr, ll nedges, ll src=0) {
 	return ret;
 }
 
+// DINIC
+// this is my dinitz implementation based on
+// https://codeforces.com/blog/entry/104960
+// this should be O(n^2 m)
 
+// almost the same as el vasito's, only dfs is different
+// time is also similar
+
+ll INF=1e18; // a constant > to any flow
+struct Dinic{
+	int n;
+	struct edge{int to,rev; ll f,cap;};
+	vector<vector<edge>> g;
+	vector<int> d,q,work;
+	Dinic(int n):n(n),g(n),d(n),q(n),work(n){}
+	void add_edge(int u, int v, ll cap){
+		g[u].pb({v,SZ(g[v]),0,cap});
+		g[v].pb({u,SZ(g[u])-1,0,0});
+	}
+	int s,t;
+	bool bfs(){
+		fill(ALL(d),-1);
+		int qt=0;
+		d[s]=0; q[qt++]=s;
+		for(int qh=0;qh<qt;qh++){
+			auto x=q[qh];
+			for(auto &e:g[x])if(e.f<e.cap&&d[e.to]==-1){
+				d[e.to]=d[x]+1;
+				q[qt++]=e.to;
+			}
+		}
+		return d[t]!=-1;
+	}
+	ll dfs(int x, ll F){
+		if(x==t)return F;
+		ll _F=F;
+		for(auto &i=work[x];i<SZ(g[x]);i++){
+			auto &e=g[x][i];
+			if(d[e.to]==d[x]+1&&e.f<e.cap){
+				ll dF=dfs(e.to,min(F,e.cap-e.f));
+				F-=dF;
+				e.f+=dF; g[e.to][e.rev].f-=dF;
+				if(!F)break;
+			}
+		}
+		return _F-F;
+	}
+	ll max_flow(int _s, int _t){
+		s=_s,t=_t;
+		ll ret=0;
+		while(bfs()){
+			fill(ALL(work),0);
+			ret+=dfs(s,INF);
+		}
+		return ret;
+	}
+};
 
 // -------------------- TREES ----------------------------
 // LCA
@@ -687,15 +748,15 @@ struct STree{
 	// si quiero la ultima posicion, reversea el stree
 	int find(int k, int s, int e, int a, int b, int j){
 		// ejemplo: primera pos en la cual el bit j esta apagado 
-		if(e<=a||b<=s) return -1; // -1 es que no lo encontre
-		// push(k,s,e); para lazy
+		if(e<=a||b<=s) return b; // b es que no lo encontre
+		// push(k,s,e); // para lazy
 		int m = (s+e)/2;
 		bool bad=(st[k].fst>>j&1); // bad es que no lo va a encontrar en este subarbol
-		if(bad&&(a<=s&&e<=b))return -1;
+		if(bad&&(a<=s&&e<=b))return b;
 		if(e-s==1)return s;
 		int res=find(2*k,s,m,a,b,j);
-		if(res==-1)res=find(2*k+1,m,e,a,b,j);
-		return res; // cuando lo encuentra devuelve algo != -1
+		if(res==b)res=find(2*k+1,m,e,a,b,j);
+		return res; // cuando lo encuentra devuelve algo en [a,b)
 	}
 	int find(int a, int b, int j){return find(1,0,n,a,b,j);}
 

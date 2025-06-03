@@ -47,9 +47,9 @@ unsigned int	//0 a 4e9
 long long		//-9e18 a 9e18 // 8 bytes
 __int128		// 1e38 // 16 bytes
 float		//7 digits
-double		//(recomendable) 15 digits
-long double	//18 digits
-__float128	//34 digits
+double		//(recomendable) 15 digits // 53 bits de precision, 10 bits de exponente
+long double	//18 digits // 64 bits de precision, 14 bits de exponente
+__float128	//34 digits // 114 bits de precision, 14 bits de exponente
 bool	//1 o 0 // 1 byte
 
 // WARNING!!! UNDEFINED BEHAVIOUR FOR << >> BIGGER THAN NUMBER SIZE
@@ -778,8 +778,8 @@ vector<ii> max_matching(){
 }
 
 //TARJAN
-vector<ll> g[MAXN];//,g2[MAXN];set<ll> gst[MAXN];
-ll n,n2,lw[MAXN],idx[MAXN],qidx,cmp[MAXN],qcmp;
+vector<ll> g[MAXN];
+ll lw[MAXN],idx[MAXN],qidx,cmp[MAXN],qcmp;
 stack<ll>st;
 
 void tjn(ll u){
@@ -799,15 +799,12 @@ void tjn(ll u){
 		qcmp++;
 	}
 }
-void scc(){
-	fore(i,0,n)idx[i]=0,cmp[i]=-1;//,g2[i].clear();gst[i].clear();
+void scc(ll n){
+	fore(i,0,n)idx[i]=0,cmp[i]=-1;
 	qidx=0; qcmp=0;
 	/*mset(idx,0); // NO TEST CASES
 	mset(cmp,-1);*/
 	fore(i,0,n)if(!idx[i])tjn(i);
-	//fore(i,0,n)for(auto j:g[i])if(cmp[i]!=cmp[j])gst[cmp[i]].insert(cmp[j]);
-	//fore(i,0,n)for(auto j:gst[i])g2[i].pb(j);
-	n2=qcmp;
 }
 
 //CENTROID DECOMPOSITION

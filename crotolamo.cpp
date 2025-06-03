@@ -114,6 +114,14 @@ while(mk<=(1ll<<n)-(1ll<<(n-k))){
 	c=mk&-mk,r=mk+c,mk=r|(((r^mk)>>2)/c);
 }
 
+// NUMERIC LIMITS
+// see more in std::numeric_limits
+float		// 7 digits
+double		// 15 digits // 53 bits de precision, 10 bits de exponente
+long double	// 18 digits // 64 bits de precision, 14 bits de exponente
+__float128	// 34 digits // 114 bits de precision, 14 bits de exponente
+
+
 // DYNAMIC BITSET
 // EN CODEFORCES SIGUE BUGEADO https://codeforces.com/blog/entry/129454
 #include <tr2/dynamic_bitset>

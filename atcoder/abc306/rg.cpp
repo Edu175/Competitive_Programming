@@ -15,13 +15,11 @@ random_device rd;
 mt19937 rng(rd());
 
 int main(){FIN;
-	ll T,N,M; cin>>T>>N>>M;
-	ll t=rng()%T+1; cout<<t<<"\n";
-	while(t--){
-		ll n=rng()%(N-1)+2,m=rng()%M+1; cout<<n<<" "<<m<<"\n";
-		fore(i,0,m){
-			cout<<rng()%n+1<<" "<<rng()%n+1<<"\n";
-		}
+	ll N,Q,V; cin>>N>>Q>>V;
+	ll n=rng()%N+1,q=rng()%Q+1;
+	cout<<n<<" "<<rng()%n+1<<" "<<q<<"\n";
+	fore(i,0,q){
+		cout<<rng()%n+1<<" "<<rng()%(V+1)<<"\n";
 	}
 	return 0;
 }

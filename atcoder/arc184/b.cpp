@@ -3,117 +3,73 @@
 #define fst first
 #define snd second
 #define fore(i,a,b) for(ll i=a,jet=b;i<jet;++i)
-#define SZ(x) ((int)x.size())
+#define SZ(x) ((ll)x.size())
 #define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
 #define imp(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
 using namespace std;
 typedef long long ll;
-typedef unsigned long long ull;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
 #pragma GCC optimize("O3,unroll-loops")
-#pragma GCC target("avx2,bmi,bmi,popcnt,lzcnt")
-const ll MAXN=1e9+5;
-ll m=36;
-vector<ll>us;
-int ppc(ll n){return __builtin_popcountll(n);}
-bool sub(ll a, ll b){return !(a&(~b));}
-int bf(ll n, int L, int R){
-	// n++;
-	ull uv=(1ull<<(n+1))-1;
-	uv^=1;
-	ll cot=0;
-	fore(i,1,n+1)if(i%6==5||i%6==1)cot|=1ll<<(i-1);
-	int res=n;
-	auto good=[&](ll mk)->bool{
-		if(!sub(cot,mk))return 0;
-		ull is=0;
-		// is=mk|(mk<<2)|(mk<<)
-		fore(i,1,n+1)if(mk>>(i-1)&1){
-			is|=(1ull<<i);
-			if(2*i>n)continue;
-			is|=1ull<<(2*i);
-			if(3*i>n)continue;
-			is|=(1ull<<(3*i));
-		}
-		return sub(uv,is);
-	};
-	while(L<=R){
-		ll k=(L+R)/2;
-		cerr<<k<<" k\n";
-		ll mk=(1ll<<k)-1,r,c,flag=0;
-		while(mk<=(1ll<<n)-(1ll<<(n-k))){
-			if(good(mk)){
-				fore(j,0,n)if((mk>>j&1))cout<<j+1<<",";
-				cout<<"\n";
-				flag=1;
-				break;
-			}
-			c=mk&-mk,r=mk+c,mk=r|(((r^mk)>>2)/c);
-		}
-		if(flag)R=k-1;
-		else L=k+1;
-	}
-	return L;	
+#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+const ll CANT=500;
+
+ll mem[CANT];
+string cv(ll mk, ll w){
+	string s;
+	fore(i,0,w)s.pb('0'+(mk>>i&1));
+	return s;
 }
-int g2(int n){
-	bitset<MAXN>is;
-	int res=0;
-	vv ans;
-	auto go=[&](ll i){
-		// cerr<<i<<",";//" go\n";
-		ans.pb(i);
-		res++;
-		is[i]=1;
-		if(2*i>n)return;
-		is[2*i]=1;
-		if(3*i>n)return;
-		is[3*i]=1;
-	};
-	fore(i,1,n+1)if(i%6==1||i%6==5)go(i);
-	fore(i,1,n+1){
-		// cerr<<i<<": ";
-		// fore(i,1,n+1)cout<<is[i];;cerr<<"\n";
-		if(!is[i])go(i);
-		else if(3*i<=n&&!is[2*i]&&!is[3*i]){
-			go(i);
+ll get(ll V){
+	vector<ll>w(__lg(V)+2); // width of ith column
+	ll num=1,cant=0;
+	fore(e2,0,35){
+		if(num>V)break;
+		ll v=num;
+		fore(e3,0,35){ // amortized O(n)
+			if(v>V)break;
+			cant++;
+			v*=3;
+			w[e2]++;
 		}
+		num*=2;
 	}
-	sort(ALL(ans));
-	for(auto i:ans)cerr<<i<<",";; cerr<<"\n";
-	return res;
-}
-int g1(int n){
-	bitset<MAXN>is;
-	int res=0;
-	auto go=[&](ll i){
-		res++;
-		is[i]=1;
-		if(2*i>n)return;
-		is[2*i]=1;
-		if(3*i>n)return;
-		is[3*i]=1;
-	};
-	// fore(i,1,n+1)if(i%6==1||i%6==5)go(i);
-	fore(i,1,n+1){
-		if(!is[i])go(i);
+	auto &res=mem[cant];
+	if(res!=-1)return res;
+	// cout<<"\nget "<<V<<":\n";
+	ll n=SZ(w)-1,m=w[0];
+	// imp(w)
+	// cout<<n<<" "<<m<<"\n";
+	ll mxmk=1ll<<m;
+	// vector<int> dp[n+1][m+1];
+	// fore(i,0,n+1)fore(j,0,w[i]+1)dp[i][j].resize(1<<w[i],n*m+5);
+	int dp[2][m+1][mxmk];
+	#define f(a,b,c) dp[(a)&1][b][c]
+	f(n,0,0)=0;
+	for(ll i=n-1;i>=0;i--)for(ll j=w[i];j>=0;j--)fore(mk,0,1ll<<w[i]){
+		auto &res=f(i,j,mk);
+		if(j==w[i]){res=f(i+1,0,mk&((1ll<<w[i+1])-1));continue;}
+		res=n*m+5;
+		ll mki=mk/2;
+		if(mk&1)res=f(i,j+1,mki);
+		res=min(res,1+f(i,j+1,mki|(j+1<w[i])|(1<<(w[i]-1))));
+		// cout<<i<<" "<<j<<" "<<cv(mk,w[i])<<": "<<cv(mk1,w[i])<<": "<<go0<<" "<<go1<<": "<<res<<"\n";
 	}
-	return res;
+	return res=f(0,0,0);
+	#undef f
 }
+
+
 int main(){FIN;
+	mset(mem,-1);
 	ll n; cin>>n;
-	// bf(n);
-	// cout<<g2(n)<<"\n";
 	ll res=0;
-	fore(i,1,n+1){
-		if(i%6==1||i%6==5)res++;
+	fore(i,1,n+1)if(i%2&&i%3){
+		// cout<<"+= "<<i<<": "<<n/i<<": "<<get(n/i)<<"\n";
+		res+=get(n/i);
 	}
-	cerr<<g1(n)<<" g1\n";
-	ll R=g2(n);
-	cerr<<R<<" g2\n";
-	cerr<<bf(n,res,R)<<" bf\n";
-	cout<<res<<" L\n";
+	cout<<res<<"\n";
 	return 0;
 }

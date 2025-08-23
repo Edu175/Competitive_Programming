@@ -267,6 +267,7 @@ struct FFT {
 
 // For modular convolutions modulo 998244353:
 vector<ll> conv_small(const vector<ll> &as, const vector<ll> &bs) {
+	// (make these global if you do multiple)
 	static uint32_t v[2<<LG];
 	static FFT<uint32_t, uint64_t, 998244353, 3> fft;
 	return fft.cv(as, bs, v);
@@ -274,6 +275,7 @@ vector<ll> conv_small(const vector<ll> &as, const vector<ll> &bs) {
 
 // For modular convolutions modulo a 62 bit prime:
 vector<ll> conv_big(const vector<ll> &as, const vector<ll> &bs) {
+	// (make these global if you do multiple)
 	static uint64_t v[2<<LG];
 	static FFT<uint64_t, __uint128_t, (1ull<<62)-(18ull<<32)+1, 3> fft;
 	return fft.cv(as, bs, v);
@@ -285,9 +287,12 @@ vector<ll> conv_sunzi(const vector<ll> &v1, const vector<ll> &v2, ll m) {
 		mod1 = (1ull<<62)-(18ull<<32)+1,
 		mod2 = (1ull<<62)-(76ull<<32)+1;
 	static_assert(__uint128_t(inv)*mod2%mod1 == (-mod1)%mod1);
+	
+	// (make these global if you do multiple)
 	static uint64_t v[2<<LG];
 	static FFT<uint64_t, __uint128_t, mod1, 3> fft1;
 	static FFT<uint64_t, __uint128_t, mod2, 17> fft2;
+	
 	auto as=fft1.cv(v1, v2, v), bs=fft2.cv(v1, v2, v);
 	fore(i, 0, SZ(as)) {
 		auto d = fft1.m(mod1+as[i]-bs[i], inv);
@@ -303,6 +308,18 @@ ll rbs(ll n){
 	return sub(nCr(n,n/2),nCr(n,n/2-1));
 }
 
+ll stars(ll n, ll k){ // stars and balls, n bolitas, k cajitas,
+	return nCr(n+k-1,n);
+}
+
+ll Bstars(ll N, ll n, ll r){ // bounded stars and balls, N bolitas, n cajitas, r es la cota por cajita. O(N/r)
+	ll res=0;
+	fore(k,0,N/(r+1)+1){
+		ll term=mul(nCr(n,k),nCr(N-k*(r+1)+n-1, n-1));
+		res=(k&1?sub:add)(res,term);
+	}
+	return res;
+}
 ll cont(ll n, ll k){ // contar secuencias de tamaño n con exactamente k números distintos
 	ll res=0;
 	fore(c,1,k+1){
@@ -795,14 +812,19 @@ void go(ll &x, ll &z){
 
 // -------------------- DATA STRUCTURES ----------------------
 // SEGMENT TREE ITERATIVO (soporta operacion no conmutativa)
+const ll INF=1e15;
 typedef ll node;
-node oper(node a, node b){return a+b;}
-#define NEUT 0
-struct STree{
+#define oper min
+#define NEUT INF
+struct STree{ // segment tree for min over long long integers
 	int n; vector<node>t;
 	STree(int n):n(n),t(2*n+5,NEUT){}
+	void init(vector<node> &a){
+		fore(i,0,n)t[n+i]=a[i];
+		for(ll i=n-1;i>0;i--)t[i]=oper(t[2*i],t[2*i+1]);
+	}
 	void upd(int p, node v){
-		for(p+=n,t[p]=oper(t[p],v);p>1;p>>=1)p^=p&1,t[p>>1]=oper(t[p],t[p^1]);
+		for(p+=n,t[p]=v;p>1;p>>=1)p^=p&1,t[p>>1]=oper(t[p],t[p^1]);
 	}
 	node query(int l, int r){
 		node izq=NEUT,der=NEUT;
@@ -812,12 +834,7 @@ struct STree{
 		}
 		return oper(izq,der);
 	}
-};
-	// init (put inside struct)
-	void init(vector<node>a){
-		fore(i,0,n)t[n+i]=a[i];
-		for(ll i=n-1;i>0;i--)t[i]=oper(t[2*i],t[2*i+1]);
-	}
+}; // usage: STree rmq(n);rmq.init(x);rmq.upd(i,v);rmq.query(s,e);
 
 // para STree recursivo
 	// descenso en STree (put inside struct)

@@ -738,9 +738,11 @@ gp_hash_table<ll,int,custom_hash> ht;
 #include<ext/pb_ds/assoc_container.hpp>
 #include<ext/pb_ds/tree_policy.hpp>
 using namespace __gnu_pbds;
-typedef tree
-<ll,null_type,less<ll>,rb_tree_tag,tree_order_statistics_node_update>
-indexed_set;
+
+template<typename T>
+using indexed_set = tree
+<T,null_type,less<T>,rb_tree_tag,
+tree_order_statistics_node_update>;
 // find_by_order(i) -> iterator to ith element
 // order_of_key(k) -> position (int) of lower_bound of k
 //less_equal for repeated elements (erase only with pointer)
@@ -806,27 +808,6 @@ void scc(ll n){
 	mset(cmp,-1);*/
 	fore(i,0,n)if(!idx[i])tjn(i);
 }
-
-//CENTROID DECOMPOSITION
-bool tk[MAXN];
-ll fat[MAXN];	// father in centroid decomposition 
-ll szt[MAXN];	// size of subtree
-ll tag[MAXN];	// tag[y]>=tag[x] for every y in x's subgraph (has to be conenected to x)
-ll calcsz(ll x, ll f){
-	szt[x]=1;
-	for(auto y:g[x])if(y!=f&&!tk[y])szt[x]+=calcsz(y,x);
-	return szt[x];
-}
-ll ccnt=0;
-void cdfs(ll x=0,ll f=-1,ll sz=-1){	// O(nlogn)
-	if(sz==-1)sz=calcsz(x,-1);
-	for(auto y:g[x])if(!tk[y]&&szt[y]*2>=sz){
-		szt[x]=0;cdfs(y,f,sz);return;
-	}
-	fat[x]=f; tk[x]=1; tag[x]=ccnt++;
-	for(auto y:g[x])if(!tk[y])cdfs(y,x);
-}
-void centroid(){mset(tk,0);ccnt=0;cdfs();}
 
 //TRIE
 ll tr[MAXN][30], qidx=0; //MAXN = MAX NODES

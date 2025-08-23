@@ -1,0 +1,72 @@
+#include<bits/stdc++.h>
+#define fore(i,a,b) for(ll i=a,jet=b;i<jet;i++)
+#define fst first
+#define snd second
+#define pb push_back
+#define ALL(x) x.begin(),x.end()
+#define SZ(x) ((ll)x.size())
+#define mset(a,v) memset((a),(v),sizeof(a))
+#define JET ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+using namespace std;
+typedef long long ll;
+typedef ll ld;
+typedef pair<ll,ll> ii;
+typedef vector<ll> vv;
+
+struct pt {
+	ld x,y;
+	pt(ld x, ld y):x(x),y(y){}
+	pt(){}
+	pt operator-(pt p) const {return pt(x-p.x,y-p.y);}
+	ld operator*(pt p){return x*p.x+y*p.y;}
+	ld operator%(pt p){return x*p.y-y*p.x;}
+	bool left(pt p, pt q){ // is it to the left of directed line pq?
+		return (q-p)%(*this-p)>0;}
+};
+struct Cmp {
+	pt r;
+	Cmp(){}
+	Cmp(pt r):r(r){}
+	int cuad(const pt &a)const {
+		if(a.x>0&&a.y>=0)return 0;
+		if(a.x<=0&&a.y>0)return 1;
+		if(a.x<0&&a.y<=0)return 2;
+		if(a.x>=0&&a.y<0)return 3;
+		assert(a.x==0&&a.y==0);
+		return -1;
+	}
+	bool cmp(const pt& p1, const pt& p2)const {
+		int c1=cuad(p1),c2=cuad(p2);
+		if(c1==c2)return p1.y*p2.x<p1.x*p2.y;
+		return c1<c2;
+	}
+	bool operator()(const pt& p1, const pt& p2)const {
+		return cmp(p1-r,p2-r);
+	}
+};
+
+int main(){
+	JET
+	ll t; cin>>t;
+	while(t--){
+		ll n,q; cin>>n>>q;
+		vector<pt> a(n),sa(n);
+		fore(i,0,n)cin>>a[i].x>>a[i].y;
+		
+		vector<vv> aba;
+		
+		fore(x,0,n){
+			
+		}
+		
+		
+		while(q--){
+			ll i,j,k; cin>>i>>j>>k; i--,j--,k--;
+			if(!a[k].left(a[i],a[j]))swap(i,j);
+			if(!query(i,j,k))cout<<"YES\n";
+			else cout<<"NO\n";
+		}
+		
+	}
+	return 0;
+}

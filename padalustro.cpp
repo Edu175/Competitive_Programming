@@ -93,6 +93,30 @@ cout<<fixed<<setprecision(15)<<x<<"\n"; //imprimir con 15 digitos de presición
 // priority_queue with custom comparator cmp
 priority_queue<ll,vector<ll>,function<bool(ll,ll)>>pq(cmp);
 
+// IMPRIMIR CUALQUIER CONTAINER
+// en c++20 es bastante mas corto pero no lo tengo :(
+template <typename T, typename = void>
+struct is_container : std::false_type {};
+template <typename T>
+struct is_container<T, std::void_t<decltype(std::declval<T>().begin())>> : std::true_type {};
+template <typename T>
+string cv(const T& x) {
+    if constexpr (is_container<T>::value) {
+        // std::cout << "This is a container.\n";
+		string ret="{ ";
+		for(auto i:x)ret+=cv(i)+" ";
+		ret+="}";
+		return ret;
+    }
+	else {
+		// std::cout << "This is NOT a container.\n";
+		return to_string(x);
+	}
+}
+// uso: cout<<cv(vec)<<"\n";
+// sirve tambien para containers de containers
+// siempre y cuando exista to_string para el ultimo tipo
+
 //MATH
 //binary gcd (already implemented in std::gcd but not in __gcd)
 inline ll remtz(ll a){
@@ -1734,3 +1758,61 @@ struct pt {  // for 3D add z coordinate
 };
 pt ccw90(1,0);
 pt cw90(-1,0);
+
+// DINIC
+// this is my dinitz implementation based on
+// https://codeforces.com/blog/entry/104960
+// this should be O(n^2 m)
+
+// almost the same as el vasito's, only dfs is different
+// time is also similar
+
+ll INF=1e18; // a constant > to any flow
+struct Dinic{
+	int n;
+	struct edge{int to,rev; ll f,cap;};
+	vector<vector<edge>> g;
+	vector<int> d,q,work;
+	Dinic(int n):n(n),g(n),d(n),q(n),work(n){}
+	void add_edge(int u, int v, ll cap){
+		g[u].pb({v,SZ(g[v]),0,cap});
+		g[v].pb({u,SZ(g[u])-1,0,0});
+	}
+	int s,t;
+	bool bfs(){
+		fill(ALL(d),-1);
+		int qt=0;
+		d[s]=0; q[qt++]=s;
+		for(int qh=0;qh<qt;qh++){
+			auto x=q[qh];
+			for(auto &e:g[x])if(e.f<e.cap&&d[e.to]==-1){
+				d[e.to]=d[x]+1;
+				q[qt++]=e.to;
+			}
+		}
+		return d[t]!=-1;
+	}
+	ll dfs(int x, ll F){
+		if(x==t)return F;
+		ll _F=F;
+		for(auto &i=work[x];i<SZ(g[x]);i++){
+			auto &e=g[x][i];
+			if(d[e.to]==d[x]+1&&e.f<e.cap){
+				ll dF=dfs(e.to,min(F,e.cap-e.f));
+				F-=dF;
+				e.f+=dF; g[e.to][e.rev].f-=dF;
+				if(!F)break;
+			}
+		}
+		return _F-F;
+	}
+	ll max_flow(int _s, int _t){
+		s=_s,t=_t;
+		ll ret=0;
+		while(bfs()){
+			fill(ALL(work),0);
+			ret+=dfs(s,INF);
+		}
+		return ret;
+	}
+};

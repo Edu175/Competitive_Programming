@@ -84,6 +84,22 @@ shuffle(ALL(a),rng); // instead of random_shuffle
 // chrono::steady_clock::now().time_since_epoch().count()
 // for time in miliseconds
 
+//get k random DISTINCT integers from 1 to n (in O(k*log))
+vv getDistinct(ll k, ll n){
+	vv res;
+	if(2*k<n){
+		set<ll>st;
+		while(SZ(st)<k)st.insert(rng()%n+1);
+		for(auto i:st)res.pb(i);
+		shuffle(ALL(res),rng);
+	}
+	else {
+		vv v(n); iota(ALL(v),1); shuffle(ALL(v),rng);
+		fore(i,0,k)res.pb(v[i]);
+	}
+	return res;
+}
+
 // LAMBDA RECURSIVA
 function<void(ll)> dfs=... // un poco mas lento
 auto dfs=[&](ll x, auto &&dfs){
@@ -156,6 +172,30 @@ using namespace __gnu_pbds;
 gp_hash_table<ll,int,custom_hash> ht;
 gp_hash_table<ll,null_type,custom_hash> st; // for unordered set
 */
+
+// IMPRIMIR CUALQUIER CONTAINER
+// en c++20 es bastante mas corto pero no lo tengo :(
+template <typename T, typename = void>
+struct is_container : std::false_type {};
+template <typename T>
+struct is_container<T, std::void_t<decltype(std::declval<T>().begin())>> : std::true_type {};
+template <typename T>
+string cv(const T& x) {
+    if constexpr (is_container<T>::value) {
+        // std::cout << "This is a container.\n";
+		string ret="{ ";
+		for(auto i:x)ret+=cv(i)+" ";
+		ret+="}";
+		return ret;
+    }
+	else {
+		// std::cout << "This is NOT a container.\n";
+		return to_string(x);
+	}
+}
+// uso: cout<<cv(vec)<<"\n";
+// sirve tambien para containers de containers
+// siempre y cuando exista to_string para el ultimo tipo
 
 // -------------------- MATH ----------------------------
 // COMBINATORIA
@@ -264,7 +304,9 @@ vector<ll> conv_sunzi(const vector<ll> &v1, const vector<ll> &v2, ll m) {
 
 
 // number of Regular Bracket Sequences of size n
-ll rbs(ll n){return sub(nCr(n,n/2),nCr(n,n/2-1));}
+ll rbs(ll n){
+	return sub(nCr(n,n/2),nCr(n,n/2-1));
+}
 
 ll stars(ll n, ll k){ // stars and balls, n bolitas, k cajitas,
 	return nCr(n+k-1,n);
@@ -362,6 +404,15 @@ void phinit(){
 		for(int j=2*i;j<MAXV;j+=i)phi[j]-=phi[i];
 	}
 }
+//O(√n) cada query
+vector<ll> divs(ll x){
+	vector<ll>res;
+	for(int i=1; i*i<=x;i++){
+		if(x%i==0)res.pb(i),res.pb(x/i);
+		if(i*i==x)res.pop_back();
+	}
+	return res;
+}
 
 // MATRICES
 // reduce in z_2
@@ -379,6 +430,40 @@ struct matrix{
 };
 
 // -------------------- GRAFOS ----------------------------
+// version SMALL TO LARGE de union find O(nlogn)
+vector<ll> comp[MAXN]; ll id[MAXN];
+void uf_init(ll n){
+	fore(i,0,n){
+		comp[i]={i};
+		id[i]=i;
+	}
+}
+bool uf_join(ll a, ll b){
+	a=id[a], b=id[b];
+	if(a==b)return 0;
+	if(SZ(comp[a])>SZ(comp[b]))swap(a,b);
+	for(auto i:comp[a])comp[b].pb(i), id[i]=b;
+	comp[a].clear();
+	return 1;
+}
+
+// PRIM
+ll is[MAXN];
+ll prim(){
+	ll res=0,q=n;
+	priority_queue<pair<ll,pair<ll,ll>>>pq; // edge {1,0}
+	for(auto i:g[0])pq.push({-i.snd,{0,i.fst}});
+	is[0]=1; q--;
+	while(SZ(pq)&&q){
+		ll w=-pq.top().fst,u=pq.top().snd.fst,v=pq.top().snd.snd;
+		pq.pop();
+		if(is[u]&&is[v])continue;
+		is[v]=1; q--;
+		for(auto i:g[0])pq.push({-i.snd,{v,i.fst}});
+		res+=w; //add edge
+	}
+	return res;
+}
 
 //DFS TREE (articulation points and bridges)
 vector<ii> g[MAXN]; // {node,edge}
@@ -429,9 +514,77 @@ vector<ll> eulerWalk(vector<vector<ii>>& gr, ll nedges, ll src=0) {
 	return ret;
 }
 
+// DINIC
+// this is my dinitz implementation based on
+// https://codeforces.com/blog/entry/104960
+// this should be O(n^2 m)
+
+// almost the same as el vasito's, only dfs is different
+// time is also similar
+
+ll INF=1e18; // a constant > to any flow
+struct Dinic{
+	int n;
+	struct edge{int to,rev; ll f,cap;};
+	vector<vector<edge>> g;
+	vector<int> d,q,work;
+	Dinic(int n):n(n),g(n),d(n),q(n),work(n){}
+	void add_edge(int u, int v, ll cap){
+		g[u].pb({v,SZ(g[v]),0,cap});
+		g[v].pb({u,SZ(g[u])-1,0,0});
+	}
+	int s,t;
+	bool bfs(){
+		fill(ALL(d),-1);
+		int qt=0;
+		d[s]=0; q[qt++]=s;
+		for(int qh=0;qh<qt;qh++){
+			auto x=q[qh];
+			for(auto &e:g[x])if(e.f<e.cap&&d[e.to]==-1){
+				d[e.to]=d[x]+1;
+				q[qt++]=e.to;
+			}
+		}
+		return d[t]!=-1;
+	}
+	ll dfs(int x, ll F){
+		if(x==t)return F;
+		ll _F=F;
+		for(auto &i=work[x];i<SZ(g[x]);i++){
+			auto &e=g[x][i];
+			if(d[e.to]==d[x]+1&&e.f<e.cap){
+				ll dF=dfs(e.to,min(F,e.cap-e.f));
+				F-=dF;
+				e.f+=dF; g[e.to][e.rev].f-=dF;
+				if(!F)break;
+			}
+		}
+		return _F-F;
+	}
+	ll max_flow(int _s, int _t){
+		s=_s,t=_t;
+		ll ret=0;
+		while(bfs()){
+			fill(ALL(work),0);
+			ret+=dfs(s,INF);
+		}
+		return ret;
+	}
+};
+
 // -------------------- TREES ----------------------------
 // LCA
 // normal en el vasito
+ll dis(ll x, ll y){return D[x]+D[y]-2*D[lca(x,y)];} // distancia
+ll father(ll v, ll x){ // v-esimo padre de x
+	for(ll k=K-1;k>=0;k--)if(v>=(1ll<<k)){
+		x=F[k][x];
+		v-=1ll<<k;
+		if(x<0)break;
+	}
+	return x;
+}
+
 // O(1) query with O(n sqrt(n)) preprocessing
 const ll B=316; // sqrt(MAXN)
 ll F[B+5][MAXN];
@@ -451,6 +604,14 @@ ll father(ll k, ll x){ // k-esimo padre de x
 	k%=B;
 	x=F[k][x];
 	return x;
+}
+
+//TRIE
+ll tr[MAXN][30], qidx=0; //MAXN = MAX NODES
+ll add(ll x, char h){
+	ll &res=tr[x][h-'a'];
+	if(res)return res;
+	else return res=++qidx;
 }
 
 //REROOTING
@@ -568,36 +729,56 @@ void reroot(ll rt=0){
 }
 
 //VIRTUAL TREES
-
-// linear virtual tree
-// assumes sorted v (in dfs order)
-// needs O(1) lca
-// virtual tree is t
-void agr(ll x, ll y){if(y!=-1)t[x].pb(y);}
-ll virtu(vv v){
-    stack<ll>s; s.push(v[0]); ll ult=-1,p;
-	auto vacia=[&](bool fg){ // adds edges between removed
-		while(SZ(s)&&(fg||lca(s.top(),p)!=s.top())){
-			agr(s.top(),ult);
-			ult=s.top(); s.pop();
-		}
-	};
-	vv vi; // virtual nodes and possibly normal
-    fore(i,1,SZ(v)){
-		ll x=v[i]; p=lca(s.top(),x);
-		vi.pb(p); vacia(0);
-		if(s.empty()||p!=s.top())s.push(p);
-		agr(p,ult); ult=-1;
-		if(p!=x)s.push(x);
+ll vis_[MAXN],S[MAXN],E[MAXN];
+ll cnt_=0;
+void dfs_(ll x){
+	vis_[x]=1;
+	S[x]=cnt_++;
+	for(auto y:g[x])if(!vis_[y])dfs_(y);
+	E[x]=cnt_;
+}
+bool cmp(ll x, ll y){
+	return S[x]<S[y];
+}
+void virtual_init(){
+	cnt_=0;
+	dfs_(0);
+	fore(i,0,n)vis_[i]=0;
+	lca_init();
+}
+vector<ll> t[MAXN]; // rooted tree
+ll is[MAXN]; // is it a real tree node?
+void make_tree(vector<ll>&v){
+	// makes virtual tree t and adds virtual nodes to v
+	// root is first node
+	// sorts v in dfs order
+	sort(ALL(v),cmp);
+	for(auto i:v)is[i]=vis_[i]=1;
+	fore(j,0,SZ(v)-1){
+		ll a=lca(v[j],v[j+1]);
+		if(!vis_[a])v.pb(a),vis_[a]=1;
 	}
-	vacia(1);
-	ll rt=ult; // root is last popped
-	// do stuff
-	// remember to reset t with v and vi
+	sort(ALL(v),cmp);
+	stack<ll>s;
+	s.push(v[0]);
+	fore(i,1,SZ(v)){
+		while(!(S[s.top()]<=S[v[i]]&&S[v[i]]<E[s.top()]))s.pop();
+		t[s.top()].pb(v[i]);
+		s.push(v[i]);
+	}
+}
+ll resi;
+ll dp[MAXN];
+void reset(vector<ll>&v){
+	for(auto i:v){
+		is[i]=vis_[i]=0;
+		t[i].clear();
+		dp[i]=0;
+	}
+	resi=0;
 }
 
-
-// "BINARY LIFTING" with O(n) preprocessing
+// "binary lifting" with O(n) preprocessing
 // (only for trees, I think)
 // not tested
 ll D[MAXN],F[MAXN],jump[MAXN]; // Depth, Father
@@ -689,6 +870,36 @@ struct STree{ // segment tree for min over long long integers
 		return res; // cuando lo encuentra devuelve algo en [a,b)
 	}
 	int find(int a, int b, int j){return find(1,0,n,a,b,j);}
+
+	
+	// otra version:
+	// Ej: primer <= a la izquierda
+	vector<ll>st;int n; vector<int>ss,es,pos;
+	STree(int n): st(4*n+5,NEUT), n(n), ss(4*n+5),es(4*n+5), pos(n+5) {}
+	void init(int k, int s, int e, vector<ll> &a){
+		ss[k]=s,es[k]=e;
+		if(s+1==e){st[k]=a[s];pos[s]=k;return;}
+		int m=(s+e)/2;
+		init(2*k,s,m,a);init(2*k+1,m,e,a);
+		st[k]=oper(st[2*k],st[2*k+1]);
+	}
+	ll find(ll k, ll s, ll e, ll x){
+		if(s+1==e){
+			if(st[k]<=x)return s;
+			return -1; //o s-1?
+		}
+		ll m=(s+e)/2;
+		if(st[2*k+1]<=x)return find(2*k+1,m,e,x);
+		return find(2*k,s,m,x);
+	}
+	ll find(ll p){ //primer <= a la izquierda
+		ll k=pos[p],x=st[k];
+		while(k>1){
+			if((k&1)&&st[k^1]<=x)return find(k^1,ss[k^1],es[k^1],x);
+			k/=2;
+		}
+		return -1;
+	}
 
 // SEGMENT TREE LAZY
 typedef ll tn; // node type
@@ -808,6 +1019,60 @@ ii find(ll x){ // upperbound on prefix sums], (pos,remainder)
 	}
 	return {p,x};
 }
+
+// PARTIAL SUMS 2D
+fore(i,1,n+1)fore(j,1,n+1)sp[i][j]=a[i-1][j-1]+sp[i][j-1];
+fore(i,1,n+1)fore(j,1,n+1)sp[i][j]+=sp[i-1][j];
+
+// IN K-DIMENSIONS     (sum of smaller elements in any direction)
+// store initial values
+// for dimension d in range(k): for all elements mk in order:
+// 	  sp[mk]+=sp[mk-1 en d] //anterior en dimension d
+// example (k bit dimensions):
+fore(mk,0,1ll<<k)sp[mk]=a[mk];
+fore(d,0,k)fore(mk,0,1ll<<k){
+	if(mk&(1ll<<d))sp[mk]+=sp[mk^(1ll<<d)];
+}
+
+//MERGE SORT TREE LAZY CREATION
+// uses indexed_set with pair. point update, rectangle query
+ll qidx=0;
+struct MSTree{ //lazy creation
+	vector<indexed_set>mst; vector<ll> L,R; ll n;
+	MSTree (ll n):mst(1),L(1,-1),R(1,-1),n(n){}
+	MSTree(){}
+	ll new_node(){
+		ll ks=SZ(L);
+		mst.pb({});
+		L.pb(-1),R.pb(-1);
+		return ks;
+	}
+	void upd(ll k, ll s, ll e, ll i, ll j, ll v){
+		if(v==1)mst[k].insert({j,qidx++});
+		if(v==-1)
+			mst[k].erase(mst[k].find_by_order(mst[k].order_of_key({j,-1})));
+		if(s+1==e)return;
+		ll m=(s+e)/2;
+		if(i<m){
+			if(L[k]==-1){ll ls=new_node(); L[k]=ls;}
+			upd(L[k],s,m,i,j,v);
+		}
+		else {
+			if(R[k]==-1){ll rs=new_node(); R[k]=rs;}
+			upd(R[k],m,e,i,j,v);
+		}
+	}
+	ll query(ll k, ll s, ll e, ll i0, ll i1, ll j0, ll j1){
+		if(k==-1||i1<=s||e<=i0)return 0;
+		if(i0<=s&&e<=i1){
+			return mst[k].order_of_key({j1,-1})-mst[k].order_of_key({j0,-1});
+		}
+		ll m=(s+e)/2;
+		return query(L[k],s,m,i0,i1,j0,j1)+query(R[k],m,e,i0,i1,j0,j1);
+	}
+	void upd(ll i, ll j, ll v){upd(0,0,n,i,j,v);}
+	ll query(ll i0, ll i1, ll j0, ll j1){return query(0,0,n,i0,i1,j0,j1);}
+};
 
 //MIN-QUEUE (O(n))
 struct MinQ{
@@ -929,6 +1194,101 @@ void remove(ll i){
 	else REM(x);
 }
 //CH get_ans(q.lca) and n with SZ(A) in mos
+
+//SQRT DECOMPOSITION BLOCKS STRUCTURES
+#define BLOCKSZ sqrt(N)
+struct BL{ //2d queries (static, n points, coordinates up to n)
+	//query O(sqrt(n)), memory O(nsqrt(n)))
+	ll r,n,q; vector<vector<int>>sp; vector<ll>a;
+	//r=block size, q=number of blocks
+	BL(ll N):r(BLOCKSZ),n((N+r-1)/r*r),q(n/r),sp(q,vector<int>(n+5)),a(n,n){}
+	BL(){}
+	void init(vector<ll>&_a){
+		fore(i,0,SZ(_a))a[i]=_a[i];
+		fore(i,0,q){
+			vector<ll>b(n+1);
+			fore(j,0,r)b[a[r*i+j]]++;
+			fore(j,1,n+2)sp[i][j]=sp[i][j-1]+b[j-1];
+		}
+	}
+	ll query(ll i0, ll i1, ll j0, ll j1){
+		ll res=0;
+		ll s=i0,e=min(i1,i0/r*r+r);
+		fore(i,s,e)res+=(j0<=a[i]&&a[i]<j1);
+		if(i0/r==i1/r)return res;
+		fore(i,i0/r+1,i1/r)res+=sp[i][j1]-sp[i][j0];
+		s=i1/r*r,e=i1;
+		fore(i,s,e)res+=(j0<=a[i]&&a[i]<j1);
+		return res;
+	}
+};
+
+ll find(ll i0, ll i1, ll j0, ll j1, ll k){ //whatever, specific on problem
+	// kesimo (i) punto en rectangulo
+	if(k>=query(i0,i1,j0,j1))return -1;
+	ll s=i0,e=min(i1,i0/r*r+r);
+	fore(i,s,e)if(j0<=a[i]&&a[i]<j1){
+		if(k==0)return i;
+		k--;
+	}
+	ll bp=-1;
+	fore(i,i0/r+1,i1/r){
+		ll c=sp[i][j1]-sp[i][j0];
+		if(k-c<0){
+			bp=i;
+			break;
+		}
+		k-=c;
+	}
+	s=i1/r*r,e=i1;
+	if(bp!=-1)s=bp*r,e=s+r;
+	fore(i,s,e)if(j0<=a[i]&&a[i]<j1){
+		if(k==0)return i;
+		k--;
+	}
+	assert(0);
+}
+
+#define BLOCKSZ sqrt(n)+5
+struct BH{ //Blocks Histogram
+	//upd O(1), query O(sqrt(n)), memory O(nsqrt(n)))
+	ll n,r,q; vector<vector<int>>h; vector<ll>a,sz;
+	//r=block size, q=number of blocks
+	BH(ll n):n(n),r(BLOCKSZ),q((n+r-1)/r),h(q,vector<int>(n+5)),a(n),sz(q,r){
+		if(n%r)sz[q-1]=n%r;
+		//fore(i,0,n)sz[i/r]++;
+		fore(i,0,q)h[i][0]=sz[i];
+	}
+	BH(){}
+	void upd(ll p, ll v){ //v<n+5
+		//if(a[p]==n)return; //specific on problem
+		ll bp=p/r;
+		h[bp][a[p]]--;
+		a[p]=v;
+		h[bp][a[p]]++;
+	}
+	ll query(ll x){ //whatever, specific on problem
+		ll bp=-1;
+		fore(i,0,q)if(h[i][n]+h[i][x]<sz[i]){
+			bp=i;
+			break;
+		}
+		if(bp==-1)return -1;
+		fore(i,0,r){
+			ll pos=r*bp+i;
+			if(a[pos]!=n&&a[pos]!=x)return pos;
+		}
+		assert(0);//no llega
+	}
+};
+// generic
+void upd(ll i0, ll i1, ll v){
+	#define SINGLE(s,e) fore(i,s,e)a[i]=max(a[i],v)
+	SINGLE(i0,min(i1,i0/r*r+r));
+	if(i0/r==i1/r)return res;
+	fore(i,i0/r+1,i1/r)val[i]=max(val[i],v); //blocks
+	SINGLE(i1/r*r,i1);
+}
 
 // DIVIDE AND CONQUER DP OPTIMIZATION
 // sets dp[i]=min(f(i,j)) for all j, given that arg dp[i] <= arg dp[i+1]	O(nlogn)

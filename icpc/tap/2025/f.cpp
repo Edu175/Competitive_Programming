@@ -12,15 +12,15 @@ typedef long long ll;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
 typedef long double ld;
-const ld EPS=1e-12;
+const ld EPS=1e-10,EPS2=1e-13;
 
+string str(auto x){return to_string(x);}
 struct pt {
 	ld x,y;
 	pt(ld x, ld y):x(x),y(y){}
 	pt(){}
 	ld norm2(){return *this**this;}
-	ld norm(){return sqrt(norm2());}
-	bool operator==(pt p){return abs(x-p.x)<=EPS&&abs(y-p.y)<=EPS;}
+	ld norm(){return sqrtl(norm2());}
 	pt operator+(pt p){return pt(x+p.x,y+p.y);}
 	pt operator-(pt p){return pt(x-p.x,y-p.y);}
 	pt operator*(ld t){return pt(x*t,y*t);}
@@ -29,27 +29,41 @@ struct pt {
 	pt unit(){return *this/norm();}
 	ld operator%(pt p){return x*p.y-y*p.x;}
 	// 2D from now on
-	bool operator<(pt p)const{ // for convex hull
-		return x<p.x-EPS||(abs(x-p.x)<=EPS&&y<p.y-EPS);}
 	bool left(pt p, pt q){ // is it to the left of directed line pq?
 		return (q-p)%(*this-p)>EPS;}
 	pt rot(pt r){return pt(*this%r,*this*r);}
-	pt rot(ld a){return rot(pt(sin(a),cos(a)));}
+	string cv(){return str(x)+","+str(y);}
 };
+ld area(vector<pt> a){
+	ld res=0; ll n=SZ(a);
+	fore(i,0,n)res+=a[i]%a[(i+1)%n];
+	res=abs(res)/2.;
+	return res;
+}
 pt ccw90(1,0);
 pt cw90(-1,0);
-
+struct ln {
+	pt p,pq;
+	ln(pt p, pt q):p(p),pq(q-p){}
+	ln(){}
+	bool operator/(ln l){return abs(pq.unit()%l.pq.unit())<=EPS;} // 2D
+	pt operator^(ln l){ // intersection
+		assert(!(*this/l));
+		pt r=l.p+l.pq*((p-l.p)%pq/(l.pq%pq));
+		return r;
+	}
+	string cv(){return p.cv()+"--"+pq.cv();}
+};
 struct circle {
 	pt o;ld r;
 	circle(pt o, ld r):o(o),r(r){}
-	// circle(pt x, pt y, pt z){o=bisector(x,y)^bisector(x,z);r=(o-x).norm();}
 	bool has(pt p){return (o-p).norm()<=r+EPS;}
 	vector<pt> operator^(circle c){ // ccw
 		vector<pt> s;
 		ld d=(o-c.o).norm();
 		if(d>r+c.r+EPS||d+min(r,c.r)+EPS<max(r,c.r))return s;
 		ld x=(d*d-c.r*c.r+r*r)/(2*d);
-		ld y=sqrt(r*r-x*x);
+		ld y=sqrtl(r*r-x*x);
 		pt v=(c.o-o)/d;
 		s.pb(o+v*x-v.rot(ccw90)*y);
 		if(y>EPS)s.pb(o+v*x+v.rot(ccw90)*y);
@@ -58,24 +72,174 @@ struct circle {
 };
 const ld pi=acosl(-1),tau=2*pi;
 ld cut(ld a){
-	while(a<-EPS)a+=tau;
-	while(a>=tau-EPS)a-=tau;
-	if(a<0){assert(a>=-EPS);a=0;}
+	while(a<-EPS2)a+=tau;
+	while(a>=tau-EPS2)a-=tau;
+	if(a<0){assert(a>=-EPS2);a=0;}
 	return a;
 }
-ld angle(pt p, pt q){
+ld angle(pt p, pt q, ll comp=0){ // may be more than pi
+	if(comp)return angle(q,p);
 	ld a=atan2l(q.y,q.x)-atan2l(p.y,p.x);
 	return cut(a);
 }
+
+pt get(pt a, pt b, ld r0, ld r1){ // donde se tocan, para la derecha
+	circle c0(a,r0),c1(b,r1);
+	vector<pt> rq=c0^c1;
+	if(SZ(rq)<=1)return (a+b)/2;
+	fore(i,0,2)if(rq[i].left(b,a))return rq[i];
+	assert(0);
+}
+
+struct elem{
+	pt p; ld s; ll i; ld ang=0;
+	string cv(){
+		return "["+p.cv()+" "+str(s)+" "+str(ang)+"]";
+	}
+};
+
 int main(){
-    JET
+	JET
 	ll n,q; cin>>n>>q;
-	vector<pt>a(n); a.pb(a[0]);
-	vector<ld> d0(n),d1(n+1);
-	fore(i,1,n)d0[i]=d0[i-1]+(a[i]-a[i-1]).norm();
-	for(ll i=n-1;i>=0;i--)d1[i]=d1[i+1]+(a[i]-a[i+1]).norm();
-	vv wh(n);
-	fore(i,0,n)wh[i]=d1[i]>d0[i];
+	vector<pt> _a(n);
+	fore(i,0,n)cin>>_a[i].x>>_a[i].y;
+	ld primero=angle(_a[n-1]-_a[0],_a[1]-_a[0]);
+	vector<elem> oA={{_a[0],0,0,primero/2}},oB=oA;
+	auto arma=[&](vv per, auto &out, ll wh){
+		for(auto i:per){
+			auto &[p,s,lkdjf,ang]=out.back();
+			auto q=_a[i];
+			ld dis=(p-q).norm();
+			if(SZ(out)>=2){
+				ang=angle(p-out[SZ(out)-2].p,q-p,wh);
+			}
+			out.pb({q,dis+s,i,-1}); // dsp
+		}
+	};
+	vv per(n-1); iota(ALL(per),1);
+	arma(per,oA,0);
+	reverse(ALL(per));
+	arma(per,oB,1);
 	
-    return 0;
+	vector<ld> dA(n),dB(n);
+	for(auto [asd,s,i,askhd]:oA)dA[i]=s;
+	for(auto [asd,s,i,askhd]:oB)dB[i]=s;
+	auto mine=[&](ll i, ll wh)->bool {
+		if(i==0)return 1;
+		return (dA[i]<dB[i]-EPS)^wh;
+	};
+	
+	vector<pair<ld,ll>> qs(q);
+	fore(i,0,q){
+		ld r; cin>>r;
+		qs[i]={r,i};
+	}
+	sort(ALL(qs));
+	vector<ld> ans(q);
+	
+	ll pA=0,pB=0;
+	vector<ld> c(3);
+	ld fij=0;
+	vector<elem> a,b;
+	ld r;
+	ll sz=0,gotall=0;
+	auto upd=[&](elem x, ld sig){
+		assert(x.s>-0.5);
+		c[0]+=sig*x.s*x.s*x.ang/2;
+		c[1]-=sig*x.s*x.ang;
+		c[2]+=sig*x.ang/2;
+	};
+	auto agr=[&](ll w, elem x){
+		auto &v=(w?b:a);
+		if(SZ(v))upd(v.back(),1);
+		v.pb(x);
+		sz++;
+		if(sz>=n+1)gotall=1;
+	};
+	auto sac=[&](ll w){
+		auto &v=(w?b:a);
+		// cout<<"saco "<<w<<": "<<v.back().cv()<<"\n";
+		v.pop_back();
+		upd(v.back(),-1);
+	};
+	auto go=[&](ll w){
+		auto &o=(w?oB:oA);
+		auto &p=(w?pB:pA);
+		while(mine(o[p].i,w)&&o[p].s<r-EPS){
+			auto x=o[p]; p++;
+			agr(w,x);
+		}
+	};
+	auto bad=[&](ll w){ // ya saca
+		auto &u=(w?a:b);
+		auto &v=(w?b:a);
+		elem x=u.back();
+		elem y=v.back();
+		elem z=v.end()[-2];
+		ld r0=r-x.s;
+		ld r1=r-y.s;
+		ln l(z.p, y.p);
+		l.p=y.p; l.pq=l.pq*(r1/l.pq.norm());
+		pt q=l.p+l.pq;
+		if(!((q-x.p).norm()<=r0+EPS))return 0;
+		fij-=area({x.p,y.p,z.p});
+		sac(w);
+		u.back().ang+=angle(y.p-x.p, z.p-x.p, !w);
+		v.back().ang+=angle(x.p-z.p, y.p-z.p, !w);
+		return 1;
+	};
+	for(auto [_r,idx]:qs){
+		r=_r;
+		// cout<<r<<":\n";
+		go(0); go(1);
+		if(gotall){
+			// cout<<"\nwhile\n";
+			// cout<<"a: ";for(auto i:a)cout<<i.cv()<<" ";;cout<<"\n";
+			// cout<<"b: ";for(auto i:b)cout<<i.cv()<<" ";;cout<<endl;
+			assert(min(SZ(a),SZ(b))>=2);
+			
+			while(bad(0));
+			while(bad(1));
+		}
+		// cout<<"\nended\n";
+		// cout<<"a: ";for(auto i:a)cout<<i.cv()<<" ";;cout<<"\n";
+		// cout<<"b: ";for(auto i:b)cout<<i.cv()<<" ";;cout<<endl;
+		
+		// ultima parte
+		elem eA=a.back();
+		elem eB=b.back();
+		
+		pt xA=eA.p;
+		ld r0=r-eA.s;
+		pt xB=eB.p;
+		ld r1=r-eB.s;
+		
+		ld res=fij;
+		// cerr<<"fij "<<res<<"\n";
+		res+=c[0]+r*c[1]+r*r*c[2];
+		
+		// cerr<<"rest: "<<c[0]+r*c[1]+r*r*c[2]<<"\n";
+		
+		if(!gotall){
+			res+=r0*r0*eA.ang/2;
+			res+=r1*r1*eB.ang/2;
+			ans[idx]=res;
+			continue;
+		}
+		
+		
+		pt p=get(xA,xB,r0,r1);
+		res+=area({xA,xB,p});
+		// cerr<<"area "<<area({xA,xB,p})<<"\n";
+		// cerr<<r0<<" "<<r1<<" "<<p.cv()<<" r0 r1 p\n";
+		ld sacA=angle(p-xA,xB-xA);
+		ld sacB=angle(xA-xB,p-xB);
+		// cerr<<"queda: "<<eA.ang-sacA<<" "<<eB.ang-sacB<<"\n";
+		res+=r0*r0*(eA.ang-sacA)/2;
+		res+=r1*r1*(eB.ang-sacB)/2;
+		ans[idx]=res;
+	}
+	for(auto i:ans)cout<<fixed<<setprecision(15)<<i<<"\n";
+	// cerr<<"gotall: "<<gotall<<"\n";
+	return 0;
 }

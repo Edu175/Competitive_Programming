@@ -12,19 +12,20 @@ using namespace std;
 typedef long long ll;
 typedef long double ld;
 typedef pair<ll,ll> ii;
+const ld EPS=1e-8;
 
 ld out(ld x){
-	cout<<fixed<<setprecision(17)<<x<<"\n";
-	string s=to_string(x*1e7);
-	fore(i,0,SZ(s))if(s[i]=='.'){
-		s.resize(i);
-		break;
+	ld y=x*1e6;
+	cerr<<fixed<<setprecision(10)<<y<<"\n";
+	ld r=remainder(y,1);
+	y-=r; // truncado
+	if(abs(r-0.5)<EPS){
+		cerr<<"exactly half\n";
+		if(ll(y)%2==1)y++;
+		// y++;
 	}
-	//cout<<s<<"\n";
-	ll d=s.back()-'0',k=0;
-	if(d>5)k=1;
-	if(d==5&&(s[SZ(s)-2]-'0')%2)k=1;
-	return (stoll(s)/10+k)*1e-6;
+	else if(r>0.5)y++;
+	return y/1e6;
 }
 
 int main(){FIN;

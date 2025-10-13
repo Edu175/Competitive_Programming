@@ -14,17 +14,27 @@ typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
 random_device rd;
 mt19937 rng(rd());
+const ll S=1e9;
+
+vv get(ll n){
+	ll s=S-n;
+	vv bar={0,s};
+	fore(i,0,n-1)bar.pb(rng()%(s+1));
+	sort(ALL(bar));
+	vv a;
+	fore(i,1,SZ(bar))a.pb(bar[i]-bar[i-1]+1);
+	assert(SZ(a)==n&&accumulate(ALL(a),0ll)==S);
+	return a;
+}
 
 int main(){FIN;
-	ll N; 
-	// cin>>N;
-	N=20;
-	ll n=N; cout<<n<<"\n";
-	ll del=200;
-	ll s=0, top=1e9;
-	fore(i,0,n){
-		top
-	}
-	cout<<"\n";
+	ll N;  cin>>N;
+	ll n=N;
+	// ll n=rng()%N+1;
+	cout<<2*n<<"\n";
+	vv a=get(n);
+	for(auto i:get(n))a.pb(i);
+	shuffle(ALL(a),rng);
+	for(auto i:a)cout<<i<<" ";;cout<<"\n";
 	return 0;
 }

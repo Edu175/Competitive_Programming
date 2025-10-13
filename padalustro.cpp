@@ -503,10 +503,10 @@ struct STree{ //persistent
 //	ks=(k?k: ... );
 //	to avoid mle 
 
-typedef pair<ll,ll> node;
-node oper(node a, node b){return {a.fst+b.fst,a.snd+b.snd};}
-node inv(node a, node b){return {a.fst-b.fst,a.snd-b.snd};}
-node NEUT={0,0};
+typedef ll node;
+node oper(node a, node b){return a+b;}
+node inv(node a, node b){return a-b;}
+node NEUT=0;
 struct STree{ //persistent 
 	vector<node>st; vector<int>L,R; ll n,rt;
 	STree(ll n): st(1,NEUT),L(1,0),R(1,0),n(n),rt(0){}

@@ -1,0 +1,11 @@
+// no hace falta popbackear, pero habria que hacer el angulo 0
+
+// se puede guardar la ultima del stack, y despues solo restar
+
+mantengo dos punteros a y b:
+
+
+M= p_b+ direccion p_{b-1}->p_b y norma r1=r-s_b
+si dis(M,p_a) <= r0=r-s_a: b--
+
+analogo con a, ver dibujo

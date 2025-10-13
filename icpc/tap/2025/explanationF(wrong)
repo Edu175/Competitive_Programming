@@ -1,0 +1,15 @@
+I don't think the idea is very complicated, but I do think it is difficult to code as there are a lot of edge cases.
+
+My solution
+
+I will answer queries in order from smallest rope length to biggest.
+
+Call A the got going ccw and B when it goes cw.
+
+If 2*l <= perimeter it is easy to do the math with the angles because A and B won't intersect. (To do this you must precompute some information about the angles at each vertex and its distance from the first vertex, to then replace the rope length and get the result)
+
+Also you can partition the vertices by which way (A or B) has the smallest distance to that vertex. Now call P and Q the two last vertices of each way (which are adjacent). Call R the point at the intersection of lines (P-1,P) and (Q-1,Q), (that is, continue the polygon as if the segment (P,Q) wasn't part of it).
+
+Case 1: If you can't reach all points in the triangle PQR, then the only intersection is inside that triangle, and you can also do the math with the angles as before, subtracting the intersection.
+
+Case 2: If you can reach all points in PQR, then you can add the area of PQR to all following answers and then add point R to the polygon, (add it to A or B, depending which has the smallest distance) (also you may erase P and Q to avoid colinear points), and solve the same problem as before, until you end up on case 1.

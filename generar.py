@@ -13,10 +13,10 @@ system('mkdir '+con)
 d+='/'+con
 chdir(d)
 #system('cd '+con)
-fin=input("Hasta (minuscula): ")
+fin=input("Hasta (mayúscula): ")
 system('code ~/Desktop/padalustro.cpp')
 system('code ~/Desktop/crotolamo.cpp')
-for i in range(ord('a'),ord(fin)+1):
+for i in range(ord('A'),ord(fin)+1):
 	open(chr(i)+'.cpp','w').write(template)
 	system('code '+chr(i)+'.cpp')
 	sleep(0.001)

@@ -15,14 +15,10 @@ typedef vector<ll> vv;
 random_device rd;
 mt19937 rng(rd());
 
-// for E
 int main(){
 	ET;
-	ll N; cin>>N;
-	ll n=rng()%N+1;
-	vv per(n); iota(ALL(per),1); shuffle(ALL(per),rng);
-	cout<<n<<" "<<per[0]<<"\n";
-	vector<ii>ed;
-	fore(i,1,n)ed.pb({rng()%i,i});
-	for(auto [i,j]:ed)cout<<per[i]<<" "<<per[j]<<"\n";
+	ll n,k; cin>>n>>k;
+	cout<<n<<" "<<k<<"\n";
+	fore(i,0,n)cout<<rng()%k+1<<" ";
+	cout<<"\n";
 }

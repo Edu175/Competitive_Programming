@@ -296,6 +296,47 @@ struct matrix{
 	}
 };
 
+// --------------------- GEO ------------------------------
+// barycentric coordinates
+typedef std::complex<double> point; // or vasito's pt from point.cpp
+
+point bary(point A, point B, point C, double a, double b, double c) {
+    return (A*a + B*b + C*c) / (a + b + c);
+}
+
+// Triangle Centers
+
+point centroid(point A, point B, point C) {
+    // geometric center of mass
+    return bary(A, B, C, 1, 1, 1);
+}
+
+point circumcenter(point A, point B, point C) {
+    // intersection of perpendicular bisectors
+    double a = norm(B - C), b = norm(C - A), c = norm(A - B);
+    return bary(A, B, C, a*(b+c-a), b*(c+a-b), c*(a+b-c));
+}
+
+point incenter(point A, point B, point C) {
+    // intersection of internal angle bisectors
+    return bary(A, B, C, abs(B-C), abs(A-C), abs(A-B));
+}
+
+point orthocenter(point A, point B, point C) {
+    // intersection of altitudes
+    double a = norm(B - C), b = norm(C - A), c = norm(A - B);
+    return bary(A, B, C, (a+b-c)*(c+a-b), (b+c-a)*(a+b-c), (c+a-b)*(b+c-a));
+}
+
+point excenter(point A, point B, point C) {
+    // intersection of two external angle bisectors
+    double a = abs(B - C), b = abs(A - C), c = abs(A - B);
+    return bary(A, B, C, -a, b, c);
+    //// NOTE: there are three excenters
+    // return bary(A, B, C, a, -b, c);
+    // return bary(A, B, C, a, b, -c);
+}
+
 // -------------------- GRAFOS ----------------------------
 
 //DFS TREE (articulation points and bridges)

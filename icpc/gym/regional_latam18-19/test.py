@@ -1,0 +1,2 @@
+n=int(int(input()))
+	

@@ -12,49 +12,61 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
 typedef vector<ll> vv;
-
-
-string go(string s, ll k){
-	vector<ii>r;
-	ll l=0;
-	fore(i,0,SZ(s)){
-		if(i==SZ(s)-1||s[i]!=s[i+1]){
-			r.pb({l,i+1});
-			l=i+1;
-		}
-	}
-	if(k>=SZ(r)-1)return "";
-	swap(r[k],r[k+1]);
-	string a;
-	for(auto [l,e]:r)a+=s.substr(l,e-l);
-	return a;
-}
-
-ll bfs(string s, string to){
-	if(s==to)return 0;
-	set<string>vis;
-	queue<pair<ll,string>>q;
-	q.push({0,s}); vis.insert(s);
-	while(SZ(q)){
-		auto [d,s]=q.front(); q.pop();
-		ll i=0;
-		while(1){
-			auto y=go(s,i++);
-			if(!SZ(y))break;
-			if(vis.count(y))continue;
-			vis.insert(y);
-			q.push({d+1,y});
-			if(y==to)return d+1;
-		}
-	}
-	return -1;
-}
-
+typedef vector<vector<bool>> mat;
+ll N=9;
 int main(){FIN;
-	ll t; cin>>t;
-	while(t--){
-		string a,b; cin>>a>>b;
-		cout<<bfs(a,b)<<"\n";
+	// vector<vector<mat>> all(9);
+	ll n;
+	vector<set<ii>> pares(N+1);
+	vector<map<ii,mat>> gra(N+1);
+	while(cin>>n){
+		mat g(n,vector<bool>(n));
+		fore(i,0,n)fore(j,0,n){
+			bool c; cin>>c;
+			g[i][j]=c;
+		}
+		if(n>N)continue;
+		vv wh(n,1);
+		fore(i,0,n/2)wh[i]=0;
+		vv mx(2);
+		do{
+			if(wh[0])break;
+			vv ids,ids0;
+			fore(i,0,n){
+				if(wh[i])ids.pb(i);
+				else ids0.pb(i);
+			}
+			do{
+				vv c(2);
+				fore(i,0,n/2)c[g[ids0[i]][ids[i]]]++;
+				mx[0]=max(mx[0],c[0]);
+				mx[1]=max(mx[1],c[1]);
+			}while(next_permutation(ALL(ids)));
+		}while(next_permutation(ALL(wh)));
+		ii par={mx[0],mx[1]};
+		if(!pares[n].count(par)){
+			pares[n].insert(par);
+			gra[n][par]=g;
+		}
+	}
+	fore(n,1,N+1){
+		cout<<"\n\nn "<<n<<":\n";
+		vector<ii> a(ALL(pares[n]));
+		vector<ii> b;
+		for(auto i:a){
+			ll bad=0;
+			for(auto j:a)bad|=i!=j&&i.fst>=j.fst&&i.snd>=j.snd;
+			if(!bad)b.pb(i);
+		}
+		for(auto i:b){
+			cout<<i.fst<<","<<i.snd<<":\n";
+			auto g=gra[n][i];
+			fore(i,0,n){
+				fore(j,0,n)cout<<g[i][j];
+				cout<<"\n";
+			}
+			cout<<"\n";
+		}
 	}
 	return 0;
 }

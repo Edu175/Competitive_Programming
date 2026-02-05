@@ -12,13 +12,13 @@ typedef long long ll;
 typedef long double ld;
 typedef vector<ll> vv;
 typedef pair<ll,ll> ii;
-const ld EPS=1e-10;
+const ld EPS=1e-8;
 struct pt {
 	ld x,y,z;
 	pt(ld x, ld y, ld z):x(x),y(y),z(z){}
 	pt(){}
 	ld norm2(){return *this**this;}
-	ld norm(){return sqrt(norm2());}
+	ld norm(){return sqrtl(norm2());}
 	pt operator+(pt p){return pt(x+p.x,y+p.y,z+p.z);}
 	pt operator-(pt p){return pt(x-p.x,y-p.y,z-p.z);}
 	pt operator*(ld t){return pt(x*t,y*t,z*t);}
@@ -35,7 +35,7 @@ pt bary(pt A, pt B, pt C, ld a, ld b, ld c) {
 }
 pt circumcenter(pt A, pt B, pt C) {
     // intersection of perpendicular bisectors
-    ld a=(B-C).norm(), b=(C-A).norm(), c=(A-B).norm();
+    ld a=(B-C).norm2(), b=(C-A).norm2(), c=(A-B).norm2();
     return bary(A, B, C, a*(b+c-a), b*(c+a-b), c*(a+b-c));
 }
 void full(){

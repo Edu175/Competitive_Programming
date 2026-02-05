@@ -193,7 +193,7 @@ void phinit(){
 //CRIBA
 int cr[MAXV]; // -1 if prime, some not trivial divisor if not	O(nloglog(n))
 void init_sieve(){
-	memset(cr,-1,sizeof(cr));
+	mset(cr,-1);
 	fore(i,2,MAXV)if(cr[i]<0)for(ll j=1ll*i*i;j<MAXV;j+=i)cr[j]=i;
 }
 map<int,int> fact(int n){  // must call init_cribe before		O(log(n))
@@ -222,12 +222,12 @@ void uf_init(ll n){
 		id[i]=i;
 	}
 }
-bool uf_join(ll a, ll b){
-	a=id[a], b=id[b];
-	if(a==b)return 0;
-	if(SZ(comp[a])>SZ(comp[b]))swap(a,b);
-	for(auto i:comp[a])comp[b].pb(i), id[i]=b;
-	comp[a].clear();
+bool uf_join(ll x, ll y){
+	x=id[x], y=id[y];
+	if(x==y)return 0;
+	if(SZ(comp[x])<SZ(comp[y]))swap(x,y);
+	for(auto i:comp[y])comp[x].pb(i), id[i]=x;
+	comp[y].clear();
 	return 1;
 }
 

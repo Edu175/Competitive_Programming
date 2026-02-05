@@ -299,6 +299,7 @@ struct matrix{
 // --------------------- GEO ------------------------------
 // barycentric coordinates
 typedef std::complex<double> point; // or vasito's pt from point.cpp
+// WARNING: std::complex norm is norm2
 
 point bary(point A, point B, point C, double a, double b, double c) {
     return (A*a + B*b + C*c) / (a + b + c);
@@ -311,7 +312,7 @@ point centroid(point A, point B, point C) {
     return bary(A, B, C, 1, 1, 1);
 }
 
-point circumcenter(point A, point B, point C) {
+point circumcenter(point A, point B, point C) { // norm is squared
     // intersection of perpendicular bisectors
     double a = norm(B - C), b = norm(C - A), c = norm(A - B);
     return bary(A, B, C, a*(b+c-a), b*(c+a-b), c*(a+b-c));
@@ -322,7 +323,7 @@ point incenter(point A, point B, point C) {
     return bary(A, B, C, abs(B-C), abs(A-C), abs(A-B));
 }
 
-point orthocenter(point A, point B, point C) {
+point orthocenter(point A, point B, point C) { // norm is squared
     // intersection of altitudes
     double a = norm(B - C), b = norm(C - A), c = norm(A - B);
     return bary(A, B, C, (a+b-c)*(c+a-b), (b+c-a)*(a+b-c), (c+a-b)*(b+c-a));
@@ -335,6 +336,24 @@ point excenter(point A, point B, point C) {
     //// NOTE: there are three excenters
     // return bary(A, B, C, a, -b, c);
     // return bary(A, B, C, a, b, -c);
+}
+
+pair<pt, double> mec(vector<pt> ps) {
+	shuffle(all(ps), mt19937(time(0)));
+	P o = ps[0];
+	double r = 0, EPS = 1 + 1e-8;
+	rep(i,0,sz(ps)) if ((o - ps[i]).dist() > r * EPS) {
+		o = ps[i], r = 0;
+		rep(j,0,i) if ((o - ps[j]).dist() > r * EPS) {
+			o = (ps[i] + ps[j]) / 2;
+			r = (o - ps[i]).dist();
+			rep(k,0,j) if ((o - ps[k]).dist() > r * EPS) {
+				o = ccCenter(ps[i], ps[j], ps[k]);
+				r = (o - ps[i]).dist();
+			}
+		}
+	}
+	return {o, r};
 }
 
 // -------------------- GRAFOS ----------------------------
@@ -534,7 +553,7 @@ void reroot(ll rt=0){
 // virtual tree is t
 void agr(ll x, ll y){if(y!=-1)t[x].pb(y);}
 ll virtu(vv v){
-    stack<ll>s; s.push(v[0]); ll ult=-1,p;
+	stack<ll>s; s.push(v[0]); ll ult=-1,p;
 	auto vacia=[&](bool fg){ // adds edges between removed
 		while(SZ(s)&&(fg||lca(s.top(),p)!=s.top())){
 			agr(s.top(),ult);
@@ -542,7 +561,7 @@ ll virtu(vv v){
 		}
 	};
 	vv vi; // virtual nodes and possibly normal
-    fore(i,1,SZ(v)){
+	fore(i,1,SZ(v)){
 		ll x=v[i]; p=lca(s.top(),x);
 		vi.pb(p); vacia(0);
 		if(s.empty()||p!=s.top())s.push(p);
@@ -791,6 +810,36 @@ struct MinQ{
 	void add(ll x){dif+=x;}
 };
 
+// Li-Chao Tree with given queries' x-coordinates
+struct LiChao{ // for minimum (for maximum just change the sign of lines)
+	vv xs; ll n; vector<ii> st;
+	LiChao(vv xs):xs(xs),n(SZ(xs)),st(4*n+5,{0,INF}){}
+	ll eval(ii l, ll x){return l.fst*x+l.snd;}
+	void add(ii l){
+		ll k=1,s=0,e=n;
+		while(1){
+			ll m=(s+e)/2;
+			auto &v=st[k];
+			if(eval(l,xs[m])<eval(v,xs[m]))swap(v,l);
+			if(e-s==1)break;
+			k*=2;
+			if(l.fst<v.fst)s=m,k++;
+			else e=m;
+		}
+	}
+	ll eval(ll i){
+		ll k=1,s=0,e=n,x=xs[i];
+		ll res=eval(st[k],x);
+		while(e-s>1){
+			ll m=(s+e)/2;
+			k*=2;
+			if(i<m)e=m;
+			else s=m,k++;
+			res=min(res,eval(st[k],x));
+		}
+		return res;
+	}
+};
 
 // ------------------------------STRINGS-------------------------
 // compare substrings with suffix array

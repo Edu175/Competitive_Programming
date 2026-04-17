@@ -1,0 +1,55 @@
+54
+aaaaaaaa: 0 1 2 3 4 
+aaabaaab: 0 4 
+aaabaaba: 3 
+aaababaa: 2 
+aaabbaaa: 1 
+aabaaaab: 1 
+aabaaaba: 0 4 
+aabaabaa: 3 
+aababaaa: 2 
+aabbaabb: 0 4 
+aabbabba: 3 
+aabbbaab: 1 
+aabbbbaa: 2 
+abaaaaab: 2 
+abaaaaba: 1 
+abaaabaa: 0 4 
+abaabaaa: 3 
+abababab: 0 2 4 
+ababbaba: 1 3 
+abbaaabb: 1 
+abbaabba: 0 4 
+abbabaab: 2 
+abbabbaa: 3 
+abbbabbb: 0 4 
+abbbbabb: 1 
+abbbbbab: 2 
+abbbbbba: 3 
+baaaaaab: 3 
+baaaaaba: 2 
+baaaabaa: 1 
+baaabaaa: 0 4 
+baabaabb: 3 
+baababba: 2 
+baabbaab: 0 4 
+baabbbaa: 1 
+babaabab: 1 3 
+babababa: 0 2 4 
+babbabbb: 3 
+babbbabb: 0 4 
+babbbbab: 1 
+babbbbba: 2 
+bbaaaabb: 2 
+bbaaabba: 1 
+bbaabaab: 3 
+bbaabbaa: 0 4 
+bbababbb: 2 
+bbabbabb: 3 
+bbabbbab: 0 4 
+bbabbbba: 1 
+bbbaabbb: 1 
+bbbababb: 2 
+bbbabbab: 3 
+bbbabbba: 0 4 
+bbbbbbbb: 0 1 2 3 4 

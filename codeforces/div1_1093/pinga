@@ -1,0 +1,71 @@
+#include <bits/stdc++.h>
+#define pb push_back
+#define fst first
+#define snd second
+#define fore(i,a,b) for(ll i=a,jet=b;i<jet;++i)
+#define SZ(x) ((int)x.size())
+#define ALL(x) x.begin(),x.end()
+#define mset(a,v) memset((a),(v),sizeof(a))
+#define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
+#define imp(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
+using namespace std;
+typedef long long ll;
+typedef pair<ll,ll> ii;
+typedef vector<ll> vv;
+typedef vector<vector<ll>> mat;
+
+void check(vector<vv> b){
+	ll n=SZ(b);
+	fore(i,0,n)fore(j,0,n){
+		ll c=b[i][j];
+		fore(k,0,i+1)fore(l,0,j+1)c^=b[k][l];
+		assert(!c);
+	}
+}
+int main(){//FIN;
+	ll t; cin>>t;
+	while(t--){
+		ll n; cin>>n;
+		ll cant=0;
+		vector<mat> cands;
+		cerr<<"solutions for n="<<n<<"\n";
+		fore(_mk,0,1ll<<(n-1)){
+			ll mk=_mk;
+			mat a(n,vv(n)),b=a;
+			b[n-1][n-1]=1; // last one is always on
+			auto prop=[&](ll i, ll j){
+				if(!b[i][j])return;
+				fore(k,i,n)fore(l,j,n)a[k][l]^=1;
+				a[i][j]^=1;
+			};
+			fore(d,0,n-1){
+				ll i=d,j=n-1;
+				b[i][j]=mk&1; mk>>=1;
+				prop(i,j);
+				ll prev=b[i][j];
+				while(i+1<n){
+					i++,j--;
+					prev=(b[i][j]=prev^a[i][j+1]);
+					prop(i,j);
+				}
+			}
+			check(b);
+			ll c=__builtin_popcountll(_mk);
+			if(c>cant)cands.clear(),cant=c;
+			if(cant==c){
+				cands.pb(b);
+				cerr<<"found new "<<c<<":\n";
+				for(auto r:b)imp(r)
+				cout<<"\n";
+			}
+		}
+		cerr<<"cant "<<cant<<"\n";
+		// cerr<<"cands:\n";
+		// for(auto a:cands){
+		// 	for(auto r:a)imp(r)
+		// 	cout<<"\n";
+		// }
+		cout<<"\n\n";
+	}
+	return 0;
+}

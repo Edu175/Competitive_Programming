@@ -90,7 +90,7 @@ auto dfs=[&](ll x, auto &&dfs){
 	for(auto y:g[x])dfs(y,dfs);
 };
 
-// Generate all size-k bitmasks
+// Generate all n-bit bitmasks with k ones
 ll mk=(1ll<<k)-1,r,c;
 while(mk<=(1ll<<n)-(1ll<<(n-k))){
 	// Code here
@@ -163,10 +163,10 @@ gp_hash_table<ll,null_type,custom_hash> st; // for unordered set
 int add(int a, int b){a+=b;if(a>=MOD)a-=MOD;return a;}
 int sub(int a, int b){a-=b;if(a<0)a+=MOD;return a;}
 int mul(ll a, ll b){return a*b%MOD;}
-int fpow(int a, ll b){
-	if(b<0)return 0;
+int fpow(int b, ll e){
+	if(e<0)return 0;
 	int r=1;
-	while(b){if(b&1)r=mul(r,a); b>>=1; a=mul(a,a);}
+	for(;e;e>>=1,b=mul(b,b))if(e&1)r=mul(r,b);
 	return r;
 }
 ll fc[MAXF],fci[MAXF];
@@ -547,14 +547,12 @@ void reroot(ll rt=0){
 
 //VIRTUAL TREES
 
-// linear virtual tree
 // assumes sorted v (in dfs order)
-// needs O(1) lca
-// virtual tree is t
+// virtual (directed) tree is t
 void agr(ll x, ll y){if(y!=-1)t[x].pb(y);}
-ll virtu(vv v){
+ll virtu(vv v){ // O(|v|) * O(lca)
 	stack<ll>s; s.push(v[0]); ll ult=-1,p;
-	auto vacia=[&](bool fg){ // adds edges between removed
+	auto vacia=[&](bool fg){
 		while(SZ(s)&&(fg||lca(s.top(),p)!=s.top())){
 			agr(s.top(),ult);
 			ult=s.top(); s.pop();
@@ -652,21 +650,21 @@ struct STree{ // segment tree for min over long long integers
 	// cosas a cambiar:
 	// si quiero la primera posicion en la cual
 	// se cumple una proposicion,
-	// solo tengo que cambiar la definicion de bad
+	// solo tengo que cambiar la definicion de good
 	// si quiero la ultima posicion, reversea el stree
-	int find(int k, int s, int e, int a, int b, int j){
-		// ejemplo: primera pos en la cual el bit j esta apagado 
-		if(e<=a||b<=s) return b; // b es que no lo encontre
-		// push(k,s,e); // para lazy
+	int find(int k, int s, int e, int a, int b, ll v){
+		// example: first position > v in [a,b), b if none
+		if(e<=a||b<=s) return b;
+		// push(k,s,e); // if it's lazy
 		int m = (s+e)/2;
-		bool bad=(st[k].fst>>j&1); // bad es que no lo va a encontrar en este subarbol
-		if(bad&&(a<=s&&e<=b))return b;
+		bool good=st[k]>v; // someone is good in this subtree 
+		if(!good&&(a<=s&&e<=b))return b;
 		if(e-s==1)return s;
-		int res=find(2*k,s,m,a,b,j);
-		if(res==b)res=find(2*k+1,m,e,a,b,j);
-		return res; // cuando lo encuentra devuelve algo en [a,b)
+		int res=find(2*k,s,m,a,b,v);
+		if(res==b)res=find(2*k+1,m,e,a,b,v);
+		return res;
 	}
-	int find(int a, int b, int j){return find(1,0,n,a,b,j);}
+	int find(int a, int b, ll v){return find(1,0,n,a,b,v);}
 
 // SEGMENT TREE LAZY
 typedef ll tn; // node type
@@ -789,7 +787,7 @@ ii find(ll x){ // upperbound on prefix sums], (pos,remainder)
 }
 
 //MIN-QUEUE (O(n))
-struct MinQ{
+struct MinQ{ // O(1) amortized
 	deque<ii>q; ll dif=0;
 	MinQ(){}
 	void push(ll x){
@@ -804,7 +802,7 @@ struct MinQ{
 		else q.pop_front();
 	}
 	ll query(){
-		if(!SZ(q))return INF;
+		if(!SZ(q))return INF; // querying empty queue
 		return q.front().fst+dif;
 	}
 	void add(ll x){dif+=x;}

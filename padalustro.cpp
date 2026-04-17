@@ -468,6 +468,35 @@ struct STree{
 
 // custom en el crotolamo
 
+// WIDE SEGMENT TREE
+#define W 6
+const int Wall=(1<<W)-1;
+struct STree{ // 2**W-ary Segment Tree
+	int offs; 
+	vector<ll> t;
+	STree(){}
+	STree(int n){
+		offs=(n+Wall-1)/Wall;
+		t=vv(offs+n);
+	}
+	void upd(int p, ll v){ // adds v to position p
+		p+=offs;
+		while(1){
+			t[p]+=v;
+			if(!p)break;
+			p>>=W;
+		}
+	}
+	ll query(int l, int r){
+		ll res=0;
+		for(l+=offs,r+=offs;l<r;l>>=W,r>>=W){
+			while((l&Wall)&&l<r)res+=t[l++];
+			while((r&Wall)&&l<r)res+=t[--r];
+		}
+		return res;
+	}
+};
+
 // LAZY en el crotolamo
 
 //PERSISTENTE
@@ -1816,3 +1845,7 @@ struct Dinic{
 		return ret;
 	}
 };
+
+// acceder a los bloques de bits del bitset bs
+// ojo que romper la abstracción del bitset puede hacer que el compilador rompa cosas al optimizar (puede que no haga las operaciones que hiciste desde raw_bits por ejemplo)
+uint64_t* raw_bits = reinterpret_cast<uint64_t*>(&bs);

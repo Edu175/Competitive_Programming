@@ -24,9 +24,9 @@ bool operator<(node a,node b){
 ll n=0;
 vector<node> a;	// SZ(a) <= 4000
 node b[2][MAXN];
-ll dp[MAXN][MAXN];
-ll f(ll i, ll r){
-	ll &res=dp[i][r];
+int dp[MAXN][MAXN];
+int f(ll i, ll r){
+	int &res=dp[i][r];
 	if(res!=-1)return res;
 	if(i==n){
 		//cout<<i<<" "<<r<<": 0\n";
@@ -48,7 +48,7 @@ ll f(ll i, ll r){
 }
 vector<ll>ans[2];
 void build(ll i, ll r){
-	ll &res=dp[i][r];
+	auto &res=dp[i][r];
 	if(i==n)return;
 	if(res==f(i+1,r))build(i+1,r);
 	else {
@@ -58,8 +58,8 @@ void build(ll i, ll r){
 	}
 }
 int main(){FIN;
-	ifstream cin; cin.open("mercachifle.in", ios::in);
-	ofstream cout; cout.open("mercachifle.out", ios::out);
+	// ifstream cin; cin.open("mercachifle.in", ios::in);
+	// ofstream cout; cout.open("mercachifle.out", ios::out);
 	ll m;
 	fore(i,0,2){
 		cin>>m;

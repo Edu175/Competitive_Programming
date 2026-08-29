@@ -7,7 +7,7 @@
 #define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
-#define imp(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
+#define show(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;

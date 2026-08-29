@@ -50,8 +50,8 @@ void bfs(ll s, ll k){
 	}
 }
 int main(){FIN;
-	ifstream cin;   cin.open("tesoro.in", ios::in);
-	ofstream cout; cout.open("tesoro.out", ios::out);
+	// ifstream cin;   cin.open("tesoro.in", ios::in);
+	// ofstream cout; cout.open("tesoro.out", ios::out);
 	ll f; cin>>n>>m>>f;
 	dir={-m,-1,1,m};
 	fore(i,0,n)fore(j,0,m){

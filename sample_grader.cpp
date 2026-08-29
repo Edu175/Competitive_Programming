@@ -58,5 +58,5 @@ int main(){FIN;
 	return 0;
 }
 
-
+// mkfifo fifo
 // (./a<fifo) | (./g>fifo)

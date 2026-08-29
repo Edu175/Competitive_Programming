@@ -29,8 +29,9 @@ int editora(vector<int> &tin, vector<long long> &a, string &ord) {
 	for(int mk=N-2;mk>=0;mk--){
 		auto &res=dp[mk];
 		res=INF;
+		auto val=tinta(sum[mk]+1);
 		fore(x,0,n)if(!(mk>>x&1)){
-			res=min(res,tinta(sum[mk]+1)+dp[mk|(1<<x)]);
+			res=min(res,val+dp[mk|(1<<x)]);
 		}
 	}
 	//build

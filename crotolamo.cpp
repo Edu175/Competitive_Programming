@@ -7,7 +7,7 @@
 #define ALL(x) x.begin(),x.end()
 #define mset(a,v) memset((a),(v),sizeof(a))
 #define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
-#define imp(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
+#define show(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
@@ -181,9 +181,14 @@ ll nCr(ll n, ll k){ // must call factos before
 	return mul(mul(fc[n],fci[k]),fci[n-k]);
 }
 
-// number of Regular Bracket Sequences of size n
-ll rbs(ll n){return sub(nCr(n,n/2),nCr(n,n/2-1));}
+// number of Regular Bracket Sequences of size 2n
+ll rbs(ll n){return sub(nCr(2*n,n),nCr(2*n,n-1));}
 
+ll cat(ll n, ll k){ // triangle of catalan numer: number of rbs with k pairs at depth 0
+	if(k>n||k<0||n<0)return 0;
+	ll coef=mul(k,inv(2*n-k)); // you can use inv O(1)
+	return mul(coef,nCr(2*n-k,n));
+}
 ll stars(ll n, ll k){ // stars and balls, n bolitas, k cajitas,
 	return nCr(n+k-1,n);
 }
@@ -295,6 +300,23 @@ struct matrix{
 		return 0;
 	}
 };
+
+// MULTIPLICATION IN MONTGOMERY FORM
+const ull MOD=(1ull<<61)-1; // special modulus, for general modulus use m(a,b) from ntt
+inline ull r(ull a) { return a-MOD*(a>=MOD);}
+// Modular product of elements in Montgomery form.
+ull mul(ull a,ull b){xul k=(xul(a)*b)<<3;return r(ull((k+xul(MOD)*ull(k))>>64));}
+// `mul(v, 1)` converts `v` to montgomery form. 
+
+// (almost the same speed as above)
+
+// HASHING TRICK, no modulo
+const ull MOD=(1ull<<61)-1,P=1777771;
+inline ull add(ull a, ull b){a+=b;if(a>=MOD)a-=MOD;return a;}
+inline ull red(xul a){ // up to mod+mod*mod = (mod+1)*mod = mod<<61
+	return add(a>>61,a&MOD);
+}
+inline ull mul(ull a, ull b){return red(a*xul(b));}
 
 // --------------------- GEO ------------------------------
 // barycentric coordinates
@@ -619,7 +641,7 @@ struct STree{ // segment tree for min over long long integers
 		for(ll i=n-1;i>0;i--)t[i]=oper(t[2*i],t[2*i+1]);
 	}
 	void upd(int p, node v){
-		for(p+=n,t[p]=v;p>1;p>>=1)p^=p&1,t[p>>1]=oper(t[p],t[p^1]);
+		for(p+=n,t[p]=v;p>1;p>>=1)p|=1,t[p>>1]=oper(t[p^1],t[p]);
 	}
 	node query(int l, int r){
 		node izq=NEUT,der=NEUT;

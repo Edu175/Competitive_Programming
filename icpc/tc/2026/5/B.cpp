@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+#define pb push_back
+#define fst first
+#define snd second
+#define fore(i,a,b) for(ll i=a,jet=b;i<jet;++i)
+#define SZ(x) ((int)x.size())
+#define ALL(x) x.begin(),x.end()
+#define mset(a,v) memset((a),(v),sizeof(a))
+#define FIN ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
+#define show(v) {for(auto i:v)cout<<i<<" "; cout<<"\n";}
+using namespace std;
+typedef long long ll;
+typedef pair<ll,ll> ii;
+typedef vector<ll> vv;
+const ll MOD=998244353,MAXF=2e5+5;
+int add(int a, int b){a+=b;if(a>=MOD)a-=MOD;return a;}
+int sub(int a, int b){a-=b;if(a<0)a+=MOD;return a;}
+int mul(ll a, ll b){return a*b%MOD;}
+int fpow(int b, ll e){
+	if(e<0)return 0;
+	int r=1;
+	for(;e;e>>=1,b=mul(b,b))if(e&1)r=mul(r,b);
+	return r;
+}
+ll fc[MAXF],fci[MAXF];
+void factos(){
+	fc[0]=1;
+	fore(i,1,MAXF)fc[i]=mul(fc[i-1],i);
+	fci[MAXF-1]=fpow(fc[MAXF-1],MOD-2);
+	for(ll i=MAXF-2;i>=0;i--)fci[i]=mul(fci[i+1],(i+1));
+}
+ll nCr(ll n, ll k){ // must call factos before
+	if(n<0||k<0||k>n)return 0;
+	return mul(mul(fc[n],fci[k]),fci[n-k]);
+}
+
+int main(){FIN;
+	factos();
+	ll n,k; cin>>n>>k;
+	vector<ll> sa(n),pos(n+1,-1); // pos[n]=-1
+	fore(i,0,n)cin>>sa[i],pos[sa[i]]=i;
+	ll c=0;
+	fore(i,0,n-1){
+		ll me=sa[i],he=sa[i+1];
+		c+=pos[me+1]<pos[he+1];
+	}
+	ll res=0;
+	fore(b,1,n+1){
+		ll cur=mul(nCr(c,n-b),nCr(k,b));
+		res=add(res,cur);
+	}
+	cout<<res<<"\n";
+	return 0;
+}

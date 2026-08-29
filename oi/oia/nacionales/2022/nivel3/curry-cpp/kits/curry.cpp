@@ -11,14 +11,14 @@ using namespace std;
 typedef long long ll;
 const ll MAXN=3e5+5;
 
-ll tr[2][MAXN][55], qidx[2], d[MAXN];
+int tr[2][MAXN][55], qidx[2], d[MAXN];
 vector<ll>p[MAXN];
 vector<vector<ll>>id;
 ll add(ll b, ll x, char h){
 	ll w;
 	if(h>='a'&&h<='z')w=h-'a';
 	else w=26+h-'A';
-	ll &res=tr[b][x][w];
+	auto &res=tr[b][x][w];
 	if(res)return res;
 	else return res=++qidx[b];
 }

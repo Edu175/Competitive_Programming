@@ -15,17 +15,7 @@ ll n,k,C,tot;
 vector<ll>a,is;
 vector<vector<vector<ll>>>dp;
 ll lim;
-ll f(ll i, ll _c, ll s){
-	//cout<<"call "<<i<<" "<<_c<<" "<<s<<"\n";
-	ll &res=dp[i][_c][s];
-	if(res!=-1)return res;
-	if(i==n+1)return res=(_c==0&&s<=lim)?0:-INF;
-	ll c=_c+is[i];
-	res=f(i+1,c,s);
-	if(c&&s+i<=lim)res=max(res,a[i]+f(i+1,c-1,s+i));
-//	cout<<i<<" "<<c<<" "<<s<<": "<<res<<"\n";
-	return res;
-}
+
 long long saltarines(int K, vector<int> &val, vector<int> &p) {
 	k=K;
 	n=SZ(val);
@@ -42,8 +32,15 @@ long long saltarines(int K, vector<int> &val, vector<int> &p) {
 	lim=k+tot;
 //	cout<<lim<<"\n";
 //	imp(is);
-	dp.resize(n+5,vector<vector<ll>>(C+5,vector<ll>(lim+5,-1)));
-	//for(auto i:dp)for(auto j:i)for(auto k:j)cout<<k<<" ";;cout<<"\n";
-	res+=f(0,0,0);
+	dp.resize(2,vector<vector<ll>>(C+5,vector<ll>(lim+5,-1)));
+	for(ll i=n+1;i>=0;i--)fore(_c,0,C+5)fore(s,0,lim+5){
+		auto &res=dp[i&1][_c][s];
+		if(i==n+1){res=(_c==0&&s<=lim)?0:-INF;continue;}
+		ll c=_c+is[i];
+		if(c>=C+5)continue;
+		res=dp[(i+1)&1][c][s];
+		if(c&&s+i<=lim)res=max(res,a[i]+dp[(i+1)&1][c-1][s+i]);
+	}
+	res+=dp[0][0][0];
 	return res;
 }

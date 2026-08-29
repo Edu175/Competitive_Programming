@@ -11,6 +11,10 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> ii;
+
+// no me acuerdo como había hecho esto,
+// lo mando de nuevo por el TL cambiado nomas
+
 #include<ext/pb_ds/assoc_container.hpp>
 #include<ext/pb_ds/tree_policy.hpp>
 using namespace __gnu_pbds;
@@ -24,26 +28,25 @@ const ll MAXN=1005;
 indexed_set st[2];
 map<ii,ll>mp;
 ll deg[MAXN],maxd[MAXN];
-
-double t=1e15;
+mt19937 rng(32123);
+double t=1e13;
 ll simulated_annealing(){
-	ll sd; srand((ll)&sd);
 	ll res=0,best=0;
 	do{
-		ll y=rand()+2,x=rand()%(y-1)+1;
+		ll y=rng()+2,x=rng()%(y-1)+1;
 		ll w=(double)SZ(st[1])/(SZ(st[1])+SZ(st[0]))>=(double)x/y;
-		//(double(rand())+1)/(double(RAND_MAX)+1);
+		//(double(rng())+1)/(double(RAND_MAX)+1);
 		//cout<<res<<" "<<w<<": ";
 		//cout<<" { "; imp(st[0]); cout<<"} { "; imp(st[1]); cout<<"} "<<endl;
 		ll c=0;
 		//while(!SZ(st[w]));
-		ii e=*st[w].find_by_order(rand()%SZ(st[w]));
+		ii e=*st[w].find_by_order(rng()%SZ(st[w]));
 		if(w)c=mp[e];
 		else c=min(maxd[e.fst]-deg[e.fst],maxd[e.snd]-deg[e.snd]);
 		//cout<<e.fst<<","<<e.snd<<" "<<c;
 		if(c==0){st[w].erase(e);continue;}
-		ll k=rand()%c+1,add=(w?-1:1)*k,resi=res+add;
-		x=rand()%y;
+		ll k=rng()%c+1,add=(w?-1:1)*k,resi=res+add;
+		x=rng()%y;
 		best=max(best,resi);
 		//cout<<k<<": "<<resi<<endl;
 		if(resi>res||exp((resi-res)/t)>=(double)x/y){//accept
@@ -68,16 +71,16 @@ ll simulated_annealing(){
 				deg[e.snd]-=k;
 			}*/
 		}
-		t*=0.999999;
+		t*=0.999993;
 	}
-	while(clock()/CLOCKS_PER_SEC<=9.99);
-	//cout<<"t "<<t<<"\n";
+	while(clock()/CLOCKS_PER_SEC<=1.9);
+	// cout<<"t "<<t<<"\n";
 	return best;
 }
 
 int main(){FIN;
-	ifstream cin;   cin.open("balompie.in", ios::in);
-	ofstream cout; cout.open("balompie.out", ios::out);
+	// ifstream cin;   cin.open("balompie.in", ios::in);
+	// ofstream cout; cout.open("balompie.out", ios::out);
 	ll n,m; cin>>n>>m;
 	fore(i,0,n)cin>>maxd[i];
 	fore(i,0,m){

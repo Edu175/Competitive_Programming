@@ -34,8 +34,8 @@ ll pos(ll p){ // log(n)**2, last element = p //upper bound -1
 	return r;
 }
 int main(){FIN;
-	ifstream cin;   cin.open("aventureros.in", ios::in);
-	ofstream cout; cout.open("aventureros.out", ios::out);
+	// ifstream cin;   cin.open("aventureros.in", ios::in);
+	// ofstream cout; cout.open("aventureros.out", ios::out);
 	ll n; cin>>n;
 	ll a[n-1];
 	fore(i,0,n-1)cin>>a[i];

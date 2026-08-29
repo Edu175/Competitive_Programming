@@ -1,0 +1,23 @@
+#include <bits/stdc++.h>
+#define fore(i,a,b) for(ll i = a,jet = b;i<jet;i++)
+#define SZ(x) ((ll)x.size())
+#define ALL(x) x.begin(),x.end()
+#define pb push_back
+#define fst first
+#define snd second
+#define show(x) {for(auto y:x)cout<<y<<" ";cout<<"\n";}
+#define mset(a,v) memset((a),(v),sizeof(a))
+#define JET ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+using namespace std;
+typedef long long ll;
+typedef vector<ll> vv;
+typedef pair<ll,ll> ii;
+
+int main(){
+	JET
+	ll l,r,b,k; cin>>l>>r>>b>>k;
+	ll a=l;
+	ll c=(a+b-1)/b;
+	cout<<k*c*b<<"\n";
+	return 0;
+}
